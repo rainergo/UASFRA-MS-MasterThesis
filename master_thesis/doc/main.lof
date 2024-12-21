@@ -1,0 +1,76 @@
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Information Extraction Pipeline\relax }}{12}{figure.caption.8}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Knowledge Graph Schema\relax }}{13}{figure.caption.9}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces \textit {Spacy Pipeline}\relax }}{17}{figure.caption.18}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Sample Documents\relax }}{21}{figure.caption.31}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Document Term Matrix\relax }}{21}{figure.caption.32}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Document Term Matrix with TF-IDF\relax }}{24}{figure.caption.41}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces One-Hot example\relax }}{25}{figure.caption.42}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Manually Crafted Features\relax }}{25}{figure.caption.45}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Word vector for the word \emph {horse}\relax }}{26}{figure.caption.46}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Exemplary Cosine Similarity Matrix based on Fig.\ref {fig:wordfeaturesmanually}.\relax }}{26}{figure.caption.47}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces word2vec: Masked words learned by a shallow, two-layer \gls {ann}.\relax }}{27}{figure.caption.50}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces The learned parameters/weights represent the feature values.\relax }}{27}{figure.caption.51}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Homophone \emph {bank} dependent on its context\relax }}{28}{figure.caption.54}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces \gls {Transformer} Architecture: Encoder and Decoder\relax }}{29}{figure.caption.57}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Multi-Head Attention. Image from: \cite {BERT} and \cite {transformersyoutube}\relax }}{30}{figure.caption.60}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces $Input Embeddings \cdot Linear Layer$ = \color@box {}{yellow}{\emph {Query}}, \color@box {}{cyan}{\emph {Key}}, \color@box {}{orange}{\emph {Value}}\relax }}{30}{figure.caption.61}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces $\color@box {}{yellow}{\emph {Query}} \cdot \color@box {}{cyan}{\emph {Key}}$ = \color@box {}{lime}{\emph {Attention Filter}}\relax }}{31}{figure.caption.62}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces $\color@box {}{lime}{\emph {Attention Filter}} \cdot \color@box {}{orange}{\emph {Value}}$ = \color@box {}{brown}{\emph {Filtered Value}}\relax }}{31}{figure.caption.63}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces \color@box {}{brown}{\emph {Filtered Value}}: \emph {time flies like an arrow}\relax }}{32}{figure.caption.66}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces \color@box {}{brown}{\emph {Filtered Value}}: \emph {fruit flies like a banana}\relax }}{33}{figure.caption.69}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces \gls {HMM}: transition/emission probabilities: \textbf {p}\textsubscript {trans}, \textbf {p}\textsubscript {emit}\relax }}{37}{figure.caption.82}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Linear Chain \gls {CRF}\relax }}{37}{figure.caption.85}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces ChatGPT \gls {ner} \gls {prompt} - Part 1\relax }}{46}{figure.caption.98}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces ChatGPT \gls {ner} \gls {prompt} - Part 2\relax }}{47}{figure.caption.99}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces ChatGPT JSON Response\relax }}{47}{figure.caption.100}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces spacy pipeline after \gls {ner} component\relax }}{49}{figure.caption.101}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Coreferences. Image from: \cite {spacy}\relax }}{50}{figure.caption.102}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces End-to-end Neural \gls {coref_resolution_definition}: Part 1\relax }}{53}{figure.caption.115}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces End-to-end Neural \gls {coref_resolution_definition}: Part 2\relax }}{53}{figure.caption.116}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Bilinear function: start/end Mention embeddings: \textbf {m}\textsuperscript {s}, \textbf {m}\textsuperscript {e}\relax }}{54}{figure.caption.123}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Bilinear function: start/end Antecedent embeddings: \textbf {a}\textsuperscript {s}, \textbf {a}\textsuperscript {e}\relax }}{54}{figure.caption.124}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces spacy pipeline after COREF component\relax }}{68}{figure.caption.153}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Triple: Subject: Person - Relation: Founded - Object: Apple\relax }}{70}{figure.caption.154}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces 10 Topics and their most frequent words. Source: \cite {blueprints}\relax }}{71}{figure.caption.155}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces \gls {nmf}: Source: \cite {blueprints}\relax }}{71}{figure.caption.156}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces \gls {svd}: Source: \cite {blueprints}\relax }}{72}{figure.caption.157}%
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Hugging Face Topic Models. Source: \cite {huggingface}\relax }}{73}{figure.caption.158}%
+\contentsline {figure}{\numberline {6.6}{\ignorespaces Hugging Face Topic Models - Typical labels. Sources: \cite {topic-cardiffnlp}\cite {topic-stefanidis}\relax }}{74}{figure.caption.159}%
+\contentsline {figure}{\numberline {6.7}{\ignorespaces SBERT/Sentence Transformer embedding Cluster\relax }}{76}{figure.caption.162}%
+\contentsline {figure}{\numberline {6.8}{\ignorespaces TF-IDF Cluster\relax }}{77}{figure.caption.165}%
+\contentsline {figure}{\numberline {6.9}{\ignorespaces DataFrame after Topic component\relax }}{84}{figure.caption.176}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Knowledge Graph Schema\relax }}{85}{figure.caption.177}%
+\contentsline {figure}{\numberline {7.2}{\ignorespaces Knowledge Graph after Data Loading\relax }}{92}{figure.caption.188}%
+\contentsline {figure}{\numberline {7.3}{\ignorespaces Exemplary, Disconnected Sub-Graph\relax }}{93}{figure.caption.189}%
+\contentsline {figure}{\numberline {7.4}{\ignorespaces \relax \fontsize {10.95}{13.6}\selectfont \abovedisplayskip 11\p@ plus3\p@ minus6\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6.5\p@ plus3.5\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 5\p@ plus2.5\p@ minus\p@ \topsep 10\p@ plus4\p@ minus6\p@ \itemsep 5\p@ plus2.5\p@ minus\p@ {\leftmargin \leftmargini \topsep 9\p@ plus3\p@ minus5\p@ \parsep 4.5\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip \add@extra@listi {sml}neo4j: Nodes and their Properties\relax }}{94}{figure.caption.190}%
+\contentsline {figure}{\numberline {7.5}{\ignorespaces \relax \fontsize {10.95}{13.6}\selectfont \abovedisplayskip 11\p@ plus3\p@ minus6\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6.5\p@ plus3.5\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 5\p@ plus2.5\p@ minus\p@ \topsep 10\p@ plus4\p@ minus6\p@ \itemsep 5\p@ plus2.5\p@ minus\p@ {\leftmargin \leftmargini \topsep 9\p@ plus3\p@ minus5\p@ \parsep 4.5\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip \add@extra@listi {sml}SPARQL: Queries to enrich Knowledge Graph\relax }}{96}{figure.caption.193}%
+\contentsline {figure}{\numberline {7.6}{\ignorespaces Company Node after Data Enrichment\relax }}{97}{figure.caption.194}%
+\contentsline {figure}{\numberline {7.7}{\ignorespaces \relax \fontsize {10.95}{13.6}\selectfont \abovedisplayskip 11\p@ plus3\p@ minus6\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6.5\p@ plus3.5\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 5\p@ plus2.5\p@ minus\p@ \topsep 10\p@ plus4\p@ minus6\p@ \itemsep 5\p@ plus2.5\p@ minus\p@ {\leftmargin \leftmargini \topsep 9\p@ plus3\p@ minus5\p@ \parsep 4.5\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip \add@extra@listi {sml}Cypher Queries 1-2\relax }}{98}{figure.caption.197}%
+\contentsline {figure}{\numberline {7.8}{\ignorespaces \relax \fontsize {10.95}{13.6}\selectfont \abovedisplayskip 11\p@ plus3\p@ minus6\p@ \abovedisplayshortskip \z@ plus3\p@ \belowdisplayshortskip 6.5\p@ plus3.5\p@ minus3\p@ \def \leftmargin \leftmargini \parsep 5\p@ plus2.5\p@ minus\p@ \topsep 10\p@ plus4\p@ minus6\p@ \itemsep 5\p@ plus2.5\p@ minus\p@ {\leftmargin \leftmargini \topsep 9\p@ plus3\p@ minus5\p@ \parsep 4.5\p@ plus2\p@ minus\p@ \itemsep \parsep }\belowdisplayskip \abovedisplayskip \add@extra@listi {sml}Cypher Queries 3-4\relax }}{98}{figure.caption.198}%
+\contentsline {figure}{\numberline {7.9}{\ignorespaces BERT Sentence Embedding\relax }}{100}{figure.caption.199}%
+\contentsline {figure}{\numberline {7.10}{\ignorespaces Sentence: Sentiment Classification\relax }}{101}{figure.caption.200}%
+\contentsline {figure}{\numberline {7.11}{\ignorespaces \gls {graph-bot} - Part 1: Question\relax }}{103}{figure.caption.201}%
+\contentsline {figure}{\numberline {7.12}{\ignorespaces \gls {graph-bot} - Part 2: Creating \gls {cypher} Queries\relax }}{104}{figure.caption.202}%
+\contentsline {figure}{\numberline {7.13}{\ignorespaces \gls {graph-bot} - Part 3: Answer\relax }}{104}{figure.caption.203}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {A.1}{\ignorespaces STEP 1: Import libraries\relax }}{108}{figure.caption.210}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces STEP 2: Start Docker container\relax }}{108}{figure.caption.211}%
+\contentsline {figure}{\numberline {A.3}{\ignorespaces STEP 3: Load News Articles\relax }}{109}{figure.caption.212}%
+\contentsline {figure}{\numberline {A.4}{\ignorespaces STEP 4: Run spacy pipeline (NER, COREF)\relax }}{109}{figure.caption.213}%
+\contentsline {figure}{\numberline {A.5}{\ignorespaces STEP 5: Convert Nested Dictionary\relax }}{109}{figure.caption.214}%
+\contentsline {figure}{\numberline {A.6}{\ignorespaces STEP 6: Start Topic Modelling Process\relax }}{109}{figure.caption.215}%
+\contentsline {figure}{\numberline {A.7}{\ignorespaces STEP 7: Prepare DataFrame for Knowledge Graph\relax }}{110}{figure.caption.216}%
+\contentsline {figure}{\numberline {A.8}{\ignorespaces STEP 8: Initialize Knowledge Graph and load Data\relax }}{110}{figure.caption.217}%
+\contentsline {figure}{\numberline {A.9}{\ignorespaces STEP 9: Enrich Knowledge Graph with Data from Wikidata\relax }}{111}{figure.caption.218}%
+\contentsline {figure}{\numberline {A.10}{\ignorespaces STEP 10: Enrich Knowledge Graph with Data from DBPedia\relax }}{111}{figure.caption.219}%
+\contentsline {figure}{\numberline {A.11}{\ignorespaces STEP 11: Create Sentence Text Embeddings\relax }}{112}{figure.caption.220}%
+\contentsline {figure}{\numberline {A.12}{\ignorespaces STEP 12: Communicate with Graph Bot\relax }}{112}{figure.caption.221}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

@@ -1,0 +1,39 @@
+[
+  {
+    "entities": [
+      {
+        "comp_name": "Hypoport SE",
+        "comp_symbol": "HYQ.DE",
+        "df_index": 12,
+        "start_char": 504,
+        "end_char": 515,
+        "ent_text": "Hypoport",
+        "set_in": "own_regex_search"
+      },
+      {
+        "comp_name": "JDC Group AG",
+        "comp_symbol": "JDC.DE",
+        "df_index": 12,
+        "start_char": 583,
+        "end_char": 595,
+        "ent_text": "JDC Group AG",
+        "set_in": "own_regex_search"
+      }
+    ],
+    "sentence": "Digitalplattform-Experte Marcus Rex, der zuvor bei Hypoport SE die Versicherungsaktivitaeten leitete, verstaerkt den Vorstand der JDC Group AG als neuer CSO CMO."
+  },
+  {
+    "entities": [
+      {
+        "comp_name": "JDC Group AG",
+        "comp_symbol": "JDC.DE",
+        "df_index": 12,
+        "start_char": 1627,
+        "end_char": 1650,
+        "ent_text": "Technologieunternehmens",
+        "set_in": "llm_coref_resolve"
+      }
+    ],
+    "sentence": "Der Fokus des Technologieunternehmens liege zunaechst auf dem Ausbau des Vertriebs in Asien."
+  }
+]

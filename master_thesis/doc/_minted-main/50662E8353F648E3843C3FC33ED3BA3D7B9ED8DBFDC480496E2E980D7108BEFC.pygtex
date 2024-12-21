@@ -1,0 +1,106 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nd}{@prefix} \PYG{n}{rainergo}\PYG{p}{:} \PYG{o}{\PYGZlt{}}\PYG{n}{http}\PYG{p}{:}\PYG{o}{//}\PYG{n}{www}\PYG{o}{.}\PYG{n}{semanticweb}\PYG{o}{.}\PYG{n}{org}\PYG{o}{/}\PYG{n}{rainergo}\PYG{o}{/}\PYG{n}{ontologies}\PYG{o}{/}\PYG{n}{NewsArticles}\PYG{c+c1}{\PYGZsh{}\PYGZgt{} .}
+\PYG{n+nd}{@prefix} \PYG{n}{owl}\PYG{p}{:} \PYG{o}{\PYGZlt{}}\PYG{n}{http}\PYG{p}{:}\PYG{o}{//}\PYG{n}{www}\PYG{o}{.}\PYG{n}{w3}\PYG{o}{.}\PYG{n}{org}\PYG{o}{/}\PYG{l+m+mi}{2002}\PYG{o}{/}\PYG{l+m+mi}{07}\PYG{o}{/}\PYG{n}{owl}\PYG{c+c1}{\PYGZsh{}\PYGZgt{} .}
+\PYG{n+nd}{@prefix} \PYG{n}{rdf}\PYG{p}{:} \PYG{o}{\PYGZlt{}}\PYG{n}{http}\PYG{p}{:}\PYG{o}{//}\PYG{n}{www}\PYG{o}{.}\PYG{n}{w3}\PYG{o}{.}\PYG{n}{org}\PYG{o}{/}\PYG{l+m+mi}{1999}\PYG{o}{/}\PYG{l+m+mi}{02}\PYG{o}{/}\PYG{l+m+mi}{22}\PYG{o}{\PYGZhy{}}\PYG{n}{rdf}\PYG{o}{\PYGZhy{}}\PYG{n}{syntax}\PYG{o}{\PYGZhy{}}\PYG{n}{ns}\PYG{c+c1}{\PYGZsh{}\PYGZgt{} .}
+\PYG{n+nd}{@prefix} \PYG{n}{xsd}\PYG{p}{:} \PYG{o}{\PYGZlt{}}\PYG{n}{http}\PYG{p}{:}\PYG{o}{//}\PYG{n}{www}\PYG{o}{.}\PYG{n}{w3}\PYG{o}{.}\PYG{n}{org}\PYG{o}{/}\PYG{l+m+mi}{2001}\PYG{o}{/}\PYG{n}{XMLSchema}\PYG{c+c1}{\PYGZsh{}\PYGZgt{} .}
+\PYG{n+nd}{@prefix} \PYG{n}{rdfs}\PYG{p}{:} \PYG{o}{\PYGZlt{}}\PYG{n}{http}\PYG{p}{:}\PYG{o}{//}\PYG{n}{www}\PYG{o}{.}\PYG{n}{w3}\PYG{o}{.}\PYG{n}{org}\PYG{o}{/}\PYG{l+m+mi}{2000}\PYG{o}{/}\PYG{l+m+mi}{01}\PYG{o}{/}\PYG{n}{rdf}\PYG{o}{\PYGZhy{}}\PYG{n}{schema}\PYG{c+c1}{\PYGZsh{}\PYGZgt{} .}
+\PYG{n+nd}{@base} \PYG{o}{\PYGZlt{}}\PYG{n}{http}\PYG{p}{:}\PYG{o}{//}\PYG{n}{www}\PYG{o}{.}\PYG{n}{semanticweb}\PYG{o}{.}\PYG{n}{org}\PYG{o}{/}\PYG{n}{rainergo}\PYG{o}{/}\PYG{n}{ontologies}\PYG{o}{/}\PYG{n}{NewsArticles}\PYG{o}{/\PYGZgt{}} \PYG{o}{.}
+
+\PYG{n}{rainergo}\PYG{p}{:} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{Ontology} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}    Object Properties}
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles/is\PYGZus{}about}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{is\PYGZus{}about} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{ObjectProperty} \PYG{p}{;}
+          \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Sentence} \PYG{p}{;}
+          \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Topic} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles/is\PYGZus{}part\PYGZus{}of}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{is\PYGZus{}part\PYGZus{}of} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{ObjectProperty} \PYG{p}{;}
+            \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Sentence} \PYG{p}{;}
+            \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Article} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles/mentions}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{mentions} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{ObjectProperty} \PYG{p}{;}
+          \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Sentence} \PYG{p}{;}
+          \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Company} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}    Data properties}
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles/art\PYGZus{}id}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{art\PYGZus{}id} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+            \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Article} \PYG{p}{;}
+            \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n+nb}{int} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}art\PYGZus{}datetime}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{art\PYGZus{}datetime} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+              \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Article} \PYG{p}{;}
+              \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n}{dateTime} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}art\PYGZus{}text}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{art\PYGZus{}text} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+              \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Article} \PYG{p}{;}
+              \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n}{string} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}art\PYGZus{}source}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{art\PYGZus{}source} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+              \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Article} \PYG{p}{;}
+              \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n}{string} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}comp\PYGZus{}symbol}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{comp\PYGZus{}symbol} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+            \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Company} \PYG{p}{;}
+            \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n}{string} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}comp\PYGZus{}symbol}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{comp\PYGZus{}isin} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+            \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Company} \PYG{p}{;}
+            \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n}{string} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}comp\PYGZus{}name}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{comp\PYGZus{}name} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+              \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Company} \PYG{p}{;}
+              \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n}{string} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}sent\PYGZus{}id}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{sent\PYGZus{}id} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+             \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Sentence} \PYG{p}{;}
+             \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n}{string} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}sent\PYGZus{}text}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{sent\PYGZus{}text} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+               \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Sentence} \PYG{p}{;}
+               \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n}{string} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}topic\PYGZus{}descript}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{top\PYGZus{}description} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+                   \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Topic} \PYG{p}{;}
+                   \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n}{string} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles\PYGZsh{}top\PYGZus{}id}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{top\PYGZus{}id} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{DatatypeProperty} \PYG{p}{;}
+          \PYG{n}{rdfs}\PYG{p}{:}\PYG{n}{domain} \PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Topic} \PYG{p}{;}
+          \PYG{n}{rdfs}\PYG{p}{:}\PYG{n+nb}{range} \PYG{n}{xsd}\PYG{p}{:}\PYG{n+nb}{int} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}    Classes}
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles/Article}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Article} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{Class} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles/Company}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Company} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{Class} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles/Sentence}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Sentence} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{Class} \PYG{o}{.}
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  http://www.semanticweb.org/rainergo/ontologies/NewsArticles/Topic}
+\PYG{n}{rainergo}\PYG{p}{:}\PYG{n}{Topic} \PYG{n}{rdf}\PYG{p}{:}\PYG{n+nb}{type} \PYG{n}{owl}\PYG{p}{:}\PYG{n}{Class} \PYG{o}{.}
+
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}  Generated by the OWL API (version 4.5.26.2023\PYGZhy{}07\PYGZhy{}17T20:34:13Z) https://github.com/owlcs/owlapi}
+\end{Verbatim}

@@ -1,0 +1,705 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{json}
+\PYG{k+kn}{import} \PYG{n+nn}{re}
+\PYG{k+kn}{from} \PYG{n+nn}{pathlib} \PYG{k+kn}{import} \PYG{n}{Path}
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Generator}
+\PYG{k+kn}{from} \PYG{n+nn}{dataclasses} \PYG{k+kn}{import} \PYG{n}{asdict}
+
+\PYG{k+kn}{import} \PYG{n+nn}{requests}
+\PYG{k+kn}{from} \PYG{n+nn}{icecream} \PYG{k+kn}{import} \PYG{n}{ic}
+\PYG{k+kn}{from} \PYG{n+nn}{spacy} \PYG{k+kn}{import} \PYG{n}{Language}
+\PYG{k+kn}{from} \PYG{n+nn}{spacy.matcher} \PYG{k+kn}{import} \PYG{n}{Matcher}
+\PYG{k+kn}{from} \PYG{n+nn}{spacy.tokens} \PYG{k+kn}{import} \PYG{n}{Span}\PYG{p}{,} \PYG{n}{Doc}
+
+\PYG{k+kn}{from} \PYG{n+nn}{src.A\PYGZus{}data.company\PYGZus{}data} \PYG{k+kn}{import} \PYG{n}{comp\PYGZus{}name\PYGZus{}symbol\PYGZus{}list}\PYG{p}{,} \PYG{n}{comp\PYGZus{}name\PYGZus{}list\PYGZus{}without\PYGZus{}legal}\PYG{p}{,} \PYG{n}{company\PYGZus{}names\PYGZus{}dict}\PYG{p}{,} \PYG{n}{symbol\PYGZus{}comp\PYGZus{}name\PYGZus{}dict}
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.config} \PYG{k+kn}{import} \PYG{n}{ConfigBasic}
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.enums} \PYG{k+kn}{import} \PYG{n}{NaturalLanguage}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{p}{,} \PYG{n}{IDXReferTo}
+\PYG{k+kn}{from} \PYG{n+nn}{src.B\PYGZus{}spacy\PYGZus{}pipeline.spacy\PYGZus{}input} \PYG{k+kn}{import} \PYG{n}{SpacyInput}
+\PYG{k+kn}{from} \PYG{n+nn}{src.B\PYGZus{}spacy\PYGZus{}pipeline.data\PYGZus{}models} \PYG{k+kn}{import} \PYG{n}{EntsWithCustExts}\PYG{p}{,} \PYG{n}{SearchMatch}\PYG{p}{,} \PYG{n}{Cluster}\PYG{p}{,} \PYG{n}{ClusterHead}\PYG{p}{,} \PYG{n}{DataContainer}
+\PYG{k+kn}{from} \PYG{n+nn}{src.G\PYGZus{}utils.concurrency} \PYG{k+kn}{import} \PYG{n}{run\PYGZus{}re\PYGZus{}finditer\PYGZus{}concurrently}
+\PYG{k+kn}{from} \PYG{n+nn}{src.G\PYGZus{}utils.funcs} \PYG{k+kn}{import} \PYG{n}{fuzzy\PYGZus{}search\PYGZus{}one}\PYG{p}{,} \PYG{n}{exc\PYGZus{}info\PYGZus{}formatter}
+\PYG{k+kn}{from} \PYG{n+nn}{src.G\PYGZus{}utils.regex\PYGZus{}funcs} \PYG{k+kn}{import} \PYG{n}{split\PYGZus{}company\PYGZus{}name\PYGZus{}to\PYGZus{}name\PYGZus{}and\PYGZus{}legal}
+
+\PYG{c+c1}{\PYGZsh{} ic.enable()}
+\PYG{n}{ic}\PYG{o}{.}\PYG{n}{disable}\PYG{p}{()}
+
+
+\PYG{k}{class} \PYG{n+nc}{PipeFunc}\PYG{p}{:}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} The purpose of the parent class \PYGZsq{}PipeComp\PYGZsq{} is to load and save the a\PYGZus{}extract\PYGZus{}conf (that was passed at build) to the}
+\PYG{l+s+sd}{        pipeline components. Please see: https://spacy.io/usage/processing\PYGZhy{}pipelines\PYGZsh{}custom\PYGZhy{}components\PYGZhy{}factories}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{k+kc}{False}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{nlp}\PYG{p}{,} \PYG{n}{name}\PYG{p}{,} \PYG{n}{data}\PYG{p}{:} \PYG{n+nb}{dict} \PYG{o}{=} \PYG{k+kc}{None}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} spaCy requires that the \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}() of a custom class to build a custom pipe component must always get}
+\PYG{l+s+sd}{                passed (at least): nlp (Language object), name (string) of component. It won\PYGZsq{}t work without these two. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} In the current setup, all custom pipe components/classes (beside the required nlp, name) get only one}
+\PYG{l+s+sd}{            data parameter passed at most. If additional parameters shall get passed to any new or changed component,}
+\PYG{l+s+sd}{            more data variables can be created here by adding \PYGZsq{}data\PYGZus{}2\PYGZsq{}, \PYGZsq{}data\PYGZus{}3\PYGZsq{}, etc.\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{p}{:} \PYG{n}{Language} \PYG{o}{=} \PYG{n}{nlp}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{name}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data}\PYG{p}{:} \PYG{n+nb}{dict} \PYG{o}{=} \PYG{n}{data}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{custom\PYGZus{}extensions} \PYG{o}{=} \PYG{p}{[}\PYG{n}{enum} \PYG{k}{for} \PYG{n}{enum} \PYG{o+ow}{in} \PYG{n}{SpacyExt}\PYG{p}{]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{relevant\PYGZus{}labels}\PYG{p}{:} \PYG{n+nb}{list} \PYG{o}{=} \PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}relevant\PYGZus{}labels}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{init\PYGZus{}mark}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}init\PYGZus{}mark}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}comp\PYGZus{}label}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}mention\PYGZus{}label}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}comp\PYGZus{}mention\PYGZus{}label}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{token\PYGZus{}matcher}\PYG{p}{:} \PYG{n}{Matcher} \PYG{o}{|} \PYG{k+kc}{None} \PYG{o}{=} \PYG{k+kc}{None}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{regex\PYGZus{}entity\PYGZus{}pattern}\PYG{p}{:} \PYG{n}{re}\PYG{o}{.}\PYG{n}{Pattern} \PYG{o}{|} \PYG{k+kc}{None} \PYG{o}{=} \PYG{k+kc}{None}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}ents\PYGZus{}with\PYGZus{}custom\PYGZus{}extension}\PYG{p}{(}\PYG{n}{ents}\PYG{p}{:} \PYG{n}{Doc}\PYG{o}{.}\PYG{n}{ents}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{]:}
+        \PYG{n}{ents\PYGZus{}with\PYGZus{}custom\PYGZus{}extension}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{(}\PYG{n}{start\PYGZus{}char}\PYG{o}{=}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{start\PYGZus{}char}\PYG{p}{,} \PYG{n}{end\PYGZus{}char}\PYG{o}{=}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{end\PYGZus{}char}\PYG{p}{,} \PYG{n}{ent\PYGZus{}text}\PYG{o}{=}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{text}\PYG{p}{,} \PYG{n}{comp\PYGZus{}name}\PYG{o}{=}\PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}NAME}\PYG{o}{.}\PYG{n}{value}\PYG{p}{),} \PYG{n}{comp\PYGZus{}symbol}\PYG{o}{=}\PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}SYMBOL}\PYG{o}{.}\PYG{n}{value}\PYG{p}{),} \PYG{n}{set\PYGZus{}in}\PYG{o}{=}\PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{SET\PYGZus{}IN}\PYG{o}{.}\PYG{n}{value}\PYG{p}{))} \PYG{k}{for} \PYG{n}{ent} \PYG{o+ow}{in} \PYG{n}{ents} \PYG{k}{if} \PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}NAME}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{!=} \PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}init\PYGZus{}mark}\PYG{p}{]}
+        \PYG{k}{return} \PYG{n}{ents\PYGZus{}with\PYGZus{}custom\PYGZus{}extension} \PYG{k}{if} \PYG{n}{ents\PYGZus{}with\PYGZus{}custom\PYGZus{}extension} \PYG{k}{else} \PYG{k+kc}{None}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}sentences\PYGZus{}with\PYGZus{}custom\PYGZus{}extensions}\PYG{p}{(}\PYG{n}{processed\PYGZus{}doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{dict}\PYG{p}{]:}
+        \PYG{n}{sents\PYGZus{}with\PYGZus{}cust\PYGZus{}ext\PYGZus{}ents}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{dict}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{k}{for} \PYG{n}{doc\PYGZus{}sent} \PYG{o+ow}{in} \PYG{n}{processed\PYGZus{}doc}\PYG{o}{.}\PYG{n}{sents}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{doc\PYGZus{}sent}\PYG{o}{.}\PYG{n}{ents}\PYG{p}{:}
+                \PYG{n}{ents\PYGZus{}with\PYGZus{}cust\PYGZus{}ext}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{]} \PYG{o}{=} \PYG{n}{PipeFunc}\PYG{o}{.}\PYG{n}{get\PYGZus{}ents\PYGZus{}with\PYGZus{}custom\PYGZus{}extension}\PYG{p}{(}\PYG{n}{ents}\PYG{o}{=}\PYG{n}{doc\PYGZus{}sent}\PYG{o}{.}\PYG{n}{ents}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{ents\PYGZus{}with\PYGZus{}cust\PYGZus{}ext}\PYG{p}{:}
+                    \PYG{n}{sent\PYGZus{}with\PYGZus{}cust\PYGZus{}ext\PYGZus{}ents} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}sentence\PYGZsq{}}\PYG{p}{:} \PYG{n}{doc\PYGZus{}sent}\PYG{o}{.}\PYG{n}{text}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}entities\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{n}{asdict}\PYG{p}{(}\PYG{n}{ent}\PYG{p}{)} \PYG{k}{for} \PYG{n}{ent} \PYG{o+ow}{in} \PYG{n}{ents\PYGZus{}with\PYGZus{}cust\PYGZus{}ext}\PYG{p}{]\PYGZcb{}}
+                    \PYG{n}{sents\PYGZus{}with\PYGZus{}cust\PYGZus{}ext\PYGZus{}ents}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{sent\PYGZus{}with\PYGZus{}cust\PYGZus{}ext\PYGZus{}ents}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{sents\PYGZus{}with\PYGZus{}cust\PYGZus{}ext\PYGZus{}ents}
+
+    \PYG{k}{def} \PYG{n+nf}{to\PYGZus{}disk}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{path}\PYG{p}{:} \PYG{n}{Path}\PYG{p}{,} \PYG{n}{file\PYGZus{}name}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}model\PYGZus{}data\PYGZsq{}}\PYG{p}{,} \PYG{n}{exclude}\PYG{o}{=}\PYG{n+nb}{tuple}\PYG{p}{()):}
+        \PYG{c+c1}{\PYGZsh{} This will receive the directory path + /my\PYGZus{}component}
+        \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{path}\PYG{o}{.}\PYG{n}{exists}\PYG{p}{():}
+            \PYG{n}{path}\PYG{o}{.}\PYG{n}{mkdir}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{n}{data\PYGZus{}path} \PYG{o}{=} \PYG{n}{path} \PYG{o}{/} \PYG{n}{file\PYGZus{}name}
+            \PYG{k}{with} \PYG{n}{data\PYGZus{}path}\PYG{o}{.}\PYG{n}{open}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}w\PYGZdq{}}\PYG{p}{,} \PYG{n}{encoding}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}utf8\PYGZdq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{f}\PYG{p}{:}
+                \PYG{n}{f}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n}{json}\PYG{o}{.}\PYG{n}{dumps}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data}\PYG{p}{))}  \PYG{c+c1}{\PYGZsh{} if self.data\PYGZus{}2 is not None:  \PYGZsh{}     data\PYGZus{}2\PYGZus{}path = path / \PYGZdq{}data\PYGZus{}2.json\PYGZdq{}  \PYGZsh{}     with data\PYGZus{}2\PYGZus{}path.open(\PYGZdq{}w\PYGZdq{}, encoding=\PYGZdq{}utf8\PYGZdq{}) as f2:  \PYGZsh{}         f2.write(json.dumps(self.data\PYGZus{}2))}
+
+    \PYG{k}{def} \PYG{n+nf}{from\PYGZus{}disk}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{path}\PYG{p}{:} \PYG{n}{Path}\PYG{p}{,} \PYG{n}{file\PYGZus{}name}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}model\PYGZus{}data\PYGZsq{}}\PYG{p}{,} \PYG{n}{exclude}\PYG{o}{=}\PYG{n+nb}{tuple}\PYG{p}{()):}
+        \PYG{c+c1}{\PYGZsh{} This will receive the directory path + /my\PYGZus{}component}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{n}{data\PYGZus{}path} \PYG{o}{=} \PYG{n}{path} \PYG{o}{/} \PYG{n}{file\PYGZus{}name}
+            \PYG{k}{with} \PYG{n}{data\PYGZus{}path}\PYG{o}{.}\PYG{n}{open}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}r\PYGZdq{}}\PYG{p}{,} \PYG{n}{encoding}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}utf8\PYGZdq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{f}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data} \PYG{o}{=} \PYG{n}{json}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{n}{f}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} if self.data\PYGZus{}2 is not None:}
+        \PYG{c+c1}{\PYGZsh{}     data\PYGZus{}2\PYGZus{}path = path / \PYGZdq{}data\PYGZus{}2.json\PYGZdq{}}
+        \PYG{c+c1}{\PYGZsh{}     with data\PYGZus{}2\PYGZus{}path.open(\PYGZdq{}r\PYGZdq{}, encoding=\PYGZdq{}utf8\PYGZdq{}) as f2:}
+        \PYG{c+c1}{\PYGZsh{}         self.data\PYGZus{}2 = json.load(f2)}
+        \PYG{k}{return} \PYG{n+nb+bp}{self}
+
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} This function is needed to load the a\PYGZus{}extract\PYGZus{}conf back if the pipeline is trained, see spaCy documentation. It must }
+\PYG{l+s+sd}{        at least contain the parameters: \PYGZsq{}get\PYGZus{}examples\PYGZsq{} and \PYGZsq{}nlp\PYGZsq{} (Language object). It won\PYGZsq{}t work without it. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+
+    \PYG{k}{def} \PYG{n+nf}{initialize}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{get\PYGZus{}examples}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{nlp}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{data}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data} \PYG{o}{=} \PYG{n}{data}  \PYG{c+c1}{\PYGZsh{} self.data\PYGZus{}2 = data\PYGZus{}2}
+
+    \PYG{k}{def} \PYG{n+nf}{resolve\PYGZus{}span\PYGZus{}conflicts\PYGZus{}and\PYGZus{}set\PYGZus{}new\PYGZus{}ents}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{,} \PYG{n}{matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{],} \PYG{n}{set\PYGZus{}in}\PYG{p}{:} \PYG{n}{SpacyComp}\PYG{p}{,} \PYG{n}{overwrite\PYGZus{}own\PYGZus{}ext}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{k+kc}{True}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Doc}\PYG{p}{:}
+        \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{matches}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n}{doc}
+        \PYG{n}{ents} \PYG{o}{=} \PYG{n+nb}{sorted}\PYG{p}{(}\PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{doc}\PYG{o}{.}\PYG{n}{ents}\PYG{p}{),} \PYG{n}{key}\PYG{o}{=}\PYG{k}{lambda} \PYG{n}{span}\PYG{p}{:} \PYG{n}{span}\PYG{o}{.}\PYG{n}{start}\PYG{p}{)}
+        \PYG{n}{matches} \PYG{o}{=} \PYG{n+nb}{sorted}\PYG{p}{(}\PYG{n}{matches}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{m} \PYG{o+ow}{in} \PYG{n}{matches}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} Note: Do start\PYGZus{}idx and end\PYGZus{}idx refer to word\PYGZhy{} or char\PYGZhy{}indexes ?:}
+            \PYG{k}{if} \PYG{n}{m}\PYG{o}{.}\PYG{n}{idx\PYGZus{}refer\PYGZus{}to} \PYG{o}{==} \PYG{n}{IDXReferTo}\PYG{o}{.}\PYG{n}{WORDS}\PYG{p}{:}
+                \PYG{n}{new\PYGZus{}ent} \PYG{o}{=} \PYG{n}{Span}\PYG{p}{(}\PYG{n}{doc}\PYG{p}{,} \PYG{n}{m}\PYG{o}{.}\PYG{n}{start\PYGZus{}idx}\PYG{p}{,} \PYG{n}{m}\PYG{o}{.}\PYG{n}{end\PYGZus{}idx}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{n}{m}\PYG{o}{.}\PYG{n}{label}\PYG{p}{)}
+            \PYG{k}{elif} \PYG{n}{m}\PYG{o}{.}\PYG{n}{idx\PYGZus{}refer\PYGZus{}to} \PYG{o}{==} \PYG{n}{IDXReferTo}\PYG{o}{.}\PYG{n}{CHARS}\PYG{p}{:}
+                \PYG{n}{new\PYGZus{}ent} \PYG{o}{=} \PYG{n}{doc}\PYG{o}{.}\PYG{n}{char\PYGZus{}span}\PYG{p}{(}\PYG{n}{m}\PYG{o}{.}\PYG{n}{start\PYGZus{}idx}\PYG{p}{,} \PYG{n}{m}\PYG{o}{.}\PYG{n}{end\PYGZus{}idx}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{n}{m}\PYG{o}{.}\PYG{n}{label}\PYG{p}{,} \PYG{n}{alignment\PYGZus{}mode}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}expand\PYGZsq{}}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}idx\PYGZus{}refer\PYGZus{}to must be set to clarify whether start/end refers to word or char indexes.\PYGZsq{}}\PYG{p}{)}
+            \PYG{c+c1}{\PYGZsh{} Note: Remove old ents that overlap with new ents:}
+            \PYG{n}{old\PYGZus{}ents\PYGZus{}shall\PYGZus{}be\PYGZus{}substituted}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{k+kc}{True}
+            \PYG{n}{old\PYGZus{}ents\PYGZus{}to\PYGZus{}be\PYGZus{}removed}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{Span}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[]}
+            \PYG{k}{if} \PYG{n}{ents}\PYG{p}{:}
+                \PYG{k}{for} \PYG{n}{old\PYGZus{}ent} \PYG{o+ow}{in} \PYG{n}{ents}\PYG{p}{:}
+                    \PYG{k}{if} \PYG{n}{old\PYGZus{}ent}\PYG{o}{.}\PYG{n}{start} \PYG{o}{\PYGZgt{}} \PYG{n}{new\PYGZus{}ent}\PYG{o}{.}\PYG{n}{end} \PYG{o+ow}{or} \PYG{n}{old\PYGZus{}ent}\PYG{o}{.}\PYG{n}{end} \PYG{o}{\PYGZlt{}=} \PYG{n}{new\PYGZus{}ent}\PYG{o}{.}\PYG{n}{start}\PYG{p}{:}
+                        \PYG{k}{continue}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{k}{if} \PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{old\PYGZus{}ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{SET\PYGZus{}IN}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{==} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{init\PYGZus{}mark}\PYG{p}{:}
+                            \PYG{c+c1}{\PYGZsh{} Note: Case1: old\PYGZus{}ent is set by spacy\PYGZsq{}s SpacyComp.NER.factory\PYGZus{}name}
+                            \PYG{n}{old\PYGZus{}ents\PYGZus{}to\PYGZus{}be\PYGZus{}removed}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{old\PYGZus{}ent}\PYG{p}{)}
+                        \PYG{k}{elif} \PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{old\PYGZus{}ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{SET\PYGZus{}IN}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{!=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{init\PYGZus{}mark} \PYG{o+ow}{and} \PYG{p}{(}\PYG{n}{new\PYGZus{}ent}\PYG{o}{.}\PYG{n}{start} \PYG{o}{\PYGZlt{}=} \PYG{n}{old\PYGZus{}ent}\PYG{o}{.}\PYG{n}{start} \PYG{o+ow}{and} \PYG{n}{new\PYGZus{}ent}\PYG{o}{.}\PYG{n}{end} \PYG{o}{\PYGZgt{}=} \PYG{n}{old\PYGZus{}ent}\PYG{o}{.}\PYG{n}{end}\PYG{p}{):}
+                            \PYG{c+c1}{\PYGZsh{} Note: Case2: old\PYGZus{}ent is set by OWN FUNCTION but IS FULLY WITHIN BORDERS of new\PYGZus{}ent}
+                            \PYG{k}{if} \PYG{n}{overwrite\PYGZus{}own\PYGZus{}ext}\PYG{p}{:}
+                                \PYG{n}{old\PYGZus{}ents\PYGZus{}to\PYGZus{}be\PYGZus{}removed}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{old\PYGZus{}ent}\PYG{p}{)}
+                            \PYG{k}{else}\PYG{p}{:}
+                                \PYG{n}{old\PYGZus{}ents\PYGZus{}shall\PYGZus{}be\PYGZus{}substituted} \PYG{o}{=} \PYG{k+kc}{False}
+                                \PYG{k}{break}
+                        \PYG{k}{else}\PYG{p}{:}
+                            \PYG{c+c1}{\PYGZsh{} Note: Case3: All other cases such as: old\PYGZus{}ent is set by own function but IS NOT within borders of new\PYGZus{}ent, etc.}
+                            \PYG{n}{old\PYGZus{}ents\PYGZus{}shall\PYGZus{}be\PYGZus{}substituted} \PYG{o}{=} \PYG{k+kc}{False}
+                            \PYG{k}{break}
+            \PYG{c+c1}{\PYGZsh{} Note: Set new\PYGZus{}ent ONLY IF ALL old\PYGZus{}ents WERE NOT SET PREVIOUSLY BY OWN FUNCTION OR IF old\PYGZus{}ent is fully WITHIN BORDERS of new\PYGZus{}ent:}
+            \PYG{k}{if} \PYG{n}{old\PYGZus{}ents\PYGZus{}shall\PYGZus{}be\PYGZus{}substituted}\PYG{p}{:}
+                \PYG{k}{for} \PYG{n}{old\PYGZus{}ent} \PYG{o+ow}{in} \PYG{n}{old\PYGZus{}ents\PYGZus{}to\PYGZus{}be\PYGZus{}removed}\PYG{p}{:}
+                    \PYG{n}{ents}\PYG{o}{.}\PYG{n}{remove}\PYG{p}{(}\PYG{n}{old\PYGZus{}ent}\PYG{p}{)}
+                \PYG{n}{ents}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{new\PYGZus{}ent}\PYG{p}{)}
+                \PYG{n}{comp\PYGZus{}name} \PYG{o}{=} \PYG{n}{m}\PYG{o}{.}\PYG{n}{comp\PYGZus{}name}
+                \PYG{n}{symbol} \PYG{o}{=} \PYG{n}{m}\PYG{o}{.}\PYG{n}{comp\PYGZus{}symbol}
+                \PYG{n+nb}{setattr}\PYG{p}{(}\PYG{n}{new\PYGZus{}ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{SET\PYGZus{}IN}\PYG{o}{.}\PYG{n}{value}\PYG{p}{,} \PYG{n}{set\PYGZus{}in}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+                \PYG{n+nb}{setattr}\PYG{p}{(}\PYG{n}{new\PYGZus{}ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}NAME}\PYG{o}{.}\PYG{n}{value}\PYG{p}{,} \PYG{n}{comp\PYGZus{}name}\PYG{p}{)}
+                \PYG{n+nb}{setattr}\PYG{p}{(}\PYG{n}{new\PYGZus{}ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}SYMBOL}\PYG{o}{.}\PYG{n}{value}\PYG{p}{,} \PYG{n}{symbol}\PYG{p}{)}
+                \PYG{n}{PipeFunc}\PYG{o}{.}\PYG{n}{CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET} \PYG{o}{=} \PYG{k+kc}{True}  \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{} \PYGZhy{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{} resolve\PYGZus{}span\PYGZus{}conflicts\PYGZus{}and\PYGZus{}set\PYGZus{}new\PYGZus{}ents: PipeFunc.CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET:\PYGZsq{}, PipeFunc.CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET)}
+
+        \PYG{n}{doc}\PYG{o}{.}\PYG{n}{ents} \PYG{o}{=} \PYG{n}{ents}
+        \PYG{k}{return} \PYG{n}{doc}
+
+
+\PYG{c+c1}{\PYGZsh{} Note: Done !}
+\PYG{n+nd}{@Language}\PYG{o}{.}\PYG{n}{factory}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{INIT\PYGZus{}EXTENSIONS}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+\PYG{k}{class} \PYG{n+nc}{InitExtensions}\PYG{p}{(}\PYG{n}{PipeFunc}\PYG{p}{):}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{nlp}\PYG{p}{:} \PYG{n}{Language}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n}{nlp}\PYG{p}{,} \PYG{n}{name}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{ext} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{custom\PYGZus{}extensions}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{Span}\PYG{o}{.}\PYG{n}{has\PYGZus{}extension}\PYG{p}{(}\PYG{n}{ext}\PYG{o}{.}\PYG{n}{value}\PYG{p}{):}
+                \PYG{n}{\PYGZus{}} \PYG{o}{=} \PYG{n}{Span}\PYG{o}{.}\PYG{n}{remove\PYGZus{}extension}\PYG{p}{(}\PYG{n}{ext}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)}
+            \PYG{n}{Span}\PYG{o}{.}\PYG{n}{set\PYGZus{}extension}\PYG{p}{(}\PYG{n}{ext}\PYG{o}{.}\PYG{n}{value}\PYG{p}{,} \PYG{n}{default}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{init\PYGZus{}mark}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Doc}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{doc}
+
+
+\PYG{c+c1}{\PYGZsh{} Note: Done !}
+\PYG{n+nd}{@Language}\PYG{o}{.}\PYG{n}{factory}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{OWN\PYGZus{}SENTENCIZER}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+\PYG{k}{class} \PYG{n+nc}{OwnSentencizer}\PYG{p}{(}\PYG{n}{PipeFunc}\PYG{p}{):}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{nlp}\PYG{p}{:} \PYG{n}{Language}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n}{nlp}\PYG{p}{,} \PYG{n}{name}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Doc}\PYG{p}{:}
+        \PYG{k}{for} \PYG{n}{token} \PYG{o+ow}{in} \PYG{n}{doc}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]:}
+            \PYG{k}{if} \PYG{n}{token}\PYG{o}{.}\PYG{n}{text} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}:\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{};\PYGZsq{}}\PYG{p}{]:}
+                \PYG{n}{doc}\PYG{p}{[}\PYG{n}{token}\PYG{o}{.}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{is\PYGZus{}sent\PYGZus{}start} \PYG{o}{=} \PYG{k+kc}{False}
+        \PYG{k}{return} \PYG{n}{doc}
+
+
+\PYG{c+c1}{\PYGZsh{} Note: Done !}
+\PYG{n+nd}{@Language}\PYG{o}{.}\PYG{n}{factory}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{OWN\PYGZus{}REGEX\PYGZus{}SEARCH}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+\PYG{k}{class} \PYG{n+nc}{OwnRegexSearch}\PYG{p}{(}\PYG{n}{PipeFunc}\PYG{p}{):}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{nlp}\PYG{p}{:} \PYG{n}{Language}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n}{nlp}\PYG{p}{,} \PYG{n}{name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{regex\PYGZus{}entity\PYGZus{}patterns}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{re}\PYG{o}{.}\PYG{n}{Pattern}\PYG{p}{]} \PYG{o}{=} \PYG{n}{SpacyInput}\PYG{o}{.}\PYG{n}{compile\PYGZus{}regex\PYGZus{}entity\PYGZus{}patterns}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}OWN\PYGZhy{}REGEX\PYGZdq{}}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}regex\PYGZus{}entity\PYGZus{}pattern for own\PYGZus{}regex\PYGZus{}search were compiled.\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}space\PYGZus{}corrected\PYGZus{}span}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{text}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{span}\PYG{p}{:} \PYG{n+nb}{tuple}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{])} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{tuple}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{]:}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Index corrected for whitespace at end of text. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{return} \PYG{n}{span}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{p}{(}\PYG{n}{span}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{text}\PYG{p}{)} \PYG{o}{+} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{text}\PYG{o}{.}\PYG{n}{rstrip}\PYG{p}{()))}
+
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}search\PYGZus{}match\PYGZus{}instance}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{match}\PYG{p}{:} \PYG{n}{re}\PYG{o}{.}\PYG{n}{Match}\PYG{p}{):}
+        \PYG{n}{group\PYGZus{}key}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{p}{[}\PYG{n}{key} \PYG{k}{for} \PYG{n}{key}\PYG{p}{,} \PYG{n}{value} \PYG{o+ow}{in} \PYG{n}{match}\PYG{o}{.}\PYG{n}{groupdict}\PYG{p}{()}\PYG{o}{.}\PYG{n}{items}\PYG{p}{()} \PYG{k}{if} \PYG{n}{value} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None}\PYG{p}{][}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{n}{text} \PYG{o}{=} \PYG{n}{match}\PYG{o}{.}\PYG{n}{group}\PYG{p}{(}\PYG{n}{group\PYGZus{}key}\PYG{p}{)}
+        \PYG{n}{span} \PYG{o}{=} \PYG{n}{match}\PYG{o}{.}\PYG{n}{span}\PYG{p}{()}
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{n}{corected\PYGZus{}span} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{get\PYGZus{}space\PYGZus{}corrected\PYGZus{}span}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{text}\PYG{p}{,} \PYG{n}{span}\PYG{o}{=}\PYG{n}{span}\PYG{p}{)}
+        \PYG{k}{except}\PYG{p}{:}
+            \PYG{n}{corected\PYGZus{}span} \PYG{o}{=} \PYG{n}{span}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Correcting span did not work!\PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{symbol} \PYG{o}{=} \PYG{n}{SpacyInput}\PYG{o}{.}\PYG{n}{symbol\PYGZus{}to\PYGZus{}groupname\PYGZus{}convert}\PYG{p}{(}\PYG{n}{group\PYGZus{}key}\PYG{p}{,} \PYG{n}{do\PYGZus{}reverse}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{comp\PYGZus{}name} \PYG{o}{=} \PYG{n}{symbol\PYGZus{}comp\PYGZus{}name\PYGZus{}dict}\PYG{p}{[}\PYG{n}{symbol}\PYG{p}{]}
+        \PYG{n}{search\PYGZus{}match}\PYG{p}{:} \PYG{n}{SearchMatch} \PYG{o}{=} \PYG{n}{SearchMatch}\PYG{p}{(}\PYG{n}{comp\PYGZus{}name}\PYG{o}{=}\PYG{n}{comp\PYGZus{}name}\PYG{p}{,} \PYG{n}{comp\PYGZus{}symbol}\PYG{o}{=}\PYG{n}{symbol}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{n}{text}\PYG{p}{,}  \PYG{c+c1}{\PYGZsh{} label=ConfigBasic.spacy\PYGZus{}comp\PYGZus{}label,}
+            \PYG{n}{label}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{,} \PYG{n}{start\PYGZus{}idx}\PYG{o}{=}\PYG{n}{corected\PYGZus{}span}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{end\PYGZus{}idx}\PYG{o}{=}\PYG{n}{corected\PYGZus{}span}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n}{idx\PYGZus{}refer\PYGZus{}to}\PYG{o}{=}\PYG{n}{IDXReferTo}\PYG{o}{.}\PYG{n}{CHARS}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{search\PYGZus{}match}
+
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}matches\PYGZus{}from\PYGZus{}regex\PYGZus{}search}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{text}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{patterns}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{re}\PYG{o}{.}\PYG{n}{Pattern}\PYG{p}{])} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{]:}
+        \PYG{n}{re\PYGZus{}matches\PYGZus{}generator}\PYG{p}{:} \PYG{n}{Generator} \PYG{o}{=} \PYG{n}{run\PYGZus{}re\PYGZus{}finditer\PYGZus{}concurrently}\PYG{p}{(}\PYG{n}{pattern\PYGZus{}list}\PYG{o}{=}\PYG{n}{patterns}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{n}{text}\PYG{p}{)}
+        \PYG{n}{matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{re}\PYG{o}{.}\PYG{n}{Match}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[}\PYG{n}{match} \PYG{k}{for} \PYG{n}{sublist} \PYG{o+ow}{in} \PYG{p}{[}\PYG{n}{match\PYGZus{}list} \PYG{k}{for} \PYG{n}{match\PYGZus{}list} \PYG{o+ow}{in} \PYG{n}{re\PYGZus{}matches\PYGZus{}generator}\PYG{p}{]} \PYG{k}{for} \PYG{n}{match} \PYG{o+ow}{in} \PYG{n}{sublist}\PYG{p}{]}
+        \PYG{n}{search\PYGZus{}matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}function get\PYGZus{}matches\PYGZus{}from\PYGZus{}regex\PYGZus{}search executed.\PYGZsq{})}
+        \PYG{k}{for} \PYG{n}{match} \PYG{o+ow}{in} \PYG{n}{matches}\PYG{p}{:}
+            \PYG{n}{search\PYGZus{}match} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{get\PYGZus{}search\PYGZus{}match\PYGZus{}instance}\PYG{p}{(}\PYG{n}{match}\PYG{p}{)}
+            \PYG{n}{search\PYGZus{}matches}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{search\PYGZus{}match}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{search\PYGZus{}matches}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Doc}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} Note: returns list of tuples: list(symbol, company name, found\PYGZus{}text, span(start, end), span\PYGZhy{}corrected(start, end))}
+        \PYG{n}{matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{get\PYGZus{}matches\PYGZus{}from\PYGZus{}regex\PYGZus{}search}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{doc}\PYG{o}{.}\PYG{n}{text}\PYG{p}{,} \PYG{n}{patterns}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{regex\PYGZus{}entity\PYGZus{}patterns}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}matches (OwnRegexSearch):\PYGZsq{}, matches)}
+        \PYG{n}{doc} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{resolve\PYGZus{}span\PYGZus{}conflicts\PYGZus{}and\PYGZus{}set\PYGZus{}new\PYGZus{}ents}\PYG{p}{(}\PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{,} \PYG{n}{matches}\PYG{o}{=}\PYG{n}{matches}\PYG{p}{,} \PYG{n}{set\PYGZus{}in}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{OWN\PYGZus{}REGEX\PYGZus{}SEARCH}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{doc}
+
+
+\PYG{c+c1}{\PYGZsh{} Note: Done !}
+\PYG{n+nd}{@Language}\PYG{o}{.}\PYG{n}{factory}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{CHECK\PYGZus{}SPACY\PYGZus{}ENT\PYGZus{}WITH\PYGZus{}FUZZY\PYGZus{}MATCH}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+\PYG{k}{class} \PYG{n+nc}{CheckSpacyEntWithFuzzyMatch}\PYG{p}{(}\PYG{n}{PipeFunc}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} SPAN\PYGZhy{}based: This method checks ONLY those entities found by spacy\PYGZsq{}s SpacyComp.NER.factory\PYGZus{}name who are in the}
+\PYG{l+s+sd}{    \PYGZdq{}spacy\PYGZus{}relevant\PYGZus{}labels\PYGZdq{} list. It then checks \PYGZhy{} via fuzzy\PYGZus{}match \PYGZhy{} if one of those entities matches the companies we}
+\PYG{l+s+sd}{    are looking for. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{nlp}\PYG{p}{:} \PYG{n}{Language}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n}{nlp}\PYG{p}{,} \PYG{n}{name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}FUZZY\PYGZdq{}}
+
+    \PYG{k}{def} \PYG{n+nf}{fuzzy\PYGZus{}search\PYGZus{}comp\PYGZus{}name\PYGZus{}with\PYGZus{}and\PYGZus{}without\PYGZus{}legal}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{ent\PYGZus{}text}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{tuple}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{,} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{]:}
+        \PYG{n}{comp\PYGZus{}name\PYGZus{}without\PYGZus{}legal}\PYG{p}{,} \PYG{n}{\PYGZus{}} \PYG{o}{=} \PYG{n}{split\PYGZus{}company\PYGZus{}name\PYGZus{}to\PYGZus{}name\PYGZus{}and\PYGZus{}legal}\PYG{p}{(}\PYG{n}{company\PYGZus{}name}\PYG{o}{=}\PYG{n}{ent\PYGZus{}text}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{comp\PYGZus{}name\PYGZus{}without\PYGZus{}legal} \PYG{o+ow}{is} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{k}{return} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mf}{0.00}\PYG{p}{,} \PYG{l+m+mi}{0}
+        \PYG{n}{match\PYGZus{}wo}\PYG{p}{,} \PYG{n}{similarity\PYGZus{}wo}\PYG{p}{,} \PYG{n}{index\PYGZus{}wo} \PYG{o}{=} \PYG{n}{fuzzy\PYGZus{}search\PYGZus{}one}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{comp\PYGZus{}name\PYGZus{}without\PYGZus{}legal}\PYG{p}{,} \PYG{n}{choices}\PYG{o}{=}\PYG{n}{comp\PYGZus{}name\PYGZus{}list\PYGZus{}without\PYGZus{}legal}\PYG{p}{,} \PYG{n}{use\PYGZus{}partial}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{case\PYGZus{}sensitive}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}
+        \PYG{n}{match\PYGZus{}w}\PYG{p}{,} \PYG{n}{similarity\PYGZus{}w}\PYG{p}{,} \PYG{n}{index\PYGZus{}w} \PYG{o}{=} \PYG{n}{fuzzy\PYGZus{}search\PYGZus{}one}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{ent\PYGZus{}text}\PYG{p}{,} \PYG{n}{choices}\PYG{o}{=}\PYG{n}{comp\PYGZus{}name\PYGZus{}list\PYGZus{}without\PYGZus{}legal}\PYG{p}{,} \PYG{n}{use\PYGZus{}partial}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{case\PYGZus{}sensitive}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{similarity\PYGZus{}wo} \PYG{o}{\PYGZgt{}} \PYG{n}{similarity\PYGZus{}w}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n}{comp\PYGZus{}name\PYGZus{}without\PYGZus{}legal}\PYG{p}{,} \PYG{n}{match\PYGZus{}wo}\PYG{p}{,} \PYG{n}{similarity\PYGZus{}wo}\PYG{p}{,} \PYG{n}{index\PYGZus{}wo}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n}{ent\PYGZus{}text}\PYG{p}{,} \PYG{n}{match\PYGZus{}w}\PYG{p}{,} \PYG{n}{similarity\PYGZus{}w}\PYG{p}{,} \PYG{n}{index\PYGZus{}w}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Doc}\PYG{p}{:}
+        \PYG{n}{ents} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{doc}\PYG{o}{.}\PYG{n}{ents}\PYG{p}{)}
+        \PYG{n}{search\PYGZus{}matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{k}{for} \PYG{n}{ind}\PYG{p}{,} \PYG{n}{ent} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{ents}\PYG{p}{):}
+            \PYG{k}{if} \PYG{n}{ent}\PYG{o}{.}\PYG{n}{label\PYGZus{}} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{relevant\PYGZus{}labels} \PYG{o+ow}{and} \PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{SET\PYGZus{}IN}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)} \PYG{o}{==} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{init\PYGZus{}mark}\PYG{p}{:}
+                \PYG{c+c1}{\PYGZsh{} Note: Try to split entity found by spacy into name and legal and match company name,}
+                \PYG{c+c1}{\PYGZsh{}  else do not write to extensions:}
+                \PYG{n}{comp\PYGZus{}name}\PYG{p}{,} \PYG{n}{match}\PYG{p}{,} \PYG{n}{similarity}\PYG{p}{,} \PYG{n}{index} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{fuzzy\PYGZus{}search\PYGZus{}comp\PYGZus{}name\PYGZus{}with\PYGZus{}and\PYGZus{}without\PYGZus{}legal}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{text}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{comp\PYGZus{}name}\PYG{p}{:}
+                    \PYG{k}{if} \PYG{n}{similarity} \PYG{o}{\PYGZgt{}} \PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}threshold\PYGZus{}fuzzy\PYGZus{}search}\PYG{p}{:}
+                        \PYG{n}{search\PYGZus{}match} \PYG{o}{=} \PYG{n}{SearchMatch}\PYG{p}{(}\PYG{n}{comp\PYGZus{}name}\PYG{o}{=}\PYG{n}{comp\PYGZus{}name\PYGZus{}symbol\PYGZus{}list}\PYG{p}{[}\PYG{n}{index}\PYG{p}{][}\PYG{l+m+mi}{0}\PYG{p}{],} \PYG{n}{comp\PYGZus{}symbol}\PYG{o}{=}\PYG{n}{comp\PYGZus{}name\PYGZus{}symbol\PYGZus{}list}\PYG{p}{[}\PYG{n}{index}\PYG{p}{][}\PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n}{text}\PYG{o}{=}\PYG{n}{match}\PYG{p}{,}  \PYG{c+c1}{\PYGZsh{} label=ConfigBasic.spacy\PYGZus{}comp\PYGZus{}label,}
+                            \PYG{n}{label}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{,} \PYG{n}{start\PYGZus{}idx}\PYG{o}{=}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{start}\PYG{p}{,} \PYG{n}{end\PYGZus{}idx}\PYG{o}{=}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{end}\PYG{p}{,} \PYG{n}{idx\PYGZus{}refer\PYGZus{}to}\PYG{o}{=}\PYG{n}{IDXReferTo}\PYG{o}{.}\PYG{n}{WORDS}\PYG{p}{)}
+                        \PYG{n}{search\PYGZus{}matches}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{search\PYGZus{}match}\PYG{p}{)}
+        \PYG{n}{doc} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{resolve\PYGZus{}span\PYGZus{}conflicts\PYGZus{}and\PYGZus{}set\PYGZus{}new\PYGZus{}ents}\PYG{p}{(}\PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{,} \PYG{n}{matches}\PYG{o}{=}\PYG{n}{search\PYGZus{}matches}\PYG{p}{,} \PYG{n}{set\PYGZus{}in}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{CHECK\PYGZus{}SPACY\PYGZus{}ENT\PYGZus{}WITH\PYGZus{}FUZZY\PYGZus{}MATCH}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{doc}
+
+
+\PYG{c+c1}{\PYGZsh{} Note: Done !}
+\PYG{n+nd}{@Language}\PYG{o}{.}\PYG{n}{factory}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{ATTACH\PYGZus{}ENT\PYGZus{}ID\PYGZus{}FROM\PYGZus{}ENTITY\PYGZus{}RULER\PYGZus{}TO\PYGZus{}CUSTOM\PYGZus{}EXTENSION}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+\PYG{k}{class} \PYG{n+nc}{AttachEntIdValuesToCustExtension}\PYG{p}{(}\PYG{n}{PipeFunc}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} This method is currently only used by the \PYGZdq{}api\PYGZus{}entity\PYGZus{}ruler\PYGZdq{} to populate custom extensions with the values}
+\PYG{l+s+sd}{     from \PYGZdq{}span.ent\PYGZus{}id\PYGZus{}\PYGZdq{} that are set by the \PYGZdq{}api\PYGZus{}entity\PYGZus{}ruler\PYGZdq{} based on matches for \PYGZdq{}entity\PYGZus{}ruler\PYGZus{}patterns.jsonl\PYGZdq{}. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{nlp}\PYG{p}{:} \PYG{n}{Language}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n}{nlp}\PYG{p}{,} \PYG{n}{name}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Doc}\PYG{p}{:}
+        \PYG{k}{for} \PYG{n}{ent} \PYG{o+ow}{in} \PYG{n}{doc}\PYG{o}{.}\PYG{n}{ents}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{ent}\PYG{o}{.}\PYG{n}{label\PYGZus{}} \PYG{o}{==} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label} \PYG{o+ow}{and} \PYG{n}{ent}\PYG{o}{.}\PYG{n}{ent\PYGZus{}id\PYGZus{}} \PYG{o}{!=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{init\PYGZus{}mark}\PYG{p}{:}
+                \PYG{n+nb}{setattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{SET\PYGZus{}IN}\PYG{o}{.}\PYG{n}{value}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{ATTACH\PYGZus{}ENT\PYGZus{}ID\PYGZus{}FROM\PYGZus{}ENTITY\PYGZus{}RULER\PYGZus{}TO\PYGZus{}CUSTOM\PYGZus{}EXTENSION}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+                \PYG{n+nb}{setattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}NAME}\PYG{o}{.}\PYG{n}{value}\PYG{p}{,} \PYG{n}{ent}\PYG{o}{.}\PYG{n}{ent\PYGZus{}id\PYGZus{}}\PYG{p}{)}
+                \PYG{n+nb}{setattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}SYMBOL}\PYG{o}{.}\PYG{n}{value}\PYG{p}{,} \PYG{n}{company\PYGZus{}names\PYGZus{}dict}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{ent\PYGZus{}id\PYGZus{}}\PYG{p}{))}
+        \PYG{k}{return} \PYG{n}{doc}
+
+
+\PYG{n+nd}{@Language}\PYG{o}{.}\PYG{n}{factory}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}NAME\PYGZus{}TOKEN\PYGZus{}REGEX\PYGZus{}MATCH}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+\PYG{k}{class} \PYG{n+nc}{CompNameTokenRegexMatch}\PYG{p}{(}\PYG{n}{PipeFunc}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} TOKEN\PYGZhy{}based: This method checks tokens via regex token\PYGZus{}matcher\PYGZus{}patterns. If a match is found,}
+\PYG{l+s+sd}{     the self.comp\PYGZus{}mention\PYGZus{}label is attached to the custom extension. Example: token \PYGZdq{}BMW\PYGZhy{}Vorstand\PYGZdq{}. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{nlp}\PYG{p}{:} \PYG{n}{Language}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n}{nlp}\PYG{p}{,} \PYG{n}{name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}ORG\PYGZhy{}PART\PYGZdq{}}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Add entity\PYGZus{}token\PYGZus{}matcher\PYGZus{}patterns to search for from JSONL\PYGZhy{}file. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{token\PYGZus{}matcher}\PYG{p}{:} \PYG{n}{Matcher} \PYG{o}{=} \PYG{n}{Matcher}\PYG{p}{(}\PYG{n}{vocab}\PYG{o}{=}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{vocab}\PYG{p}{,} \PYG{n}{validate}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{file}\PYG{o}{=}\PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{path\PYGZus{}to\PYGZus{}entity\PYGZus{}token\PYGZus{}matcher\PYGZus{}patterns}\PYG{p}{,} \PYG{n}{encoding}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}utf\PYGZhy{}8\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{token\PYGZus{}file}\PYG{p}{:}
+            \PYG{k}{for} \PYG{n}{line} \PYG{o+ow}{in} \PYG{n}{token\PYGZus{}file}\PYG{p}{:}
+                \PYG{n}{token\PYGZus{}pattern\PYGZus{}dict} \PYG{o}{=} \PYG{n}{json}\PYG{o}{.}\PYG{n}{loads}\PYG{p}{(}\PYG{n}{line}\PYG{p}{)}
+                \PYG{n}{key} \PYG{o}{=} \PYG{n+nb}{next}\PYG{p}{(}\PYG{n+nb}{iter}\PYG{p}{(}\PYG{n}{token\PYGZus{}pattern\PYGZus{}dict}\PYG{o}{.}\PYG{n}{keys}\PYG{p}{()))}
+                \PYG{n}{pattern} \PYG{o}{=} \PYG{n+nb}{next}\PYG{p}{(}\PYG{n+nb}{iter}\PYG{p}{(}\PYG{n}{token\PYGZus{}pattern\PYGZus{}dict}\PYG{o}{.}\PYG{n}{values}\PYG{p}{()))}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{token\PYGZus{}matcher}\PYG{o}{.}\PYG{n}{add}\PYG{p}{(}\PYG{n}{key}\PYG{o}{=}\PYG{n}{key}\PYG{p}{,} \PYG{n}{patterns}\PYG{o}{=}\PYG{n}{pattern}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Added patterns to token\PYGZus{}matcher\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Doc}\PYG{p}{:}
+        \PYG{n}{matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{(}\PYG{n}{comp\PYGZus{}name}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{vocab}\PYG{o}{.}\PYG{n}{strings}\PYG{p}{[}\PYG{n}{match\PYGZus{}id}\PYG{p}{],} \PYG{n}{comp\PYGZus{}symbol}\PYG{o}{=}\PYG{n}{company\PYGZus{}names\PYGZus{}dict}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{vocab}\PYG{o}{.}\PYG{n}{strings}\PYG{p}{[}\PYG{n}{match\PYGZus{}id}\PYG{p}{]),} \PYG{n}{text}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{[}\PYG{n}{start}\PYG{p}{:}\PYG{n}{end}\PYG{p}{]}\PYG{o}{.}\PYG{n}{text}\PYG{p}{,}  \PYG{c+c1}{\PYGZsh{} label=[ent.label\PYGZus{} for ent in doc[start:end].ents][0] if doc[}
+            \PYG{c+c1}{\PYGZsh{}                                                         start:end].ents else self.comp\PYGZus{}mention\PYGZus{}label,}
+            \PYG{n}{label}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{,} \PYG{n}{start\PYGZus{}idx}\PYG{o}{=}\PYG{n}{start}\PYG{p}{,} \PYG{n}{end\PYGZus{}idx}\PYG{o}{=}\PYG{n}{end}\PYG{p}{,} \PYG{n}{idx\PYGZus{}refer\PYGZus{}to}\PYG{o}{=}\PYG{n}{IDXReferTo}\PYG{o}{.}\PYG{n}{WORDS}\PYG{p}{)} \PYG{k}{for} \PYG{n}{match\PYGZus{}id}\PYG{p}{,} \PYG{n}{start}\PYG{p}{,} \PYG{n}{end} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{token\PYGZus{}matcher}\PYG{p}{(}\PYG{n}{doc}\PYG{p}{)]}
+        \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}matches (CompNameTokenRegexMatch):\PYGZsq{}, matches)}
+        \PYG{n}{doc} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{resolve\PYGZus{}span\PYGZus{}conflicts\PYGZus{}and\PYGZus{}set\PYGZus{}new\PYGZus{}ents}\PYG{p}{(}\PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{,} \PYG{n}{matches}\PYG{o}{=}\PYG{n}{matches}\PYG{p}{,} \PYG{n}{set\PYGZus{}in}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}NAME\PYGZus{}TOKEN\PYGZus{}REGEX\PYGZus{}MATCH}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{doc}
+
+
+\PYG{c+c1}{\PYGZsh{} Note: Done !}
+\PYG{n+nd}{@Language}\PYG{o}{.}\PYG{n}{factory}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{XX\PYGZus{}COREF\PYGZus{}RESOLVE}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+\PYG{k}{class} \PYG{n+nc}{XXCorefResolve}\PYG{p}{(}\PYG{n}{PipeFunc}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} crosslingual\PYGZhy{}coreference package had some dependency issues with other Python packages in this project.}
+\PYG{l+s+sd}{    So it is run in a docker container \PYGZdq{}ghcr.io/rainergo/img\PYGZhy{}xx\PYGZhy{}coref\PYGZdq{} with host = localhost and port = 80.}
+\PYG{l+s+sd}{    The container returns the doc.\PYGZus{}.coref\PYGZus{}cluster which is a: list[list[list[int]]] with char start and end position of cluster items in doc.}
+\PYG{l+s+sd}{     Depending on the language (either: en or de), either \PYGZdq{}de\PYGZus{}core\PYGZus{}news\PYGZus{}lg\PYGZdq{} or \PYGZdq{}en\PYGZus{}core\PYGZus{}web\PYGZus{}lg\PYGZdq{} from spacy is used there. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{nlp}\PYG{p}{:} \PYG{n}{Language}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{natural\PYGZus{}language}\PYG{p}{:} \PYG{n}{NaturalLanguage}\PYG{p}{):}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n}{nlp}\PYG{p}{,} \PYG{n}{name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}XX\PYGZhy{}COREF\PYGZdq{}}
+        \PYG{k}{match} \PYG{n}{natural\PYGZus{}language}\PYG{p}{:}
+            \PYG{k}{case} \PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{DE}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{docker\PYGZus{}container\PYGZus{}url}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}http://127.0.0.1:80/de\PYGZsq{}}
+            \PYG{k}{case} \PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{EN}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{docker\PYGZus{}container\PYGZus{}url}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}http://127.0.0.1:80/en\PYGZsq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{excluded\PYGZus{}coreferences}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}er\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}unserer\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}uns\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}unsere\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}wir\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}unseren\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}unser\PYGZdq{}}\PYG{p}{]}
+
+    \PYG{k}{def} \PYG{n+nf}{\PYGZus{}is\PYGZus{}valid\PYGZus{}coreference}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{comp\PYGZus{}start\PYGZus{}char}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{comp\PYGZus{}end\PYGZus{}char}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{cluster}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{]],} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{,} \PYG{n}{coref\PYGZus{}max\PYGZus{}words}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{6}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{bool}\PYG{p}{:}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Only if the head of the cluster is already (partly) tagged with a custom extension, the coreferences get tagged as well. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{head} \PYG{o}{=} \PYG{n}{cluster}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{n}{head\PYGZus{}start} \PYG{o}{=} \PYG{n}{head}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{n}{head\PYGZus{}end} \PYG{o}{=} \PYG{n}{head}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}
+        \PYG{n}{head\PYGZus{}text\PYGZus{}words}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{n}{doc}\PYG{o}{.}\PYG{n}{text}\PYG{p}{[}\PYG{n}{head\PYGZus{}start}\PYG{p}{:}\PYG{n}{head\PYGZus{}end}\PYG{p}{]}\PYG{o}{.}\PYG{n}{split}\PYG{p}{()}
+        \PYG{n}{condition\PYGZus{}1} \PYG{o}{=} \PYG{p}{(}\PYG{n}{head\PYGZus{}end} \PYG{o}{\PYGZlt{}=} \PYG{n}{comp\PYGZus{}start\PYGZus{}char} \PYG{o+ow}{or} \PYG{n}{head\PYGZus{}start} \PYG{o}{\PYGZgt{}=} \PYG{n}{comp\PYGZus{}end\PYGZus{}char}\PYG{p}{)}
+        \PYG{n}{condition\PYGZus{}2} \PYG{o}{=} \PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{head\PYGZus{}text\PYGZus{}words}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{n}{coref\PYGZus{}max\PYGZus{}words}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{condition\PYGZus{}1} \PYG{o+ow}{or} \PYG{n}{condition\PYGZus{}2}\PYG{p}{:}
+            \PYG{k}{return} \PYG{k+kc}{False}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{return} \PYG{k+kc}{True}  \PYG{c+c1}{\PYGZsh{} for cluster\PYGZus{}item in cluster:  \PYGZsh{}     cl\PYGZus{}item\PYGZus{}start = cluster\PYGZus{}item[0]  \PYGZsh{}     cl\PYGZus{}item\PYGZus{}end = cluster\PYGZus{}item[1]  \PYGZsh{}     if cl\PYGZus{}item\PYGZus{}end \PYGZlt{}= comp\PYGZus{}start\PYGZus{}char or cl\PYGZus{}item\PYGZus{}start \PYGZgt{}= comp\PYGZus{}end\PYGZus{}char:  \PYGZsh{}         continue  \PYGZsh{}     else:  \PYGZsh{}         return True  \PYGZsh{} return False}
+
+    \PYG{k}{def} \PYG{n+nf}{show\PYGZus{}cluster}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{coref\PYGZus{}clusters}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{]]],} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{):}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}XX\PYGZus{}COREF coref\PYGZus{}clusters:\PYGZsq{}}\PYG{p}{,} \PYG{n}{coref\PYGZus{}clusters}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{cluster} \PYG{o+ow}{in} \PYG{n}{coref\PYGZus{}clusters}\PYG{p}{:}
+            \PYG{n}{cluster\PYGZus{}dict}\PYG{p}{:} \PYG{n+nb}{dict} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+            \PYG{k}{for} \PYG{n}{ind}\PYG{p}{,} \PYG{n}{cluster\PYGZus{}item} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{cluster}\PYG{p}{):}
+                \PYG{n}{cl\PYGZus{}item\PYGZus{}start\PYGZus{}char} \PYG{o}{=} \PYG{n}{cluster\PYGZus{}item}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+                \PYG{n}{cl\PYGZus{}item\PYGZus{}end\PYGZus{}char} \PYG{o}{=} \PYG{n}{cluster\PYGZus{}item}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}
+                \PYG{n}{cl\PYGZus{}item\PYGZus{}text} \PYG{o}{=} \PYG{n}{doc}\PYG{o}{.}\PYG{n}{text}\PYG{p}{[}\PYG{n}{cl\PYGZus{}item\PYGZus{}start\PYGZus{}char}\PYG{p}{:}\PYG{n}{cl\PYGZus{}item\PYGZus{}end\PYGZus{}char}\PYG{p}{]}
+                \PYG{k}{if} \PYG{n}{ind} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                    \PYG{n}{cluster\PYGZus{}dict}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}head\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{p}{(}\PYG{n}{cl\PYGZus{}item\PYGZus{}start\PYGZus{}char}\PYG{p}{,} \PYG{n}{cl\PYGZus{}item\PYGZus{}end\PYGZus{}char}\PYG{p}{,} \PYG{n}{cl\PYGZus{}item\PYGZus{}text}\PYG{p}{)}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{cluster\PYGZus{}dict}\PYG{p}{[}\PYG{n}{ind}\PYG{p}{]} \PYG{o}{=} \PYG{p}{(}\PYG{n}{cl\PYGZus{}item\PYGZus{}start\PYGZus{}char}\PYG{p}{,} \PYG{n}{cl\PYGZus{}item\PYGZus{}end\PYGZus{}char}\PYG{p}{,} \PYG{n}{cl\PYGZus{}item\PYGZus{}text}\PYG{p}{)}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}cluster\PYGZus{}dict:\PYGZsq{}}\PYG{p}{,} \PYG{n}{cluster\PYGZus{}dict}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{spread\PYGZus{}comp\PYGZus{}ext\PYGZus{}to\PYGZus{}coref\PYGZus{}cluster\PYGZus{}spans}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{coref\PYGZus{}clusters}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{]]],} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{):}
+        \PYG{n}{search\PYGZus{}matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{k}{for} \PYG{n}{ent} \PYG{o+ow}{in} \PYG{n}{doc}\PYG{o}{.}\PYG{n}{ents}\PYG{p}{:}
+            \PYG{k}{if} \PYG{p}{(}\PYG{n}{comp\PYGZus{}name} \PYG{o}{:=} \PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}NAME}\PYG{o}{.}\PYG{n}{value}\PYG{p}{))} \PYG{o}{!=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{init\PYGZus{}mark}\PYG{p}{:}
+                \PYG{n}{comp\PYGZus{}symbol} \PYG{o}{=} \PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{SpacyExt}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}SYMBOL}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)}
+                \PYG{n}{comp\PYGZus{}start\PYGZus{}char}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{n}{ent}\PYG{o}{.}\PYG{n}{start\PYGZus{}char}
+                \PYG{n}{comp\PYGZus{}end\PYGZus{}char}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{n}{ent}\PYG{o}{.}\PYG{n}{end\PYGZus{}char}
+                \PYG{k}{for} \PYG{n}{cluster} \PYG{o+ow}{in} \PYG{n}{coref\PYGZus{}clusters}\PYG{p}{:}
+                    \PYG{n}{cluster\PYGZus{}has\PYGZus{}overlap} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}is\PYGZus{}valid\PYGZus{}coreference}\PYG{p}{(}\PYG{n}{comp\PYGZus{}start\PYGZus{}char}\PYG{o}{=}\PYG{n}{comp\PYGZus{}start\PYGZus{}char}\PYG{p}{,} \PYG{n}{comp\PYGZus{}end\PYGZus{}char}\PYG{o}{=}\PYG{n}{comp\PYGZus{}end\PYGZus{}char}\PYG{p}{,} \PYG{n}{cluster}\PYG{o}{=}\PYG{n}{cluster}\PYG{p}{,} \PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{)}
+                    \PYG{k}{if} \PYG{n}{cluster\PYGZus{}has\PYGZus{}overlap}\PYG{p}{:}
+                        \PYG{k}{for} \PYG{n}{cluster\PYGZus{}item} \PYG{o+ow}{in} \PYG{n}{cluster}\PYG{p}{:}
+                            \PYG{n}{cl\PYGZus{}item\PYGZus{}start\PYGZus{}char} \PYG{o}{=} \PYG{n}{cluster\PYGZus{}item}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+                            \PYG{n}{cl\PYGZus{}item\PYGZus{}end\PYGZus{}char} \PYG{o}{=} \PYG{n}{cluster\PYGZus{}item}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}
+                            \PYG{n}{cl\PYGZus{}item\PYGZus{}text} \PYG{o}{=} \PYG{n}{doc}\PYG{o}{.}\PYG{n}{text}\PYG{p}{[}\PYG{n}{cl\PYGZus{}item\PYGZus{}start\PYGZus{}char}\PYG{p}{:}\PYG{n}{cl\PYGZus{}item\PYGZus{}end\PYGZus{}char}\PYG{p}{]}
+                            \PYG{c+c1}{\PYGZsh{} Note: exclude conditions here}
+                            \PYG{n}{cl\PYGZus{}item\PYGZus{}is\PYGZus{}excluded}\PYG{p}{:} \PYG{n+nb}{list} \PYG{o}{=} \PYG{p}{[}\PYG{n}{term} \PYG{k}{for} \PYG{n}{term} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{excluded\PYGZus{}coreferences} \PYG{k}{if} \PYG{n}{term}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{()} \PYG{o+ow}{in} \PYG{n}{cl\PYGZus{}item\PYGZus{}text}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{()}\PYG{o}{.}\PYG{n}{split}\PYG{p}{()]}
+                            \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{cl\PYGZus{}item\PYGZus{}is\PYGZus{}excluded}\PYG{p}{:}
+                                \PYG{n}{search\PYGZus{}match}\PYG{p}{:} \PYG{n}{SearchMatch} \PYG{o}{=} \PYG{n}{SearchMatch}\PYG{p}{(}\PYG{n}{comp\PYGZus{}name}\PYG{o}{=}\PYG{n}{comp\PYGZus{}name}\PYG{p}{,} \PYG{n}{comp\PYGZus{}symbol}\PYG{o}{=}\PYG{n}{comp\PYGZus{}symbol}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{n}{cl\PYGZus{}item\PYGZus{}text}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{,} \PYG{n}{start\PYGZus{}idx}\PYG{o}{=}\PYG{n}{cl\PYGZus{}item\PYGZus{}start\PYGZus{}char}\PYG{p}{,} \PYG{n}{end\PYGZus{}idx}\PYG{o}{=}\PYG{n}{cl\PYGZus{}item\PYGZus{}end\PYGZus{}char}\PYG{p}{,} \PYG{n}{idx\PYGZus{}refer\PYGZus{}to}\PYG{o}{=}\PYG{n}{IDXReferTo}\PYG{o}{.}\PYG{n}{CHARS}\PYG{p}{)}
+                                \PYG{n}{search\PYGZus{}matches}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{search\PYGZus{}match}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{k}{continue}
+        \PYG{k}{return} \PYG{n}{search\PYGZus{}matches}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Doc}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}container\PYGZus{}url:\PYGZsq{}, self.container\PYGZus{}url)}
+        \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{} \PYGZhy{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{} COREF: PipeFunc.CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET:\PYGZsq{}, PipeFunc.CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET)}
+        \PYG{c+c1}{\PYGZsh{} Note: Only if custom extensions have been set before, coreference resolution shall proceed:}
+        \PYG{k}{if} \PYG{n}{PipeFunc}\PYG{o}{.}\PYG{n}{CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET}\PYG{p}{:}
+            \PYG{n}{text} \PYG{o}{=} \PYG{n}{doc}\PYG{o}{.}\PYG{n}{text}
+            \PYG{n}{request\PYGZus{}params}\PYG{p}{:} \PYG{n+nb}{dict} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}text\PYGZdq{}}\PYG{p}{:} \PYG{n}{text}\PYG{p}{\PYGZcb{}}
+            \PYG{n}{resp} \PYG{o}{=} \PYG{n}{requests}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{n}{url}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{docker\PYGZus{}container\PYGZus{}url}\PYG{p}{,} \PYG{n}{params}\PYG{o}{=}\PYG{n}{request\PYGZus{}params}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{resp}\PYG{o}{.}\PYG{n}{ok} \PYG{o+ow}{and} \PYG{p}{(}\PYG{n}{coref\PYGZus{}clusters} \PYG{o}{:=} \PYG{n}{resp}\PYG{o}{.}\PYG{n}{json}\PYG{p}{())} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None}\PYG{p}{:}
+                \PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{} DEBUG \PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{show\PYGZus{}cluster}\PYG{p}{(}\PYG{n}{coref\PYGZus{}clusters}\PYG{o}{=}\PYG{n}{coref\PYGZus{}clusters}\PYG{p}{,} \PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{)}
+                \PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+                \PYG{n}{matches} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{spread\PYGZus{}comp\PYGZus{}ext\PYGZus{}to\PYGZus{}coref\PYGZus{}cluster\PYGZus{}spans}\PYG{p}{(}\PYG{n}{coref\PYGZus{}clusters}\PYG{o}{=}\PYG{n}{coref\PYGZus{}clusters}\PYG{p}{,} \PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{)}
+                \PYG{n}{doc} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{resolve\PYGZus{}span\PYGZus{}conflicts\PYGZus{}and\PYGZus{}set\PYGZus{}new\PYGZus{}ents}\PYG{p}{(}\PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{,} \PYG{n}{matches}\PYG{o}{=}\PYG{n}{matches}\PYG{p}{,} \PYG{n}{set\PYGZus{}in}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{XX\PYGZus{}COREF\PYGZus{}RESOLVE}\PYG{p}{,} \PYG{n}{overwrite\PYGZus{}own\PYGZus{}ext}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}
+            \PYG{c+c1}{\PYGZsh{} Note: CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET must be set back for the next text to be processed:}
+            \PYG{n}{PipeFunc}\PYG{o}{.}\PYG{n}{CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET} \PYG{o}{=} \PYG{k+kc}{False}
+        \PYG{k}{return} \PYG{n}{doc}
+
+
+\PYG{c+c1}{\PYGZsh{} ToDo: Do this:}
+\PYG{n+nd}{@Language}\PYG{o}{.}\PYG{n}{factory}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{LLM\PYGZus{}COREF\PYGZus{}RESOLVE}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+\PYG{k}{class} \PYG{n+nc}{LLMCorefResolve}\PYG{p}{(}\PYG{n}{PipeFunc}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Get coreference from a Generative LLM model run in a docker container (due to dependency issues).}
+\PYG{l+s+sd}{    So it is run in a docker container \PYGZdq{}ghcr.io/rainergo/img\PYGZhy{}llm\PYGZhy{}extract\PYGZhy{}coref\PYGZdq{} with host = localhost and port = 12345}
+\PYG{l+s+sd}{    that is created in the project: LLM\PYGZhy{}Extract.}
+\PYG{l+s+sd}{    The container returns Cluster instance (see: data\PYGZus{}models.py) which is a dictionary with:}
+\PYG{l+s+sd}{    cluster\PYGZus{}id, text, cluster\PYGZus{}head (a ClusterHead instance), coreferences (a list of Coreference instances). \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{nlp}\PYG{p}{:} \PYG{n}{Language}\PYG{p}{,} \PYG{n}{name}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n}{nlp}\PYG{p}{,} \PYG{n}{name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{docker\PYGZus{}container\PYGZus{}url}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}http://127.0.0.1:12345\PYGZsq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}LLM\PYGZhy{}COREF\PYGZdq{}}
+
+    \PYG{k}{def} \PYG{n+nf}{\PYGZus{}get\PYGZus{}cluster\PYGZus{}heads}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{]:}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} For all entities that have a custom extension, some of them have the same comp\PYGZus{}name and/or comp\PYGZus{}symbol.}
+\PYG{l+s+sd}{         Here we need to determine which of them is the cluster head to avoid sending duplicate company names to the LangChain LLM.}
+\PYG{l+s+sd}{          The cluster head is the first of duplicate mentions of a company name and duplicates are removed by the set function. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{get\PYGZus{}ents\PYGZus{}with\PYGZus{}custom\PYGZus{}extension}\PYG{p}{(}\PYG{n}{ents}\PYG{o}{=}\PYG{n}{doc}\PYG{o}{.}\PYG{n}{ents}\PYG{p}{)}
+        \PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{set}\PYG{p}{(}\PYG{n}{ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}\PYG{p}{))}
+        \PYG{k}{return} \PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}
+
+    \PYG{k}{def} \PYG{n+nf}{create\PYGZus{}data\PYGZus{}container\PYGZus{}of\PYGZus{}clusters}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{tuple}\PYG{p}{[}\PYG{n}{DataContainer}\PYG{p}{,} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{]]:}
+        \PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}get\PYGZus{}cluster\PYGZus{}heads}\PYG{p}{(}\PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{)}
+        \PYG{n}{container} \PYG{o}{=} \PYG{n}{DataContainer}\PYG{p}{()}
+        \PYG{n}{container}\PYG{o}{.}\PYG{n}{data\PYGZus{}list} \PYG{o}{=} \PYG{p}{[}\PYG{n}{Cluster}\PYG{p}{(}\PYG{n}{cluster\PYGZus{}id}\PYG{o}{=}\PYG{n}{ind}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{n}{doc}\PYG{o}{.}\PYG{n}{text}\PYG{p}{,} \PYG{n}{cluster\PYGZus{}head}\PYG{o}{=}\PYG{n}{ClusterHead}\PYG{p}{(}\PYG{n}{head\PYGZus{}text}\PYG{o}{=}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{ent\PYGZus{}text}\PYG{p}{,} \PYG{n}{head\PYGZus{}index\PYGZus{}start}\PYG{o}{=}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{start\PYGZus{}char}\PYG{p}{,} \PYG{n}{head\PYGZus{}index\PYGZus{}end}\PYG{o}{=}\PYG{n}{ent}\PYG{o}{.}\PYG{n}{end\PYGZus{}char}\PYG{p}{))} \PYG{k}{for} \PYG{n}{ind}\PYG{p}{,} \PYG{n}{ent} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}\PYG{p}{)]}
+        \PYG{k}{return} \PYG{n}{container}\PYG{p}{,} \PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}
+
+    \PYG{k}{def} \PYG{n+nf}{convert\PYGZus{}llm\PYGZus{}response\PYGZus{}to\PYGZus{}matches}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{llm\PYGZus{}response}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{dict}\PYG{p}{],} \PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{EntsWithCustExts}\PYG{p}{]):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Unfortunately, Generative LLMs do not extract substring indices for their extractions well. So this must be done here. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{k}{for} \PYG{n}{cluster}\PYG{p}{,} \PYG{n}{unique\PYGZus{}ent} \PYG{o+ow}{in} \PYG{n+nb}{zip}\PYG{p}{(}\PYG{n}{llm\PYGZus{}response}\PYG{p}{,} \PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}\PYG{p}{):}
+            \PYG{k}{try}\PYG{p}{:}
+                \PYG{n}{text}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{cluster}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}text\PYGZsq{}}\PYG{p}{]}
+                \PYG{n}{coreferences}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{dict}\PYG{p}{]} \PYG{o}{=} \PYG{n}{cluster}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}coreferences\PYGZsq{}}\PYG{p}{]}
+                \PYG{k}{for} \PYG{n}{coref} \PYG{o+ow}{in} \PYG{n}{coreferences}\PYG{p}{:}
+                    \PYG{n}{coref\PYGZus{}with\PYGZus{}surroundings}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{coref}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}coref\PYGZus{}with\PYGZus{}surroundings\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{coref\PYGZus{}text}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{coref}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}coref\PYGZus{}text\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern\PYGZus{}outer}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{rf}\PYG{l+s+s2}{\PYGZdq{}(?:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{re}\PYG{o}{.}\PYG{n}{escape}\PYG{p}{(}\PYG{n}{coref\PYGZus{}with\PYGZus{}surroundings}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{)\PYGZdq{}}
+                    \PYG{n}{pattern\PYGZus{}inner}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{rf}\PYG{l+s+s2}{\PYGZdq{}(?:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{re}\PYG{o}{.}\PYG{n}{escape}\PYG{p}{(}\PYG{n}{coref\PYGZus{}text}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{)\PYGZdq{}}
+                    \PYG{k}{for} \PYG{n}{m\PYGZus{}outer} \PYG{o+ow}{in} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{re}\PYG{o}{.}\PYG{n}{finditer}\PYG{p}{(}\PYG{n}{pattern\PYGZus{}outer}\PYG{p}{,} \PYG{n}{text}\PYG{p}{)):}
+                        \PYG{k}{if} \PYG{n}{m\PYGZus{}outer}\PYG{p}{:}
+                            \PYG{n}{text\PYGZus{}outer}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{m\PYGZus{}outer}\PYG{o}{.}\PYG{n}{group}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{)}
+                            \PYG{n}{start\PYGZus{}outer}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{n}{m\PYGZus{}outer}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+                            \PYG{n}{m\PYGZus{}inner}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{re}\PYG{o}{.}\PYG{n}{Match}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{re}\PYG{o}{.}\PYG{n}{finditer}\PYG{p}{(}\PYG{n}{pattern}\PYG{o}{=}\PYG{n}{pattern\PYGZus{}inner}\PYG{p}{,} \PYG{n}{string}\PYG{o}{=}\PYG{n}{text\PYGZus{}outer}\PYG{p}{))}
+                            \PYG{k}{if} \PYG{n}{m\PYGZus{}inner}\PYG{p}{:}
+                                \PYG{n}{start\PYGZus{}inner} \PYG{o}{=} \PYG{n}{m\PYGZus{}inner}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+                                \PYG{n}{end\PYGZus{}inner} \PYG{o}{=} \PYG{n}{m\PYGZus{}inner}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{end}\PYG{p}{()}
+                                \PYG{n}{start} \PYG{o}{=} \PYG{n}{start\PYGZus{}outer} \PYG{o}{+} \PYG{n}{start\PYGZus{}inner}
+                                \PYG{n}{end} \PYG{o}{=} \PYG{n}{start\PYGZus{}outer} \PYG{o}{+} \PYG{n}{end\PYGZus{}inner}
+                                \PYG{n}{search\PYGZus{}match}\PYG{p}{:} \PYG{n}{SearchMatch} \PYG{o}{=} \PYG{n}{SearchMatch}\PYG{p}{(}\PYG{n}{comp\PYGZus{}name}\PYG{o}{=}\PYG{n}{unique\PYGZus{}ent}\PYG{o}{.}\PYG{n}{comp\PYGZus{}name}\PYG{p}{,} \PYG{n}{comp\PYGZus{}symbol}\PYG{o}{=}\PYG{n}{unique\PYGZus{}ent}\PYG{o}{.}\PYG{n}{comp\PYGZus{}symbol}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{n}{coref\PYGZus{}text}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{comp\PYGZus{}label}\PYG{p}{,} \PYG{n}{start\PYGZus{}idx}\PYG{o}{=}\PYG{n}{start}\PYG{p}{,} \PYG{n}{end\PYGZus{}idx}\PYG{o}{=}\PYG{n}{end}\PYG{p}{,} \PYG{n}{idx\PYGZus{}refer\PYGZus{}to}\PYG{o}{=}\PYG{n}{IDXReferTo}\PYG{o}{.}\PYG{n}{CHARS}\PYG{p}{)}
+                                \PYG{n}{matches}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{search\PYGZus{}match}\PYG{p}{)}
+            \PYG{k}{except}\PYG{p}{:}
+                \PYG{c+c1}{\PYGZsh{} ToDo: Logger}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{exc\PYGZus{}info\PYGZus{}formatter}\PYG{p}{(}\PYG{n}{msg}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}convert\PYGZus{}llm\PYGZus{}response\PYGZus{}to\PYGZus{}matches failed.\PYGZsq{}}\PYG{p}{))}
+        \PYG{k}{return} \PYG{n}{matches}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{doc}\PYG{p}{:} \PYG{n}{Doc}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Doc}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} Note: Only if custom extensions have been set before, coreference resolution shall proceed:}
+        \PYG{k}{if} \PYG{n}{PipeFunc}\PYG{o}{.}\PYG{n}{CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET}\PYG{p}{:}
+            \PYG{n}{data\PYGZus{}container}\PYG{p}{,} \PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}data\PYGZus{}container\PYGZus{}of\PYGZus{}clusters}\PYG{p}{(}\PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{)}
+            \PYG{k}{try}\PYG{p}{:}
+                \PYG{n}{llm\PYGZus{}response} \PYG{o}{=} \PYG{n}{requests}\PYG{o}{.}\PYG{n}{post}\PYG{p}{(}\PYG{n}{url}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{docker\PYGZus{}container\PYGZus{}url}\PYG{p}{,} \PYG{n}{json}\PYG{o}{=}\PYG{n}{data\PYGZus{}container}\PYG{o}{.}\PYG{n}{dict}\PYG{p}{())}
+            \PYG{k}{except}\PYG{p}{:}
+                \PYG{n}{llm\PYGZus{}response} \PYG{o}{=} \PYG{k+kc}{None}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{exc\PYGZus{}info\PYGZus{}formatter}\PYG{p}{(}\PYG{n}{msg}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}url post request failed.\PYGZsq{}}\PYG{p}{))}
+            \PYG{k}{if} \PYG{n}{llm\PYGZus{}response} \PYG{o+ow}{and} \PYG{n}{llm\PYGZus{}response}\PYG{o}{.}\PYG{n}{ok} \PYG{o+ow}{and} \PYG{n+nb}{isinstance}\PYG{p}{((}\PYG{n}{cluster\PYGZus{}list} \PYG{o}{:=} \PYG{n}{llm\PYGZus{}response}\PYG{o}{.}\PYG{n}{json}\PYG{p}{()),} \PYG{n+nb}{list}\PYG{p}{):}
+                \PYG{n}{matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{convert\PYGZus{}llm\PYGZus{}response\PYGZus{}to\PYGZus{}matches}\PYG{p}{(}\PYG{n}{llm\PYGZus{}response}\PYG{o}{=}\PYG{n}{cluster\PYGZus{}list}\PYG{p}{,} \PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}\PYG{o}{=}\PYG{n}{unique\PYGZus{}ents\PYGZus{}with\PYGZus{}cust\PYGZus{}exts}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{matches}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{SearchMatch}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[]}
+            \PYG{n}{doc} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{resolve\PYGZus{}span\PYGZus{}conflicts\PYGZus{}and\PYGZus{}set\PYGZus{}new\PYGZus{}ents}\PYG{p}{(}\PYG{n}{doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{,} \PYG{n}{matches}\PYG{o}{=}\PYG{n}{matches}\PYG{p}{,} \PYG{n}{set\PYGZus{}in}\PYG{o}{=}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{LLM\PYGZus{}COREF\PYGZus{}RESOLVE}\PYG{p}{,} \PYG{n}{overwrite\PYGZus{}own\PYGZus{}ext}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}
+            \PYG{c+c1}{\PYGZsh{} Note: CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET must be set back for the next text to be processed:}
+            \PYG{n}{PipeFunc}\PYG{o}{.}\PYG{n}{CUST\PYGZus{}EXT\PYGZus{}VAL\PYGZus{}WAS\PYGZus{}SET} \PYG{o}{=} \PYG{k+kc}{False}
+
+        \PYG{k}{return} \PYG{n}{doc}
+
+
+\PYG{c+c1}{\PYGZsh{} \PYGZsh{} Note: Done !}
+\PYG{c+c1}{\PYGZsh{} @Language.factory(name=SpacyComp.ATTACH\PYGZus{}EXT\PYGZus{}TO\PYGZus{}ENT.cust\PYGZus{}name)}
+\PYG{c+c1}{\PYGZsh{} class AttachExtToEnt(PipeFunc):}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} spaCy requires that the \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}() of a custom class to build a custom pipe component must always get}
+\PYG{c+c1}{\PYGZsh{}         passed (at least): nlp (Language object), name (string) of component. It won\PYGZsq{}t work without these two. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(self, nlp: Language, name: str):}
+\PYG{c+c1}{\PYGZsh{}         super().\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}()}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}(self, doc: Doc) \PYGZhy{}\PYGZgt{} Doc:}
+\PYG{c+c1}{\PYGZsh{}         ents = list(doc.ents)}
+\PYG{c+c1}{\PYGZsh{}         print(\PYGZsq{}self.relevant\PYGZus{}entity\PYGZus{}labels\PYGZsq{}, self.relevant\PYGZus{}entity\PYGZus{}labels)}
+\PYG{c+c1}{\PYGZsh{}         for ind, ent in enumerate(ents):}
+\PYG{c+c1}{\PYGZsh{}             \PYGZdq{}\PYGZdq{}\PYGZdq{}Attach entity span to first token of entity\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}             if ent.label\PYGZus{} in self.relevant\PYGZus{}entity\PYGZus{}labels:}
+\PYG{c+c1}{\PYGZsh{}                 match, similarity, index = fuzzy\PYGZus{}search\PYGZus{}one(text=ent.text, choices=comp\PYGZus{}name\PYGZus{}list)}
+\PYG{c+c1}{\PYGZsh{}                 if similarity \PYGZgt{} ConfigBasic.threshold\PYGZus{}fuzzy\PYGZus{}search:}
+\PYG{c+c1}{\PYGZsh{}                     comp\PYGZus{}name, comp\PYGZus{}symbol = comp\PYGZus{}name\PYGZus{}symbol\PYGZus{}list[index][0], comp\PYGZus{}name\PYGZus{}symbol\PYGZus{}list[index][1]}
+\PYG{c+c1}{\PYGZsh{}                     setattr(ent.\PYGZus{}, SpacyExt.DOMAIN.ext\PYGZus{}name, SpacyExt.COMP\PYGZus{}NAME.domain)}
+\PYG{c+c1}{\PYGZsh{}                     setattr(ent.\PYGZus{}, SpacyExt.COMP\PYGZus{}NAME.ext\PYGZus{}name, comp\PYGZus{}name)}
+\PYG{c+c1}{\PYGZsh{}                     setattr(ent.\PYGZus{}, SpacyExt.COMP\PYGZus{}SYMBOL.ext\PYGZus{}name, comp\PYGZus{}symbol)}
+\PYG{c+c1}{\PYGZsh{}                     if ent.label\PYGZus{} != \PYGZsq{}ORG\PYGZsq{}:}
+\PYG{c+c1}{\PYGZsh{}                         ent\PYGZus{}new = Span(doc, ent.start, ent.end, label=\PYGZdq{}ORG\PYGZdq{})}
+\PYG{c+c1}{\PYGZsh{}                         ents[ind] = ent\PYGZus{}new}
+\PYG{c+c1}{\PYGZsh{}         doc.ents = ents}
+\PYG{c+c1}{\PYGZsh{}         return doc}
+
+
+\PYG{c+c1}{\PYGZsh{} @Language.factory(name=SpacyComp.ANAPHORA.custom\PYGZus{}name)}
+\PYG{c+c1}{\PYGZsh{} class Anaphora(PipeFunc):}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} spaCy requires that the \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}() of a custom class to build a custom pipe component must always get}
+\PYG{c+c1}{\PYGZsh{}         passed (at least): nlp (Language object), name (string) of component. It won\PYGZsq{}t work without these two. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(self, nlp: Language, name: str):}
+\PYG{c+c1}{\PYGZsh{}         super().\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(nlp, name)}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}(self, doc: Doc) \PYGZhy{}\PYGZgt{} Doc:}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} \PYGZsq{}coref\PYGZus{}chains\PYGZsq{} is a token extension set, instantiated and learned by the package \PYGZsq{}coreferee\PYGZsq{}}
+\PYG{c+c1}{\PYGZsh{}         which must be installed by \PYGZsq{}python3 \PYGZhy{}m pip install coreferee\PYGZsq{} and \PYGZsq{}python3 \PYGZhy{}m coreferee install en\PYGZsq{}.}
+\PYG{c+c1}{\PYGZsh{}         Please see above and in: https://github.com/richardpaulhudson/coreferee}
+\PYG{c+c1}{\PYGZsh{}         Without the installation of the package, this custom pipe component will not work.}
+\PYG{c+c1}{\PYGZsh{}         In later spaCy versions (\PYGZgt{}3.5), this won\PYGZsq{}t be necessary anymore as they plan to integrate it.}
+\PYG{c+c1}{\PYGZsh{}         Anaphora resolution of entities. For instance, \PYGZsq{}it\PYGZsq{} in: \PYGZsq{}BMW made a profit. It earned Eur 1000 Mio.\PYGZsq{} \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}         if doc.\PYGZus{}.coref\PYGZus{}chains:}
+\PYG{c+c1}{\PYGZsh{}             pass}
+\PYG{c+c1}{\PYGZsh{}     for chain in doc.\PYGZus{}.coref\PYGZus{}chains:}
+\PYG{c+c1}{\PYGZsh{}         root\PYGZus{}name = \PYGZsq{}\PYGZsq{}}
+\PYG{c+c1}{\PYGZsh{}         comp\PYGZus{}name = \PYGZsq{}\PYGZsq{}}
+\PYG{c+c1}{\PYGZsh{}         root\PYGZus{}ent\PYGZus{}label = \PYGZsq{}\PYGZsq{}}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} Unfortunately, every single coref index in a chain (span) is packed into a list,}
+\PYG{c+c1}{\PYGZsh{}             thus convert it to an integer by traversing over it: \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}         for chain\PYGZus{}index\PYGZus{}list in chain:}
+\PYG{c+c1}{\PYGZsh{}             token\PYGZus{}index = None}
+\PYG{c+c1}{\PYGZsh{}             if len(chain\PYGZus{}index\PYGZus{}list) \PYGZgt{} 1:}
+\PYG{c+c1}{\PYGZsh{}                 for chain\PYGZus{}index in chain\PYGZus{}index\PYGZus{}list:}
+\PYG{c+c1}{\PYGZsh{}                     if isinstance(chain\PYGZus{}index, list):}
+\PYG{c+c1}{\PYGZsh{}                         token\PYGZus{}index = chain\PYGZus{}index[0]}
+\PYG{c+c1}{\PYGZsh{}                     else:}
+\PYG{c+c1}{\PYGZsh{}                         token\PYGZus{}index = chain\PYGZus{}index}
+\PYG{c+c1}{\PYGZsh{}             else:}
+\PYG{c+c1}{\PYGZsh{}                 token\PYGZus{}index = chain\PYGZus{}index\PYGZus{}list[0]}
+\PYG{c+c1}{\PYGZsh{}             \PYGZdq{}\PYGZdq{}\PYGZdq{} Get the token for the indexes: \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}             token = doc[token\PYGZus{}index]}
+\PYG{c+c1}{\PYGZsh{}             if token.\PYGZus{}.comp\PYGZus{}name != \PYGZsq{}\PYGZsq{}:}
+\PYG{c+c1}{\PYGZsh{}                 root\PYGZus{}name = token.\PYGZus{}.root\PYGZus{}name}
+\PYG{c+c1}{\PYGZsh{}                 comp\PYGZus{}name = token.\PYGZus{}.comp\PYGZus{}name}
+\PYG{c+c1}{\PYGZsh{}                 root\PYGZus{}ent\PYGZus{}label = token.\PYGZus{}.root\PYGZus{}ent\PYGZus{}label}
+\PYG{c+c1}{\PYGZsh{}                 \PYGZdq{}\PYGZdq{}\PYGZdq{} break if first root\PYGZus{}name of a token in the chain is found. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}                 break}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} If any token in the chain has a root\PYGZus{}name, then label ALL the tokens}
+\PYG{c+c1}{\PYGZsh{}             in the chain with the root\PYGZus{}name and the root\PYGZus{}ent\PYGZus{}label found above. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}         if comp\PYGZus{}name != \PYGZsq{}\PYGZsq{}:}
+\PYG{c+c1}{\PYGZsh{}             for chain\PYGZus{}index\PYGZus{}list in chain:}
+\PYG{c+c1}{\PYGZsh{}                 index\PYGZus{}of\PYGZus{}token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled = None}
+\PYG{c+c1}{\PYGZsh{}                 if len(chain\PYGZus{}index\PYGZus{}list) \PYGZgt{} 1:}
+\PYG{c+c1}{\PYGZsh{}                     for chain\PYGZus{}index in chain\PYGZus{}index\PYGZus{}list:}
+\PYG{c+c1}{\PYGZsh{}                         if isinstance(chain\PYGZus{}index, list):}
+\PYG{c+c1}{\PYGZsh{}                             index\PYGZus{}of\PYGZus{}token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled = chain\PYGZus{}index[0]}
+\PYG{c+c1}{\PYGZsh{}                         else:}
+\PYG{c+c1}{\PYGZsh{}                             index\PYGZus{}of\PYGZus{}token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled = chain\PYGZus{}index}
+\PYG{c+c1}{\PYGZsh{}                 else:}
+\PYG{c+c1}{\PYGZsh{}                     index\PYGZus{}of\PYGZus{}token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled = chain\PYGZus{}index\PYGZus{}list[0]}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}                 if index\PYGZus{}of\PYGZus{}token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled is not None:}
+\PYG{c+c1}{\PYGZsh{}                     token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled = doc[index\PYGZus{}of\PYGZus{}token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled]}
+\PYG{c+c1}{\PYGZsh{}                     token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled.\PYGZus{}.root\PYGZus{}name = root\PYGZus{}name}
+\PYG{c+c1}{\PYGZsh{}                     token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled.\PYGZus{}.comp\PYGZus{}name = comp\PYGZus{}name}
+\PYG{c+c1}{\PYGZsh{}                     \PYGZsh{} print(}
+\PYG{c+c1}{\PYGZsh{}                     \PYGZsh{}     f\PYGZsq{}token to be labeled: \PYGZdq{}\PYGZob{}token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled\PYGZcb{}\PYGZdq{} with root\PYGZus{}name: \PYGZdq{}\PYGZob{}root\PYGZus{}name\PYGZcb{}\PYGZdq{} and root\PYGZus{}ent\PYGZus{}label: \PYGZdq{}\PYGZob{}root\PYGZus{}ent\PYGZus{}label\PYGZcb{}\PYGZdq{}\PYGZsq{})}
+\PYG{c+c1}{\PYGZsh{}                     token\PYGZus{}to\PYGZus{}be\PYGZus{}labeled.\PYGZus{}.root\PYGZus{}ent\PYGZus{}label = root\PYGZus{}ent\PYGZus{}label}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} Propagate to incorrectly classified spaCy ents: \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{} return PipeCompPropToMis(self.nlp, self.name)(doc)}
+\PYG{c+c1}{\PYGZsh{}     return doc}
+\PYG{c+c1}{\PYGZsh{} else:}
+\PYG{c+c1}{\PYGZsh{}     return doc}
+
+
+\PYG{c+c1}{\PYGZsh{} @Language.factory(name=SpacyComp.NORM\PYGZus{}ENTS.custom\PYGZus{}name)}
+\PYG{c+c1}{\PYGZsh{} class PipeCompNormEntities(PipeFunc):}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} spaCy requires that the \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}() of a custom class to build a custom pipe component must always get}
+\PYG{c+c1}{\PYGZsh{}         passed (at least): nlp (Language object), name (string) of component. It won\PYGZsq{}t work without these two. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(self, nlp: Language, name: str):}
+\PYG{c+c1}{\PYGZsh{}         super().\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(nlp, name)}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}(self, doc: Doc) \PYGZhy{}\PYGZgt{} Doc:}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} Get rid of leading articles (e.g. \PYGZsq{}the\PYGZsq{} in \PYGZsq{}the New York Times\PYGZsq{})}
+\PYG{c+c1}{\PYGZsh{}             and trailing particles (like \PYGZsq{}s\PYGZsq{} in \PYGZsq{}BMW\PYGZsq{}s revenue\PYGZsq{}) \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}         ents = []}
+\PYG{c+c1}{\PYGZsh{}         for ent in doc.ents:}
+\PYG{c+c1}{\PYGZsh{}             if ent[0].pos\PYGZus{} == \PYGZdq{}DET\PYGZdq{}:  \PYGZsh{} leading article}
+\PYG{c+c1}{\PYGZsh{}                 ent = Span(doc, ent.start + 1, ent.end, label=ent.label)}
+\PYG{c+c1}{\PYGZsh{}             if len(ent) \PYGZgt{} 0:}
+\PYG{c+c1}{\PYGZsh{}                 if ent[\PYGZhy{}1].pos\PYGZus{} == \PYGZdq{}PART\PYGZdq{}:  \PYGZsh{} trailing particle like \PYGZsq{}s}
+\PYG{c+c1}{\PYGZsh{}                     ent = Span(doc, ent.start, ent.end \PYGZhy{} 1, label=ent.label)}
+\PYG{c+c1}{\PYGZsh{}                 ents.append(ent)}
+\PYG{c+c1}{\PYGZsh{}         doc.ents = tuple(ents)}
+\PYG{c+c1}{\PYGZsh{}         return doc}
+
+
+\PYG{c+c1}{\PYGZsh{} @Language.factory(name=SpacyComp.PROP\PYGZus{}TO\PYGZus{}MISCLASS.custom\PYGZus{}name)}
+\PYG{c+c1}{\PYGZsh{} class PipeCompPropToMis(PipeFunc):}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} spaCy requires that the \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}() of a custom class to build a custom pipe component must always get}
+\PYG{c+c1}{\PYGZsh{}         passed (at least): nlp (Language object), name (string) of component. It won\PYGZsq{}t work without these two. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(self, nlp: Language, name: str):}
+\PYG{c+c1}{\PYGZsh{}         super().\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}()}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}(self, doc: Doc) \PYGZhy{}\PYGZgt{} Doc:}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} Propagate the new label to mis\PYGZhy{}classfied labels.}
+\PYG{c+c1}{\PYGZsh{}             This component is used by ALIAS\PYGZus{}RESOLVE, NAME\PYGZus{}RESOLVE, ANAPHORA \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}         ents = []}
+\PYG{c+c1}{\PYGZsh{}         for ent in doc.ents:}
+\PYG{c+c1}{\PYGZsh{}             if ent[0].\PYGZus{}.comp\PYGZus{}name != \PYGZsq{}\PYGZsq{}:  \PYGZsh{} if ent does not yet have a comp\PYGZus{}name\PYGZhy{}tag}
+\PYG{c+c1}{\PYGZsh{}                 ent = Span(doc, ent.start, ent.end, label=ent[0].\PYGZus{}.root\PYGZus{}ent\PYGZus{}label)}
+\PYG{c+c1}{\PYGZsh{}             ents.append(ent)}
+\PYG{c+c1}{\PYGZsh{}         doc.ents = tuple(ents)}
+\PYG{c+c1}{\PYGZsh{}         return doc}
+
+
+\PYG{c+c1}{\PYGZsh{} @Language.factory(name=SpacyComp.ALIAS\PYGZus{}RESOLVE.custom\PYGZus{}name)}
+\PYG{c+c1}{\PYGZsh{} class AliasResolve(PipeFunc):}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} spaCy requires that the \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}() of a custom class to build a custom pipe component must always get}
+\PYG{c+c1}{\PYGZsh{}         passed (at least): nlp (Language object), name (string) of component. It won\PYGZsq{}t work without these two. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(self, nlp: Language, name: str, alias\PYGZus{}dict: dict):}
+\PYG{c+c1}{\PYGZsh{}         super().\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(data=alias\PYGZus{}dict)}
+\PYG{c+c1}{\PYGZsh{}         self.nlp = nlp}
+\PYG{c+c1}{\PYGZsh{}         self.name = name}
+\PYG{c+c1}{\PYGZsh{}         self.alias\PYGZus{}dict = alias\PYGZus{}dict}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}(self, doc: Doc) \PYGZhy{}\PYGZgt{} Doc:}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} Maps and attaches alias names from the alias\PYGZus{}dict to the token extension \PYGZsq{}root\PYGZus{}name\PYGZsq{} \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}         for ent in doc.ents:}
+\PYG{c+c1}{\PYGZsh{}             entity\PYGZus{}name\PYGZus{}in\PYGZus{}text = ent[0].text}
+\PYG{c+c1}{\PYGZsh{}             if entity\PYGZus{}name\PYGZus{}in\PYGZus{}text in self.alias\PYGZus{}dict:}
+\PYG{c+c1}{\PYGZsh{}                 root\PYGZus{}name, comp\PYGZus{}name, root\PYGZus{}ent\PYGZus{}label = self.alias\PYGZus{}dict[entity\PYGZus{}name\PYGZus{}in\PYGZus{}text]}
+\PYG{c+c1}{\PYGZsh{}                 ent[0].\PYGZus{}.root\PYGZus{}name = str(}
+\PYG{c+c1}{\PYGZsh{}                     root\PYGZus{}name)  \PYGZsh{} necessary if root\PYGZus{}name is type int such as VBKENN (cast does not help)}
+\PYG{c+c1}{\PYGZsh{}                 ent[0].\PYGZus{}.comp\PYGZus{}name = comp\PYGZus{}name}
+\PYG{c+c1}{\PYGZsh{}                 ent[0].\PYGZus{}.root\PYGZus{}ent\PYGZus{}label = root\PYGZus{}ent\PYGZus{}label}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} Propagate to incorrectly classified spaCy ents: \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}         return PipeCompPropToMis(self.nlp, self.name)(doc)}
+
+
+\PYG{c+c1}{\PYGZsh{} @Language.factory(name=SpacyComp.NAME\PYGZus{}RESOLVE.custom\PYGZus{}name)}
+\PYG{c+c1}{\PYGZsh{} class PipeCompNameResolve(PipeFunc):}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} spaCy requires that the \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}() of a custom class to build a custom pipe component must always get}
+\PYG{c+c1}{\PYGZsh{}         passed (at least): nlp (Language object), name (string) of component. It won\PYGZsq{}t work without these two. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(self, nlp: Language, name: str):}
+\PYG{c+c1}{\PYGZsh{}         super().\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}()}
+\PYG{c+c1}{\PYGZsh{}         self.nlp = nlp}
+\PYG{c+c1}{\PYGZsh{}         self.name = name}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}(self, doc: Doc) \PYGZhy{}\PYGZgt{} Doc:}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} Reference second mention of entity in sentence to first mention, e.g. BMW AG (first) \PYGZhy{}\PYGZgt{} BMW (second).\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}         ents = [ent for ent in doc.ents if ent.label\PYGZus{} in self.relevant\PYGZus{}labels]}
+\PYG{c+c1}{\PYGZsh{}         for index, first\PYGZus{}ent in enumerate(ents):}
+\PYG{c+c1}{\PYGZsh{}             for second\PYGZus{}ent in ents[index + 1:]:}
+\PYG{c+c1}{\PYGZsh{}                 if self.name\PYGZus{}match(first=first\PYGZus{}ent[0].\PYGZus{}.comp\PYGZus{}name, second=second\PYGZus{}ent[0].text):}
+\PYG{c+c1}{\PYGZsh{}                     \PYGZsh{} print(f\PYGZsq{}first=\PYGZob{}first\PYGZus{}ent[0].\PYGZus{}.root\PYGZus{}name\PYGZcb{}, second=\PYGZob{}second\PYGZus{}ent[0].text\PYGZcb{}\PYGZsq{})}
+\PYG{c+c1}{\PYGZsh{}                     second\PYGZus{}ent[0].\PYGZus{}.root\PYGZus{}name = first\PYGZus{}ent[0].\PYGZus{}.root\PYGZus{}name}
+\PYG{c+c1}{\PYGZsh{}                     second\PYGZus{}ent[0].\PYGZus{}.comp\PYGZus{}name = first\PYGZus{}ent[0].\PYGZus{}.comp\PYGZus{}name}
+\PYG{c+c1}{\PYGZsh{}                     second\PYGZus{}ent[0].\PYGZus{}.root\PYGZus{}ent\PYGZus{}label = first\PYGZus{}ent[0].\PYGZus{}.root\PYGZus{}ent\PYGZus{}label}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} Propagate to incorrectly classified spaCy ents: \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}         return PipeCompPropToMis(self.nlp, self.name)(doc)}
+
+\PYG{c+c1}{\PYGZsh{} def name\PYGZus{}match(self, first: str, second: str):}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} Search for entities mentioned first in an article to references mentioned}
+\PYG{c+c1}{\PYGZsh{}     thereafter but with a shorter reference name: BMW AG (first) \PYGZhy{}\PYGZgt{} BMW (second). \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}     second = re.sub(\PYGZsq{}[+\PYGZbs{}**\PYGZbs{}*\PYGZam{}\PYGZbs{}*\PYGZsh{}\PYGZbs{}*\PYGZca{}\PYGZbs{}*!\PYGZbs{}*\PYGZti{}\PYGZbs{}*`\PYGZbs{}*´\PYGZbs{}*?\PYGZbs{}*\PYGZpc{}\PYGZbs{}*§\PYGZbs{}*°\PYGZbs{}*]\PYGZsq{}, \PYGZsq{} \PYGZsq{}, second)  \PYGZsh{} added to avoid errors}
+\PYG{c+c1}{\PYGZsh{}     second = re.sub(r\PYGZsq{}[()\PYGZbs{}.]\PYGZsq{}, \PYGZsq{}\PYGZsq{}, second)  \PYGZsh{} ignore parentheses and dots}
+\PYG{c+c1}{\PYGZsh{}     second = r\PYGZsq{}\PYGZbs{}b\PYGZsq{} + second + r\PYGZsq{}\PYGZbs{}b\PYGZsq{}  \PYGZsh{} \PYGZbs{}b marks word boundary}
+\PYG{c+c1}{\PYGZsh{}     second = re.sub(r\PYGZsq{}\PYGZbs{}s\PYGZsq{} + re.escape(\PYGZsq{}+\PYGZsq{}), r\PYGZsq{}\PYGZbs{}\PYGZbs{}b.*\PYGZbs{}\PYGZbs{}b\PYGZsq{}, second)}
+\PYG{c+c1}{\PYGZsh{}     \PYGZsh{} second = re.sub(r\PYGZsq{}\PYGZbs{}s\PYGZsq{}+re.escape(\PYGZsq{}+\PYGZsq{}), r\PYGZsq{}\PYGZbs{}\PYGZbs{}b.\PYGZsq{}+re.escape(\PYGZsq{}*\PYGZsq{})+r\PYGZsq{}\PYGZbs{}\PYGZbs{}b\PYGZsq{}, second)}
+\PYG{c+c1}{\PYGZsh{}     return re.search(second, first, flags=re.I) is not None}
+
+
+\PYG{c+c1}{\PYGZsh{} @Language.factory(name=SpacyComp.TO\PYGZus{}SPACY\PYGZus{}ENT.custom\PYGZus{}name)}
+\PYG{c+c1}{\PYGZsh{} class PipeCompRootEntToEnt(PipeFunc):}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} spaCy requires that the \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}() of a custom class to build a custom pipe component must always get}
+\PYG{c+c1}{\PYGZsh{}         passed (at least): nlp (Language object), name (string) of component. It won\PYGZsq{}t work without these two. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}(self, nlp: Language, name: str):}
+\PYG{c+c1}{\PYGZsh{}         super().\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}()}
+\PYG{c+c1}{\PYGZsh{}}
+\PYG{c+c1}{\PYGZsh{}     def \PYGZus{}\PYGZus{}call\PYGZus{}\PYGZus{}(self, doc: Doc) \PYGZhy{}\PYGZgt{} Doc:}
+\PYG{c+c1}{\PYGZsh{}         \PYGZdq{}\PYGZdq{}\PYGZdq{} At the end of the entire pipeline, propagate the \PYGZsq{}root\PYGZus{}ent\PYGZus{}label\PYGZsq{} to spaCy\PYGZsq{}s \PYGZsq{}ent\PYGZsq{} so that it can be}
+\PYG{c+c1}{\PYGZsh{}             found in the \PYGZsq{}doc.ents\PYGZsq{} and can also be visualized by \PYGZsq{}spacy.displacy\PYGZsq{} \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}         new\PYGZus{}entities = []}
+\PYG{c+c1}{\PYGZsh{}         entities = doc.ents  \PYGZsh{} tuple}
+\PYG{c+c1}{\PYGZsh{}         end = \PYGZhy{}1  \PYGZsh{} Important: Avoids that newly added entities span overlap}
+\PYG{c+c1}{\PYGZsh{}         for doc\PYGZus{}index, token in enumerate(doc):}
+\PYG{c+c1}{\PYGZsh{}             if end \PYGZgt{}= doc\PYGZus{}index:  \PYGZsh{} Important: Avoids that newly added entities span overlap}
+\PYG{c+c1}{\PYGZsh{}                 continue}
+\PYG{c+c1}{\PYGZsh{}             if token.\PYGZus{}.comp\PYGZus{}name != \PYGZsq{}\PYGZsq{} and token.ent\PYGZus{}iob\PYGZus{} in [\PYGZdq{}O\PYGZdq{}, \PYGZdq{}\PYGZdq{}]:  \PYGZsh{} \PYGZdq{}\PYGZdq{}=No entity tag, \PYGZdq{}O\PYGZdq{}=Outside entity}
+\PYG{c+c1}{\PYGZsh{}                 start = token.i}
+\PYG{c+c1}{\PYGZsh{}                 end = self.get\PYGZus{}root\PYGZus{}ent\PYGZus{}label\PYGZus{}end\PYGZus{}index(len\PYGZus{}doc=doc.\PYGZus{}\PYGZus{}len\PYGZus{}\PYGZus{}(), token=token)}
+\PYG{c+c1}{\PYGZsh{}                 new\PYGZus{}entities.append(Span(doc, start, end + 1, label=token.\PYGZus{}.root\PYGZus{}ent\PYGZus{}label))}
+\PYG{c+c1}{\PYGZsh{}         doc.ents = tuple(entities) + tuple(new\PYGZus{}entities)}
+\PYG{c+c1}{\PYGZsh{}         return doc}
+
+\PYG{c+c1}{\PYGZsh{} def get\PYGZus{}root\PYGZus{}ent\PYGZus{}label\PYGZus{}end\PYGZus{}index(self, len\PYGZus{}doc: int, token: Token) \PYGZhy{}\PYGZgt{} int:}
+\PYG{c+c1}{\PYGZsh{}     \PYGZdq{}\PYGZdq{}\PYGZdq{} If \PYGZsq{}root\PYGZus{}name\PYGZsq{} of this token is equal to the \PYGZsq{}root\PYGZus{}name\PYGZsq{} of the next token, then recurse until}
+\PYG{c+c1}{\PYGZsh{}     last index of \PYGZsq{}root\PYGZus{}name\PYGZsq{}\PYGZhy{}chain is found. Index of this last token in doc will be returned to build ent\PYGZhy{}Span.\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{}     if (token.i == (len\PYGZus{}doc \PYGZhy{} 1)) or (token.nbor().\PYGZus{}.comp\PYGZus{}name != token.\PYGZus{}.comp\PYGZus{}name) or (}
+\PYG{c+c1}{\PYGZsh{}             token.nbor().ent\PYGZus{}iob\PYGZus{} not in [\PYGZdq{}O\PYGZdq{}, \PYGZdq{}\PYGZdq{}]):}
+\PYG{c+c1}{\PYGZsh{}         return token.i}
+\PYG{c+c1}{\PYGZsh{}     else:}
+\PYG{c+c1}{\PYGZsh{}         return self.get\PYGZus{}root\PYGZus{}ent\PYGZus{}label\PYGZus{}end\PYGZus{}index(len\PYGZus{}doc=len\PYGZus{}doc, token=token.nbor())}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{k}{pass}
+\end{Verbatim}

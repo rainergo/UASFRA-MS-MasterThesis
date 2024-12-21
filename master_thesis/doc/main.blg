@@ -1,0 +1,66 @@
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+A level-1 auxiliary file: Chapters/1_Introduction.aux
+A level-1 auxiliary file: Chapters/2_Project_Setup.aux
+A level-1 auxiliary file: Chapters/3_Text_Representation.aux
+A level-1 auxiliary file: Chapters/4_NER.aux
+A level-1 auxiliary file: Chapters/5_Coreference_Resolution.aux
+A level-1 auxiliary file: Chapters/6_Topic_modelling.aux
+A level-1 auxiliary file: Chapters/7_Knowledge_Graph.aux
+A level-1 auxiliary file: Chapters/8_Conclusion.aux
+A level-1 auxiliary file: Chapters/9_Appendix_A.aux
+The style file: plain.bst
+Database file #1: bibliography.bib
+Warning--to sort, need author or key in kaggle
+Warning--to sort, need author or key in pandas
+Warning--to sort, need author or key in parquet
+Warning--to sort, need author or key in bloomberg
+Warning--to sort, need author or key in llama3
+Warning--to sort, need author or key in ollama
+Warning--to sort, need author or key in AllenAI
+Warning--to sort, need author or key in AllenNLPCorefModel
+Warning--to sort, need author or key in AllenCorefModelModification
+Warning--to sort, need author or key in xxCorefMinilmModel
+You've used 103 entries,
+            2118 wiz_defined-function locations,
+            981 strings with 20299 characters,
+and the built_in function-call counts, 22979 in all, are:
+= -- 2168
+> -- 998
+< -- 0
++ -- 432
+- -- 326
+* -- 1013
+:= -- 3419
+add.period$ -- 316
+call.type$ -- 103
+change.case$ -- 519
+chr.to.int$ -- 0
+cite$ -- 113
+duplicate$ -- 721
+empty$ -- 2324
+format.name$ -- 326
+if$ -- 5175
+int.to.chr$ -- 0
+int.to.str$ -- 103
+missing$ -- 0
+newline$ -- 525
+num.names$ -- 92
+pop$ -- 1006
+preamble$ -- 1
+purify$ -- 416
+quote$ -- 0
+skip$ -- 656
+stack$ -- 0
+substring$ -- 518
+swap$ -- 103
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 412
+warning$ -- 10
+while$ -- 92
+width$ -- 106
+write$ -- 986
+(There were 10 warnings)

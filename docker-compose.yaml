@@ -1,0 +1,24 @@
+services:
+  coref-service:
+    image: ghcr.io/rainergo/img-xx-coref
+    container_name: coref-container
+    build:
+      dockerfile: src/D_coref/docker/Dockerfile_coref_xx
+    ports:
+      - "80:80"
+  coref-llm-extract-service:
+    env_file: secrets.env
+    image: ghcr.io/rainergo/img-llm-extract-coref
+    container_name: coref-llm-extract-container
+    build:
+      dockerfile: src/D_coref/docker/Dockerfile_coref_gen_llm
+    ports:
+      - "12345:12345"
+  topic-llm-extract-service:
+    env_file: secrets.env
+    image: ghcr.io/rainergo/img-llm-extract-topic
+    container_name: topic-llm-extract-container
+    build:
+      dockerfile: Dockerfile_topic_gen_llm
+    ports:
+      - "54321:54321"

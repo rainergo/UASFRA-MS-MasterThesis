@@ -1,0 +1,154 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{import} \PYG{n+nn}{pathlib}
+\PYG{k+kn}{from} \PYG{n+nn}{dotenv} \PYG{k+kn}{import} \PYG{n}{load\PYGZus{}dotenv}
+
+\PYG{k+kn}{from} \PYG{n+nn}{langchain.chains} \PYG{k+kn}{import} \PYG{n}{GraphCypherQAChain}
+\PYG{k+kn}{from} \PYG{n+nn}{langchain\PYGZus{}openai.chat\PYGZus{}models} \PYG{k+kn}{import} \PYG{n}{ChatOpenAI}
+\PYG{k+kn}{from} \PYG{n+nn}{langchain\PYGZus{}core.prompts.prompt} \PYG{k+kn}{import} \PYG{n}{PromptTemplate}
+\PYG{k+kn}{from} \PYG{n+nn}{langchain\PYGZus{}community.graphs} \PYG{k+kn}{import} \PYG{n}{Neo4jGraph}
+
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.config} \PYG{k+kn}{import} \PYG{n}{ConfigBasic}
+
+
+\PYG{k}{class} \PYG{n+nc}{GraphBot}\PYG{p}{:}
+    \PYG{n}{rels\PYGZus{}explanation} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+s2}{    \PYGZsh{} Relationship 1: (:Sentence)\PYGZhy{}[:is\PYGZus{}about \PYGZob{}\PYGZob{}top\PYGZus{}id\PYGZcb{}\PYGZcb{}]\PYGZhy{}\PYGZgt{}(:Topic)}
+\PYG{l+s+s2}{    \PYGZsh{} Relationship 1 explanation: A Sentence is about a particular Topic that has a Topic identification number or \PYGZdq{}top\PYGZus{}id\PYGZdq{}.}
+\PYG{l+s+s2}{    \PYGZsh{} Relationship 2: (:Sentence)\PYGZhy{}[:is\PYGZus{}part\PYGZus{}of \PYGZob{}\PYGZob{}art\PYGZus{}id\PYGZcb{}\PYGZcb{}]\PYGZhy{}\PYGZgt{}(:Article)}
+\PYG{l+s+s2}{    \PYGZsh{} Relationship 2 explanation: A Sentence is contained in and part of an Article that has an Article identification number or \PYGZdq{}art\PYGZus{}id\PYGZdq{}.}
+\PYG{l+s+s2}{    \PYGZsh{} Relationship 3: (:Sentence)\PYGZhy{}[:mentions \PYGZob{}\PYGZob{}comp\PYGZus{}symbol\PYGZcb{}\PYGZcb{}]\PYGZhy{}\PYGZgt{}(:Company)}
+\PYG{l+s+s2}{    \PYGZsh{} Relationship 3 explanation: A Sentence mentions the name of a Company that has a stock exchange ticker symbol (\PYGZdq{}comp\PYGZus{}symbol\PYGZdq{}).}
+\PYG{l+s+s2}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{nodes\PYGZus{}and\PYGZus{}their\PYGZus{}attributes} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+s2}{    Node \PYGZdq{}Article\PYGZdq{}: [\PYGZob{}\PYGZob{}art\PYGZus{}id: \PYGZdq{}The id of the article\PYGZdq{}\PYGZcb{}\PYGZcb{}, \PYGZob{}\PYGZob{}art\PYGZus{}datetime: \PYGZdq{}The date and time the article was published\PYGZdq{}\PYGZcb{}\PYGZcb{}, \PYGZob{}\PYGZob{}art\PYGZus{}text: \PYGZdq{}The content of the article\PYGZdq{}\PYGZcb{}\PYGZcb{}, \PYGZob{}\PYGZob{}art\PYGZus{}source: \PYGZdq{}The media company that published the article\PYGZdq{}\PYGZcb{}\PYGZcb{}]}
+\PYG{l+s+s2}{    Node \PYGZdq{}Company\PYGZdq{}: [\PYGZob{}\PYGZob{}comp\PYGZus{}symbol: \PYGZdq{}The stock ticker symbol for that company on a stock exchange\PYGZdq{}\PYGZcb{}\PYGZcb{}, \PYGZob{}\PYGZob{}comp\PYGZus{}isin: \PYGZdq{}The security identifier number \PYGZsq{}ISIN\PYGZsq{} for that company on a stock exchange\PYGZdq{}\PYGZcb{}\PYGZcb{}, \PYGZob{}\PYGZob{}comp\PYGZus{}name: \PYGZdq{}The name of the company\PYGZdq{}\PYGZcb{}\PYGZcb{}]}
+\PYG{l+s+s2}{    Node \PYGZdq{}Sentence\PYGZdq{}: [\PYGZob{}\PYGZob{}sent\PYGZus{}id: \PYGZdq{}The sentence identification number\PYGZdq{}\PYGZcb{}\PYGZcb{}, \PYGZob{}\PYGZob{}sent\PYGZus{}text: \PYGZdq{}The sentence text\PYGZdq{}\PYGZcb{}\PYGZcb{}]}
+\PYG{l+s+s2}{    Node \PYGZdq{}Topic\PYGZdq{}: [\PYGZob{}\PYGZob{}top\PYGZus{}id: \PYGZdq{}The topic identification number\PYGZdq{}\PYGZcb{}\PYGZcb{}, \PYGZob{}\PYGZob{}top\PYGZus{}description: \PYGZdq{}The description the topic is all about\PYGZdq{}\PYGZcb{}\PYGZcb{}]}
+\PYG{l+s+s2}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{examples} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+s2}{    \PYGZsh{} Example question 1: Show me all the companies that were mentioned in articles published on 2023\PYGZhy{}05\PYGZhy{}03?}
+\PYG{l+s+s2}{    \PYGZsh{} Cypher statement to question 1:}
+\PYG{l+s+s2}{    MATCH (s:Sentence)\PYGZhy{}[:is\PYGZus{}part\PYGZus{}of]\PYGZhy{}\PYGZgt{}(a:Article)}
+\PYG{l+s+s2}{    WITH s as sent, a as article, Date(a.art\PYGZus{}datetime) as date}
+\PYG{l+s+s2}{    MATCH (sent)\PYGZhy{}[:mentions]\PYGZhy{}\PYGZgt{}(c:Company)}
+\PYG{l+s+s2}{    WHERE date = Date(\PYGZob{}\PYGZob{}year: 2023, month: 5, day: 3\PYGZcb{}\PYGZcb{})}
+\PYG{l+s+s2}{    RETURN DISTINCT c.comp\PYGZus{}name}
+\PYG{l+s+s2}{    }
+\PYG{l+s+s2}{    \PYGZsh{} Example question 2: Show me all articles with company mentions published on 2023\PYGZhy{}05\PYGZhy{}03 and the text of the articles?}
+\PYG{l+s+s2}{    \PYGZsh{} Cypher statement to question 2:}
+\PYG{l+s+s2}{    MATCH (s:Sentence)\PYGZhy{}[:is\PYGZus{}part\PYGZus{}of]\PYGZhy{}\PYGZgt{}(a:Article)}
+\PYG{l+s+s2}{    WITH s as sent, a as article, Date(a.art\PYGZus{}datetime) as date}
+\PYG{l+s+s2}{    MATCH (sent)\PYGZhy{}[:mentions]\PYGZhy{}\PYGZgt{}(c:Company)}
+\PYG{l+s+s2}{    WHERE date = Date(\PYGZob{}\PYGZob{}year: 2023, month: 5, day: 3\PYGZcb{}\PYGZcb{})}
+\PYG{l+s+s2}{    RETURN DISTINCT article.art\PYGZus{}text}
+\PYG{l+s+s2}{    }
+\PYG{l+s+s2}{    \PYGZsh{} Example question 3: Show me all the companies that were mentioned in articles published on 2023\PYGZhy{}05\PYGZhy{}03 and the sentences in which they were mentioned?}
+\PYG{l+s+s2}{    \PYGZsh{} Cypher statement to question 3:}
+\PYG{l+s+s2}{    MATCH (s:Sentence)\PYGZhy{}[:is\PYGZus{}part\PYGZus{}of]\PYGZhy{}\PYGZgt{}(a:Article)}
+\PYG{l+s+s2}{    WITH s as sent, a as article, Date(a.art\PYGZus{}datetime) as date}
+\PYG{l+s+s2}{    MATCH (sent)\PYGZhy{}[:mentions]\PYGZhy{}\PYGZgt{}(c:Company)}
+\PYG{l+s+s2}{    WHERE date = Date(\PYGZob{}\PYGZob{}year: 2023, month: 5, day: 3\PYGZcb{}\PYGZcb{})}
+\PYG{l+s+s2}{    RETURN DISTINCT c.comp\PYGZus{}name, sent.sent\PYGZus{}text}
+\PYG{l+s+s2}{    }
+\PYG{l+s+s2}{    \PYGZsh{} Example question 4: Show me all the sentences and their topic IDs of articles that were published on 2023\PYGZhy{}05\PYGZhy{}03?}
+\PYG{l+s+s2}{    \PYGZsh{} Cypher statement to question 4:}
+\PYG{l+s+s2}{    MATCH (s:Sentence)\PYGZhy{}[:is\PYGZus{}part\PYGZus{}of]\PYGZhy{}\PYGZgt{}(a:Article)}
+\PYG{l+s+s2}{    WITH s as sent, a as article, Date(a.art\PYGZus{}datetime) as date}
+\PYG{l+s+s2}{    MATCH (sent)\PYGZhy{}[:is\PYGZus{}about]\PYGZhy{}\PYGZgt{}(t:Topic)}
+\PYG{l+s+s2}{    WHERE date = Date(\PYGZob{}\PYGZob{}year: 2023, month: 5, day: 3\PYGZcb{}\PYGZcb{})}
+\PYG{l+s+s2}{    RETURN DISTINCT t.top\PYGZus{}id, sent.sent\PYGZus{}text}
+\PYG{l+s+s2}{    }
+\PYG{l+s+s2}{    \PYGZsh{} Example question 4: Show me all the companies and the sentences they were mentioned of articles that were published between 2023\PYGZhy{}05\PYGZhy{}02 and 2023\PYGZhy{}05\PYGZhy{}03?}
+\PYG{l+s+s2}{    \PYGZsh{} Cypher statement to question 4:}
+\PYG{l+s+s2}{    MATCH (s:Sentence)\PYGZhy{}[:is\PYGZus{}part\PYGZus{}of]\PYGZhy{}\PYGZgt{}(a:Article)}
+\PYG{l+s+s2}{    WITH s as sent, a as article, Date(a.art\PYGZus{}datetime) as art\PYGZus{}date}
+\PYG{l+s+s2}{    MATCH (sent)\PYGZhy{}[:mentions]\PYGZhy{}\PYGZgt{}(c:Company)}
+\PYG{l+s+s2}{    WHERE Date(\PYGZob{}\PYGZob{}year: 2023, month: 5, day: 2\PYGZcb{}\PYGZcb{}) \PYGZlt{}=  art\PYGZus{}date \PYGZlt{}= Date(\PYGZob{}\PYGZob{}year: 2023, month: 5, day: 3\PYGZcb{}\PYGZcb{})}
+\PYG{l+s+s2}{    RETURN DISTINCT c.comp\PYGZus{}name, sent.sent\PYGZus{}text}
+\PYG{l+s+s2}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n}{path\PYGZus{}to\PYGZus{}secrets}\PYG{p}{:} \PYG{n}{pathlib}\PYG{o}{.}\PYG{n}{Path} \PYG{o}{=} \PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{path\PYGZus{}to\PYGZus{}secrets}
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{n}{load\PYGZus{}dotenv}\PYG{p}{(}\PYG{n}{dotenv\PYGZus{}path}\PYG{o}{=}\PYG{n}{path\PYGZus{}to\PYGZus{}secrets}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} Load secrets/env variables}
+        \PYG{k}{except}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}secrets could not be loaded!\PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{uri} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}neo4j://localhost:7687\PYGZdq{}}
+        \PYG{n}{neo4j\PYGZus{}user} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{getenv}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}NEO4J\PYGZus{}USER\PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{neo4j\PYGZus{}pw} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{getenv}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}NEO4J\PYGZus{}PW\PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{openai\PYGZus{}key} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{getenv}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}OPENAI\PYGZus{}API\PYGZus{}KEY\PYGZdq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{graph} \PYG{o}{=} \PYG{n}{Neo4jGraph}\PYG{p}{(}\PYG{n}{url}\PYG{o}{=}\PYG{n}{uri}\PYG{p}{,} \PYG{n}{username}\PYG{o}{=}\PYG{n}{neo4j\PYGZus{}user}\PYG{p}{,} \PYG{n}{password}\PYG{o}{=}\PYG{n}{neo4j\PYGZus{}pw}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{graph}\PYG{o}{.}\PYG{n}{refresh\PYGZus{}schema}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{chat\PYGZus{}llm} \PYG{o}{=} \PYG{n}{ChatOpenAI}\PYG{p}{(}\PYG{n}{temperature}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{openai\PYGZus{}api\PYGZus{}key}\PYG{o}{=}\PYG{n}{openai\PYGZus{}key}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}schema}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{graph}\PYG{o}{.}\PYG{n}{schema}
+
+    \PYG{k}{def} \PYG{n+nf}{create\PYGZus{}prompt}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} IMPORTANT: The PromptTemplate is optimized for graphs and only accepts TWO input\PYGZus{}variables (schema, question).}
+\PYG{l+s+sd}{        Additional variables need to be inserted via f\PYGZhy{}string variables, such as \PYGZsq{}self.rels\PYGZus{}explanation\PYGZsq{} and}
+\PYG{l+s+sd}{        \PYGZsq{}self.examples\PYGZsq{} in this prompt.}
+\PYG{l+s+sd}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{cypher\PYGZus{}prompt} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+s2}{        Task: Generate pure Cypher statement to query a Neo4j graph database.}
+\PYG{l+s+s2}{        Instructions:}
+\PYG{l+s+s2}{        Use only the provided relationship types and properties in the schema.}
+\PYG{l+s+s2}{        Do not use any other relationship types or properties that are not provided.}
+\PYG{l+s+s2}{        Do not insert any comment in the query.}
+\PYG{l+s+s2}{        The following are all the relationships with their property being an attribute of the target Node:}
+\PYG{l+s+s2}{        }\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{rels\PYGZus{}explanation}\PYG{l+s+si}{\PYGZcb{}}
+\PYG{l+s+s2}{        Do also take into consideration that Nodes can only have the following attributes (with their \PYGZdq{}explanations in quotation marks\PYGZdq{}) respectively:}
+\PYG{l+s+s2}{        }\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nodes\PYGZus{}and\PYGZus{}their\PYGZus{}attributes}\PYG{l+s+si}{\PYGZcb{}}
+\PYG{l+s+s2}{        Other labels for Nodes are not allowed.}
+\PYG{l+s+s2}{        Do take into account that an attribute of the target Node is always stored as the property value of the}
+\PYG{l+s+s2}{        relationship. For instance, given the Relationship pattern \PYGZdq{}(:source Node)\PYGZhy{}[Relationship:property]\PYGZhy{}\PYGZgt{}(:target Node):\PYGZdq{},}
+\PYG{l+s+s2}{        the quantity or property value of the target Node is given as the property of the Relationship.}
+\PYG{l+s+s2}{        Schema:}
+\PYG{l+s+s2}{        }\PYG{l+s+se}{\PYGZob{}\PYGZob{}}\PYG{l+s+s2}{schema}\PYG{l+s+se}{\PYGZcb{}\PYGZcb{}}
+\PYG{l+s+s2}{        Note: Do not include any explanations or apologies in your responses.}
+\PYG{l+s+s2}{        Do not respond to any questions that might ask anything else than for you to construct a Cypher statement.}
+\PYG{l+s+s2}{        Do not include any text except the generated Cypher statement.}
+\PYG{l+s+s2}{        Examples: Here are a few examples of generated Cypher statements for particular questions:}
+\PYG{l+s+s2}{        }\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{examples}\PYG{l+s+si}{\PYGZcb{}}
+\PYG{l+s+s2}{        }
+\PYG{l+s+s2}{        Now, the question is:}
+\PYG{l+s+s2}{        }\PYG{l+s+se}{\PYGZob{}\PYGZob{}}\PYG{l+s+s2}{question}\PYG{l+s+se}{\PYGZcb{}\PYGZcb{}}
+\PYG{l+s+s2}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{CYPHER\PYGZus{}GENERATION\PYGZus{}PROMPT} \PYG{o}{=} \PYG{n}{PromptTemplate}\PYG{p}{(}
+            \PYG{n}{input\PYGZus{}variables}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}schema\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}question\PYGZdq{}}\PYG{p}{],} \PYG{n}{template}\PYG{o}{=}\PYG{n}{cypher\PYGZus{}prompt}
+        \PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{CYPHER\PYGZus{}GENERATION\PYGZus{}PROMPT}
+
+    \PYG{k}{def} \PYG{n+nf}{create\PYGZus{}chain}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{prompt}\PYG{p}{:} \PYG{n}{PromptTemplate}\PYG{p}{):}
+        \PYG{k}{return} \PYG{n}{GraphCypherQAChain}\PYG{o}{.}\PYG{n}{from\PYGZus{}llm}\PYG{p}{(}\PYG{n}{llm}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{chat\PYGZus{}llm}\PYG{p}{,} \PYG{n}{graph}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{graph}\PYG{p}{,}
+                                           \PYG{n}{cypher\PYGZus{}prompt}\PYG{o}{=}\PYG{n}{prompt}\PYG{p}{,} \PYG{n}{verbose}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,}
+                                           \PYG{n}{return\PYGZus{}intermediate\PYGZus{}steps}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{ask\PYGZus{}question}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{question}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{n}{prompt} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}prompt}\PYG{p}{()}
+        \PYG{n}{chain} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}chain}\PYG{p}{(}\PYG{n}{prompt}\PYG{o}{=}\PYG{n}{prompt}\PYG{p}{)}
+        \PYG{n}{answer} \PYG{o}{=} \PYG{n}{chain}\PYG{o}{.}\PYG{n}{invoke}\PYG{p}{(}\PYG{n}{question}\PYG{p}{)[}\PYG{l+s+s1}{\PYGZsq{}result\PYGZsq{}}\PYG{p}{]}
+        \PYG{k}{return} \PYG{n}{answer}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{n}{qa} \PYG{o}{=} \PYG{n}{GraphBot}\PYG{p}{()}
+    \PYG{n}{question} \PYG{o}{=} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Show me all the companies and the sentences they were mentioned of articles \PYGZdq{}}
+                \PYG{l+s+s2}{\PYGZdq{}that were published between 2023\PYGZhy{}05\PYGZhy{}02 and 2023\PYGZhy{}05\PYGZhy{}03\PYGZdq{}}\PYG{p}{)}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Question:}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{question}\PYG{p}{)}
+    \PYG{n}{ans} \PYG{o}{=} \PYG{n}{qa}\PYG{o}{.}\PYG{n}{ask\PYGZus{}question}\PYG{p}{(}\PYG{n}{question}\PYG{o}{=}\PYG{n}{question}\PYG{p}{)}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Answer:}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{ans}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} qa = GraphBot()}
+    \PYG{c+c1}{\PYGZsh{} print(qa.get\PYGZus{}schema())}
+    \PYG{c+c1}{\PYGZsh{} question = \PYGZdq{}Show me all the companies and the sentences they were mentioned of articles that were published between 2023\PYGZhy{}05\PYGZhy{}02 and 2023\PYGZhy{}05\PYGZhy{}03\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} \PYGZsh{} question = \PYGZdq{}Show me all the sentences and their topic IDs of articles that were published on 2023\PYGZhy{}05\PYGZhy{}03?\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} \PYGZsh{} question = \PYGZdq{}Show me all the companies that were mentioned in articles published on 2023\PYGZhy{}05\PYGZhy{}03?\PYGZdq{}}
+    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}Question:\PYGZbs{}n\PYGZsq{}, question)}
+    \PYG{c+c1}{\PYGZsh{} ans = qa.ask\PYGZus{}question(question=question)}
+    \PYG{c+c1}{\PYGZsh{} from pprint import pprint}
+    \PYG{c+c1}{\PYGZsh{}}
+    \PYG{c+c1}{\PYGZsh{} print(\PYGZsq{}Answer:\PYGZbs{}n\PYGZsq{})}
+    \PYG{c+c1}{\PYGZsh{} pprint(ans)}
+\end{Verbatim}

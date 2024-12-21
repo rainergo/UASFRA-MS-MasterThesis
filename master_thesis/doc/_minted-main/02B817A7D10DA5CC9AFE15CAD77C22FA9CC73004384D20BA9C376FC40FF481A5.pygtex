@@ -1,0 +1,64 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{import} \PYG{n+nn}{uuid}
+\PYG{k+kn}{from} \PYG{n+nn}{dotenv} \PYG{k+kn}{import} \PYG{n}{load\PYGZus{}dotenv}
+\PYG{k+kn}{import} \PYG{n+nn}{asyncio}
+\PYG{k+kn}{import} \PYG{n+nn}{nest\PYGZus{}asyncio}
+\PYG{k+kn}{from} \PYG{n+nn}{langchain\PYGZus{}core.messages} \PYG{k+kn}{import} \PYG{n}{BaseMessage}
+\PYG{k+kn}{from} \PYG{n+nn}{langchain\PYGZus{}core.runnables} \PYG{k+kn}{import} \PYG{n}{RunnableConfig}
+\PYG{k+kn}{from} \PYG{n+nn}{langchain\PYGZus{}openai} \PYG{k+kn}{import} \PYG{n}{ChatOpenAI}
+\PYG{k+kn}{from} \PYG{n+nn}{langchain.prompts} \PYG{k+kn}{import} \PYG{n}{PromptTemplate}
+\PYG{k+kn}{from} \PYG{n+nn}{langchain\PYGZus{}core.output\PYGZus{}parsers} \PYG{k+kn}{import} \PYG{n}{PydanticOutputParser}
+\PYG{k+kn}{from} \PYG{n+nn}{langchain.globals} \PYG{k+kn}{import} \PYG{n}{set\PYGZus{}verbose}\PYG{p}{,} \PYG{n}{set\PYGZus{}debug}
+
+\PYG{k+kn}{from} \PYG{n+nn}{data\PYGZus{}models} \PYG{k+kn}{import} \PYG{n}{Cluster}\PYG{p}{,} \PYG{n}{ClusterHead}\PYG{p}{,} \PYG{n}{DataContainer}
+\PYG{k+kn}{from} \PYG{n+nn}{examples} \PYG{k+kn}{import} \PYG{n}{convert\PYGZus{}examples\PYGZus{}to\PYGZus{}messages}
+
+\PYG{n}{load\PYGZus{}dotenv}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}../secrets.env\PYGZsq{}}\PYG{p}{)}
+
+
+\PYG{k}{class} \PYG{n+nc}{CorefLangchain}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{prompt\PYGZus{}template}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{model\PYGZus{}name}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}gpt\PYGZhy{}4o\PYGZdq{}}\PYG{p}{):}
+        \PYG{n}{nest\PYGZus{}asyncio}\PYG{o}{.}\PYG{n}{apply}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{prompt} \PYG{o}{=} \PYG{n}{PromptTemplate}\PYG{p}{(}\PYG{n}{template}\PYG{o}{=}\PYG{n}{prompt\PYGZus{}template}\PYG{p}{,}
+                                     \PYG{n}{input\PYGZus{}variables}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}text\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}cluster\PYGZus{}id\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}cluster\PYGZus{}head\PYGZdq{}}\PYG{p}{])}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{llm} \PYG{o}{=} \PYG{n}{ChatOpenAI}\PYG{p}{(}\PYG{n}{temperature}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{model}\PYG{o}{=}\PYG{n}{model\PYGZus{}name}\PYG{p}{,} \PYG{n}{openai\PYGZus{}api\PYGZus{}key}\PYG{o}{=}\PYG{n}{os}\PYG{o}{.}\PYG{n}{getenv}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}OPENAI\PYGZus{}API\PYGZus{}KEY\PYGZsq{}}\PYG{p}{))}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{llm} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{llm}\PYG{o}{.}\PYG{n}{with\PYGZus{}structured\PYGZus{}output}\PYG{p}{(}\PYG{n}{schema}\PYG{o}{=}\PYG{n}{Cluster}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{chain} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{prompt} \PYG{o}{|} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{llm}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{examples}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{BaseMessage}\PYG{p}{]} \PYG{o}{=} \PYG{n}{convert\PYGZus{}examples\PYGZus{}to\PYGZus{}messages}\PYG{p}{()}
+
+    \PYG{k}{async} \PYG{k}{def} \PYG{n+nf}{\PYGZus{}run\PYGZus{}chain}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{text}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{cluster\PYGZus{}id}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{cluster\PYGZus{}head}\PYG{p}{:} \PYG{n+nb}{dict}\PYG{p}{):}
+        \PYG{k}{return} \PYG{k}{await} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{chain}\PYG{o}{.}\PYG{n}{ainvoke}\PYG{p}{(\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}text\PYGZdq{}}\PYG{p}{:} \PYG{n}{text}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}cluster\PYGZus{}id\PYGZdq{}}\PYG{p}{:} \PYG{n}{cluster\PYGZus{}id}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}cluster\PYGZus{}head\PYGZdq{}}\PYG{p}{:} \PYG{n}{cluster\PYGZus{}head}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}examples\PYGZdq{}}\PYG{p}{:} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{examples}\PYG{p}{\PYGZcb{})}
+
+    \PYG{c+c1}{\PYGZsh{} Define a function to run multiple chains concurrently}
+    \PYG{k}{async} \PYG{k}{def} \PYG{n+nf}{\PYGZus{}run\PYGZus{}multiple\PYGZus{}chains}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{container}\PYG{p}{:} \PYG{n}{DataContainer}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{Cluster}\PYG{p}{]:}
+        \PYG{n}{data\PYGZus{}list}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{Cluster}\PYG{p}{]} \PYG{o}{=} \PYG{n}{container}\PYG{o}{.}\PYG{n}{data\PYGZus{}list}
+        \PYG{n}{tasks} \PYG{o}{=} \PYG{p}{[}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}run\PYGZus{}chain}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{cluster}\PYG{o}{.}\PYG{n}{text}\PYG{p}{,} \PYG{n}{cluster\PYGZus{}head}\PYG{o}{=}\PYG{n}{cluster}\PYG{o}{.}\PYG{n}{cluster\PYGZus{}head}\PYG{o}{.}\PYG{n}{model\PYGZus{}dump}\PYG{p}{(),} \PYG{n}{cluster\PYGZus{}id}\PYG{o}{=}\PYG{n}{cluster}\PYG{o}{.}\PYG{n}{cluster\PYGZus{}id}\PYG{p}{)} \PYG{k}{for} \PYG{n}{cluster} \PYG{o+ow}{in} \PYG{n}{data\PYGZus{}list}\PYG{p}{]}
+        \PYG{n}{results} \PYG{o}{=} \PYG{k}{await} \PYG{n}{asyncio}\PYG{o}{.}\PYG{n}{gather}\PYG{p}{(}\PYG{o}{*}\PYG{n}{tasks}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{results}
+
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}coreferences}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{container}\PYG{p}{:} \PYG{n}{DataContainer}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{Cluster}\PYG{p}{]:}
+        \PYG{k}{return} \PYG{n}{asyncio}\PYG{o}{.}\PYG{n}{run}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}run\PYGZus{}multiple\PYGZus{}chains}\PYG{p}{(}\PYG{n}{container}\PYG{o}{=}\PYG{n}{container}\PYG{p}{))}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{k+kn}{from} \PYG{n+nn}{pprint} \PYG{k+kn}{import} \PYG{n}{pprint}
+    \PYG{n}{set\PYGZus{}debug}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{)}
+    \PYG{n}{set\PYGZus{}verbose}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{)}
+    \PYG{k+kn}{from} \PYG{n+nn}{examples} \PYG{k+kn}{import} \PYG{n}{predict\PYGZus{}dict}
+    \PYG{k+kn}{from} \PYG{n+nn}{prompts} \PYG{k+kn}{import} \PYG{n}{prompt\PYGZus{}template\PYGZus{}langchain}
+    \PYG{n}{cl} \PYG{o}{=} \PYG{n}{CorefLangchain}\PYG{p}{(}\PYG{n}{prompt\PYGZus{}template}\PYG{o}{=}\PYG{n}{prompt\PYGZus{}template\PYGZus{}langchain}\PYG{p}{)}
+    \PYG{n}{data1} \PYG{o}{=} \PYG{n}{Cluster}\PYG{p}{(}\PYG{n}{cluster\PYGZus{}id}\PYG{o}{=}\PYG{l+m+mi}{113}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{n}{predict\PYGZus{}dict}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}text\PYGZsq{}}\PYG{p}{],} \PYG{n}{cluster\PYGZus{}head}\PYG{o}{=}\PYG{n}{predict\PYGZus{}dict}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}cluster\PYGZus{}head\PYGZsq{}}\PYG{p}{])}
+    \PYG{n}{text} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}\PYGZdq{}\PYGZdq{}Der Foto\PYGZhy{}Dienstleister Cewe ist in den ersten neun Monaten des Jahres gewachsen. Damit sieht sich das Management auf Kurs zu seinen Jahreszielen und gut geruestet fuer das wichtige Weihnachtsgeschaeft. Das teilte der SDax \PYGZhy{}Konzern am Freitag in Oldenburg mit.\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{cluster\PYGZus{}head} \PYG{o}{=} \PYG{n}{ClusterHead}\PYG{p}{(}\PYG{n}{head\PYGZus{}text}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Foto\PYGZhy{}Dienstleister Cewe\PYGZdq{}}\PYG{p}{,} \PYG{n}{head\PYGZus{}index\PYGZus{}start}\PYG{o}{=}\PYG{l+m+mi}{4}\PYG{p}{,} \PYG{n}{head\PYGZus{}index\PYGZus{}end}\PYG{o}{=}\PYG{l+m+mi}{26}\PYG{p}{)}
+    \PYG{n}{data2} \PYG{o}{=} \PYG{n}{Cluster}\PYG{p}{(}\PYG{n}{cluster\PYGZus{}id}\PYG{o}{=}\PYG{l+m+mi}{209}\PYG{p}{,} \PYG{n}{text}\PYG{o}{=}\PYG{n}{text}\PYG{p}{,} \PYG{n}{cluster\PYGZus{}head}\PYG{o}{=}\PYG{n}{cluster\PYGZus{}head}\PYG{p}{)}
+    \PYG{n}{container} \PYG{o}{=} \PYG{n}{DataContainer}\PYG{p}{()}
+    \PYG{n}{container}\PYG{o}{.}\PYG{n}{data\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{data1}\PYG{p}{)}
+    \PYG{n}{container}\PYG{o}{.}\PYG{n}{data\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{data2}\PYG{p}{)}
+    \PYG{n}{cd} \PYG{o}{=} \PYG{n}{container}\PYG{o}{.}\PYG{n}{data\PYGZus{}list}
+    \PYG{n}{results} \PYG{o}{=} \PYG{n}{cl}\PYG{o}{.}\PYG{n}{get\PYGZus{}coreferences}\PYG{p}{(}\PYG{n}{container}\PYG{o}{=}\PYG{n}{container}\PYG{p}{)}
+    \PYG{k}{for} \PYG{n}{result} \PYG{o+ow}{in} \PYG{n}{results}\PYG{p}{:}
+        \PYG{n}{pprint}\PYG{p}{(}\PYG{n}{result}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{n+nb}{type}\PYG{p}{(}\PYG{n}{result}\PYG{p}{))}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsq{}}\PYG{p}{)}
+\end{Verbatim}

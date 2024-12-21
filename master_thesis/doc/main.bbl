@@ -1,0 +1,576 @@
+\begin{thebibliography}{100}
+
+\bibitem{AllenAI}
+Allenai: The allen institute for artificial intelligence.
+\newblock \url{https://allenai.org/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{AllenNLPCorefModel}
+Allennlp: Coreference model.
+\newblock
+  \url{https://github.com/allenai/allennlp-models/blob/main/allennlp_models/modelcards/coref-spanbert.json}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{xxCorefMinilmModel}
+Crosslingual-coreference: minlm.
+\newblock \url{https://huggingface.co/microsoft/Multilingual-MiniLM-L12-H384}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{llama3}
+Facebook: Llama3 model.
+\newblock \url{https://ai.meta.com/blog/meta-llama-3/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{AllenCorefModelModification}
+Medium: How to make an effective coreference resolution model.
+\newblock
+  \url{https://towardsdatascience.com/how-to-make-an-effective-coreference-resolution-model-55875d2b5f19}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{ollama}
+Ollama: Running llms locally.
+\newblock \url{https://ollama.com/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{kaggle}
+Kaggle: German news datasets.
+\newblock \url{https://www.kaggle.com/datasets?search=news+german}, 2024.
+
+\bibitem{pandas}
+pandas: Documentation.
+\newblock \url{https://pandas.pydata.org/docs/index.html}, 2024.
+
+\bibitem{parquet}
+parquet: Documentation.
+\newblock \url{https://parquet.apache.org/}, 2024.
+
+\bibitem{bloomberg}
+parquet: Documentation.
+\newblock \url{https://www.bloomberg.com/company/}, 2024.
+
+\bibitem{blueprints}
+Jens Albrecht, Sidharth Ramachandran, and Christian Winkler.
+\newblock Blueprints for text analytics using python.
+\newblock
+  \url{https://github.com/blueprints-for-text-analytics-python/blueprints-text},
+  2020.
+
+\bibitem{promptner}
+Dhananjay Ashok and Zachary~Chase Lipton.
+\newblock Promptner: Prompting for fewshot named entity recognition.
+\newblock \url{https://openreview.net/pdf?id=WDQ9ZzsgDL}.
+
+\bibitem{CorefSeq2Seq}
+Bernd Bohnet, Chris Alberti, and Michael Collins.
+\newblock Coreference resolution through a seq2seq transition-based system.
+\newblock \url{https://doi.org/10.48550/arxiv.2211.12142}, 2023.
+
+\bibitem{ClarkManning2015}
+Kevin Clark and Christopher~D Manning.
+\newblock Entity-centric coreference resolution with model stacking.
+\newblock \url{https://aclanthology.org/P15-1136.pdf}, 2015.
+
+\bibitem{openbb}
+Openbb platform.
+\newblock \url{https://openbb.co/products/platform}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{topic-cardiffnlp}
+Cardiff nlp - pre-trained topic model.
+\newblock \url
+  {https://huggingface.co/cardiffnlp/twitter-roberta-base-dec2021-tweet-topic-multi-all}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{topic-stefanidis}
+Dimos stefanidis - pre-trained topic model.
+\newblock \url
+  {https://huggingface.co/dstefa/roberta-base_topic_classification_nyt_news}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{WebsiteDPAAFX}
+dpa afx wirtschaftsnachrichten gmbh.
+\newblock \url{https://www.dpa-afx.de/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{WebsiteEQSNews}
+Eqs group ag.
+\newblock \url {https://www.eqs-news.com/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{huggingface}
+Hugging face - website.
+\newblock \url {https://huggingface.co/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{xxCoref}
+Berenstein David.
+\newblock {Crosslingual Coreference - a multi-lingual approach to AllenNLP
+  CoReference Resolution along with a wrapper for spaCy.}
+\newblock
+  \url{https://github.com/davidberenstein1957/crosslingual-coreference}, 2022.
+
+\bibitem{leaderboard-ner}
+Paperswithcode: Leaderboard ner models.
+\newblock
+  \url{https://paperswithcode.com/sota/named-entity-recognition-ner-on-bc5cdr}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{n-gram}
+Wikipedia: N-gram.
+\newblock \url{https://en.wikipedia.org/wiki/N-gram}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{dbpedia}
+Dbpedia.
+\newblock \url{https://www.dbpedia.org/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{wikidata}
+Wikidata.
+\newblock \url{https://www.wikidata.org/wiki/Wikidata:Main_Page}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{graph-definition}
+Wikipedia: Graph: Discrete mathmatics.
+\newblock \url{https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{owl}
+Wikipedia: Owl: Web ontology language.
+\newblock \url{https://de.wikipedia.org/wiki/Web_Ontology_Language}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{triples}
+Wikipedia: Triples: Subject-predicate-object.
+\newblock \url{https://en.wikipedia.org/wiki/Semantic_triple}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{triple-store}
+Wikipedia: Triplestore.
+\newblock \url{https://en.wikipedia.org/wiki/Triplestore}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{turtle}
+Wikipedia: Turtle - terse rdf triple language.
+\newblock \url{https://en.wikipedia.org/wiki/Turtle_(syntax)}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{BERT}
+Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova.
+\newblock Bert: Pre-training of deep bidirectional transformers for language
+  understanding.
+\newblock \url{https://arxiv.org/abs/1810.04805}, 2019.
+
+\bibitem{CorefDobrovolskii}
+Vladimir Dobrovolskii.
+\newblock Word-level coreference resolution.
+\newblock \url{https://aclanthology.org/2021.emnlp-main.605}, 2021.
+
+\bibitem{graphrag}
+Darren Edge, Ha~Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody,
+  Steven Truitt, and Jonathan Larson.
+\newblock From local to global: A graph rag approach to query-focused
+  summarization.
+\newblock \url{https://arxiv.org/pdf/2404.16130}, 2024.
+
+\bibitem{spacy}
+Explosion.
+\newblock spacy.
+\newblock \url{https://spacy.io/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{AllenNLP}
+Matt Gardner, Joel Grus, Mark Neumann, Oyvind Tafjord, Pradeep Dasigi, Nelson
+  Liu, Matthew Peters, Michael Schmitz, and Luke Zettlemoyer.
+\newblock Allennlp: A deep semantic natural language processing platform.
+\newblock \url{https://arxiv.org/abs/1803.07640}, 2018.
+
+\bibitem{LfdTalk15}
+Rainer Gogel.
+\newblock Talk 15: Transformer applications in nlp.
+\newblock
+  \url{https://github.com/rainergo/Fileserver/blob/master/transformer_applications_in_nlp.pdf?raw=true},
+  2023.
+\newblock Frankfurt UAS, Master Program in Computer Science, Module: Learning
+  from Data, Prof.Dr.Joerg Schaefer.
+
+\bibitem{projdigi}
+Rainer Gogel, Priya Singh, and Christopher Unkart.
+\newblock Projekt digitalisierung: Information extraction from unstructured
+  data.
+\newblock \url{https://github.com/rainergo/UASFRA-MS-PROJDIGI}, 2024.
+\newblock Frankfurt UAS, Master Program in Computer Science, Projekt
+  Digitalisierung, Prof.Dr.Martin Simon.
+
+\bibitem{bertopic}
+Maarten Grootendorst.
+\newblock Bertopic: Neural topic modeling with a class-based tf-idf procedure.
+\newblock \url {https://maartengr.github.io/BERTopic/index.html}, 2022.
+
+\bibitem{deberta}
+Pengcheng He, Xiaodong Liu, Jianfeng Gao, and Weizhu Chen.
+\newblock Deberta: Decoding-enhanced bert with disentangled attention.
+\newblock \url{https://arxiv.org/abs/2006.03654}, 2020.
+
+\bibitem{LSTM}
+S~Hochreiter.
+\newblock Long short-term memory.
+\newblock \url{https://blog.xpgreat.com/file/lstm.pdf}, 1997.
+
+\bibitem{Coreferee}
+Richard~Paul Hudson.
+\newblock Coreferee.
+\newblock \url{https://github.com/richardpaulhudson/coreferee}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{SpanBERT}
+Mandar Joshi, Danqi Chen, Yinhan Liu, Daniel~S. Weld, Luke Zettlemoyer, and
+  Omer Levy.
+\newblock Spanbert: Improving pre-training by representing and predicting
+  spans.
+\newblock \url{https://arxiv.org/abs/1907.10529}, 2020.
+
+\bibitem{CorefWithBert}
+Mandar Joshi, Omer Levy, Daniel~S Weld, and Luke Zettlemoyer.
+\newblock Bert for coreference resolution: Baselines and analysis.
+\newblock \url{https://arxiv.org/abs/1908.09091}, 2019.
+
+\bibitem{StanfordNLPCoref}
+Daniel Jurafsky and James~H. Martin.
+\newblock Speech and language processing: An introduction to natural language
+  processing, computational linguistics, and speech recognition with language
+  models.
+\newblock \url{https://web.stanford.edu/~jurafsky/slp3/}, 2024.
+\newblock Chapter 23: Coreference Resolution and Entity Linking.
+
+\bibitem{StanfordNLPNER}
+Daniel Jurafsky and James~H. Martin.
+\newblock Speech and language processing: An introduction to natural language
+  processing, computational linguistics, and speech recognition with language
+  models.
+\newblock \url{https://web.stanford.edu/~jurafsky/slp3/}, 2024.
+\newblock Chapter 17: Sequence Labeling for Parts of Speech and Named Entities.
+
+\bibitem{KirstainCoref}
+Yuval Kirstain, Ori Ram, and Omer Levy.
+\newblock Coreference resolution without span representations.
+\newblock \url{https://arxiv.org/abs/2101.00434}, 2021.
+
+\bibitem{CorefEndToEnd}
+Kenton Lee, Luheng He, Mike Lewis, and Luke Zettlemoyer.
+\newblock End-to-end neural coreference resolution.
+\newblock \url{https://arxiv.org/abs/1707.07045}, 2017.
+
+\bibitem{CorefCoarseFine}
+Kenton Lee, Luheng He, and Luke Zettlemoyer.
+\newblock Higher-order coreference resolution with coarse-to-fine inference.
+\newblock \url{https://arxiv.org/abs/1804.05392}, 2018.
+
+\bibitem{bertbaseNER}
+David~S. Lim.
+\newblock bert-base-ner.
+\newblock \url{https://huggingface.co/dslim/bert-base-NER}.
+\newblock Accessed: October 24, 2024.
+
+\bibitem{CorefSurvey}
+Ruicheng Liu, Rui Mao, Anh~Tuan Luu, and Erik Cambria.
+\newblock A brief survey on recent advances in coreference resolution.
+\newblock \url{https://sentic.net/survey-on-coreference-resolution.pdf}, 2023.
+
+\bibitem{roberta}
+Y~Liu, M~Ott, N~Goyal, J~Du, M~Joshi, D~Chen, O~Levy, M~Lewis, L~Zettlemoyer,
+  and V~Stoyanov.
+\newblock Roberta: A robustly optimized bert pretraining approach. arxiv
+  [preprint](2019).
+\newblock \url{https://arxiv.org/abs/1907.11692}, 1907.
+
+\bibitem{nerbert}
+Zihan Liu, Feijun Jiang, Yuxiang Hu, Chen Shi, and Pascale Fung.
+\newblock Ner-bert: a pre-trained model for low-resource entity tagging.
+\newblock \url{https://arxiv.org/pdf/2112.00405}, 2021.
+
+\bibitem{hallucinationlegal}
+Varun Magesh, Faiz Surani, Matthew Dahl, Mirac Suzgun, Christopher~D Manning,
+  and Daniel~E Ho.
+\newblock Hallucination-free? assessing the reliability of leading ai legal
+  research tools.
+\newblock \url{https://arxiv.org/abs/2405.20362}, 2024.
+
+\bibitem{humanattention}
+Martijn Meeter, Yousri Marzouki, Arthur~E Avramiea, Joshua Snell, and Jonathan
+  Grainger.
+\newblock The role of attention in word recognition: Results from ob1-reader.
+\newblock \url{https://onlinelibrary.wiley.com/doi/full/10.1111/cogs.12846},
+  2020.
+
+\bibitem{word2vec2}
+Tomas Mikolov.
+\newblock Efficient estimation of word representations in vector space.
+\newblock
+  \url{https://www.khoury.northeastern.edu/home/vip/teach/DMcourse/4_TF_supervised/notes_slides/1301.3781.pdf},
+  2013.
+
+\bibitem{word2vec1}
+Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg~S Corrado, and Jeff Dean.
+\newblock Distributed representations of words and phrases and their
+  compositionality.
+\newblock
+  \url{https://proceedings.neurips.cc/paper/2013/file/9aa42b31882ec039965f3c4923ce901b-Paper.pdf},
+  2013.
+
+\bibitem{spacyembeddings}
+Lester~James Miranda, {\'A}kos K{\'a}d{\'a}r, Adriane Boyd, Sofie
+  Van~Landeghem, Anders S{\o}gaard, and Matthew Honnibal.
+\newblock Multi hash embeddings in spacy.
+\newblock \url{https://arxiv.org/abs/2212.09255}, 2022.
+
+\bibitem{WebsiteChatGPTLawyer}
+Lawyer used chatgpt in court—and cited fake cases. a judge is considering
+  sanctions.
+\newblock
+  \url{https://www.forbes.com/sites/mollybohannon/2023/06/08/lawyer-used-chatgpt-in-court-and-cited-fake-cases-a-judge-is-considering-sanctions/}.
+\newblock Accessed: September 7, 2024.
+
+\bibitem{transformersyoutube}
+Hedu AI~Math of~Intelligence.
+\newblock Visual guide to transformer neural networks series - episode 2.
+\newblock \url{https://www.youtube.com/watch?v=mMa2PmYJlCo}.
+\newblock Accessed: 2024-08-15.
+
+\bibitem{FastCoref}
+Shon Otmazgin, Arie Cattan, and Yoav Goldberg.
+\newblock F-coref: Fast, accurate and easy to use coreference resolution.
+\newblock \url{https://arxiv.org/abs/2209.04280}, 2022.
+
+\bibitem{iebook}
+Gerhard Paa{\ss} and Sven Giesselbach.
+\newblock Foundation models for information extraction.
+\newblock
+  \url{https://link.springer.com/content/pdf/10.1007/978-3-031-23190-2.pdf},
+  2023.
+
+\bibitem{CorefResIsHard}
+Haoruo Peng, Daniel Khashabi, and Dan Roth.
+\newblock Solving hard coreference problems.
+\newblock \url{https://arxiv.org/abs/1907.05524}, 2019.
+
+\bibitem{leaderboard-topic-models}
+Papers with code: Topic models - leaderboard.
+\newblock \url {https://paperswithcode.com/task/topic-models}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{CorefEvaluation}
+Ian Porada, Xiyuan Zou, and Jackie Chi~Kit Cheung.
+\newblock A controlled reevaluation of coreference resolution models.
+\newblock \url{https://aclanthology.org/2024.lrec-main.23}, May 2024.
+
+\bibitem{googlet5}
+Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael
+  Matena, Yanqi Zhou, Wei Li, and Peter~J Liu.
+\newblock Exploring the limits of transfer learning with a unified text-to-text
+  transformer.
+\newblock \url{https://arxiv.org/abs/1910.10683v4}, 2020.
+
+\bibitem{sentence-bert}
+Nils Reimers and Iryna Gurevych.
+\newblock Sentence-bert: Sentence embeddings using siamese bert-networks.
+\newblock \url {https://arxiv.org/abs/1908.10084}, 11 2019.
+
+\bibitem{ProblemsWithSparseVectors}
+Richard Socher.
+\newblock Stanford nlp: Cs224n lecture slides.
+\newblock
+  \url{https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1184/lectures/lecture3.pdf}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{CosineSimilarity}
+Cosine similarity.
+\newblock
+  \url{https://scikit-learn.org/stable/modules/metrics.html#cosine-similarity}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{nmf-implementation}
+Nmf.
+\newblock
+  \url{https://scikit-learn.org/dev/modules/generated/sklearn.decomposition.NMF.html}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{Pydantic}
+Pydantic website.
+\newblock \url {https://docs.pydantic.dev/2.9/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{LangChain}
+Python langchain website.
+\newblock \url {https://python.langchain.com/docs/introduction/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{ContentWords}
+Wikipedia: Content words.
+\newblock \url{https://en.wikipedia.org/wiki/Content_word}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{Coreference}
+Wikipedia: Coreference.
+\newblock \url{https://en.wikipedia.org/wiki/Coreference}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{EntropyInformationTheory}
+Wikipedia: Entropy in information theory.
+\newblock \url{https://en.wikipedia.org/wiki/Entropy_(information_theory)}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{FunctionWords}
+Wikipedia: Function words.
+\newblock \url{https://en.wikipedia.org/wiki/Function_word}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{Hallucination}
+Wikipedia: Hallucination in ai.
+\newblock
+  \url{https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{Lemmatization}
+Wikipedia: Lemmatization.
+\newblock \url{https://en.wikipedia.org/wiki/Lemmatization}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{Stemming}
+Wikipedia: Stemming.
+\newblock \url{https://en.wikipedia.org/wiki/Stemming}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{StopWords}
+Wikipedia: Stop words.
+\newblock \url{https://en.wikipedia.org/wiki/Stop_word}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{dspy}
+Dspy: Llm framework.
+\newblock \url{https://dspy-docs.vercel.app/intro/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{coref-cluster}
+Gabor melli's research: Coreference cluster.
+\newblock \url{https://www.gabormelli.com/RKB/Coreference_Cluster}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{llamaindex}
+Llamaindex: Llm framework.
+\newblock \url{https://www.llamaindex.ai/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{neo4j-apoc}
+neo4j apoc: Awesome procedures on cypher.
+\newblock \url{https://neo4j.com/labs/apoc/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{neo4j}
+neo4j: Getting started.
+\newblock \url{https://neo4j.com/docs/getting-started/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{neo4j-kgdefinition}
+neo4j: What is a knowledge graph.
+\newblock \url{https://neo4j.com/blog/what-is-knowledge-graph/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{protege}
+Protege: An open-source ontology editor.
+\newblock \url{https://protege.stanford.edu/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{rdflib}
+Rdflib: Python package for working with rdf.
+\newblock \url{https://rdflib.readthedocs.io/en/stable/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{sparql}
+Sparql: Sparql protocol and rdf query language.
+\newblock \url{https://www.w3.org/TR/sparql11-query/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{owl-guide}
+W3c: Owl web ontology language guide.
+\newblock \url{https://www.w3.org/TR/owl-guide/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{w3c}
+W3c: World wide web consortium.
+\newblock \url{https://www.w3.org/}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{wiki-entity-id}
+Wikidata entity identifier.
+\newblock \url{https://www.wikidata.org/wiki/Wikidata:Identifiers}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{anaphora}
+Wikipedia: Anaphora.
+\newblock \url{https://en.wikipedia.org/wiki/Anaphora_(linguistics)}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{antecedent}
+Wikipedia: Antecedent.
+\newblock \url{https://en.wikipedia.org/wiki/Antecedent_(grammar)}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{cataphora}
+Wikipedia: Cataphora.
+\newblock \url{https://en.wikipedia.org/wiki/Cataphora}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{cypher}
+Wikipedia: Cypher query language.
+\newblock \url{https://en.wikipedia.org/wiki/Cypher_(query_language)}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{rdfs}
+Wikipedia: Rdfs: Resource description framework schema.
+\newblock \url{https://en.wikipedia.org/wiki/RDF_Schema}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{sql}
+Wikipedia: Sql.
+\newblock \url{https://en.wikipedia.org/wiki/SQL}.
+\newblock Accessed: November 10, 2024.
+
+\bibitem{aiayn}
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
+  Aidan~N. Gomez, Lukasz Kaiser, and Illia Polosukhin.
+\newblock Attention is all you need.
+\newblock \url{https://arxiv.org/pdf/1706.03762.pdf}, 2017.
+\newblock Google Brain, Google Research, University of Totonto.
+
+\bibitem{gptner}
+Shuhe Wang, Xiaofei Sun, Xiaoya Li, Rongbin Ouyang, Fei Wu, Tianwei Zhang,
+  Jiwei Li, and Guoyin Wang.
+\newblock Gpt-ner: Named entity recognition via large language models.
+\newblock \url{https://arxiv.org/pdf/2304.10428}, 2023.
+
+\bibitem{hallucinationinevitable}
+Ziwei Xu, Sanjay Jain, and Mohan Kankanhalli.
+\newblock Hallucination is inevitable: An innate limitation of large language
+  models.
+\newblock \url{https://arxiv.org/abs/2401.11817}, 2024.
+
+\bibitem{gliner}
+Urchade Zaratiana, Nadi Tomeh, Pierre Holat, and Thierry Charnois.
+\newblock Gliner: Generalist model for named entity recognition using
+  bidirectional transformer.
+\newblock \url{https://arxiv.org/pdf/2311.08526}, 2023.
+
+\bibitem{zhangcorefseq2seq}
+Wenzheng Zhang, Sam Wiseman, and Karl Stratos.
+\newblock Seq2seq is all you need for coreference resolution.
+\newblock \url{https://aclanthology.org/2023.emnlp-main.704.pdf}, 2023.
+
+\bibitem{rag-cririque}
+Leon Zucchini.
+\newblock Why your rag system is failing — and how to fix it.
+\newblock
+  \url{https://blog.curiosity.ai/%EF%B8%8F-why-your-rag-system-is-failing-and-how-to-fix-it-7fe66780a335}.
+\newblock Accessed: November 10, 2024.
+
+\end{thebibliography}

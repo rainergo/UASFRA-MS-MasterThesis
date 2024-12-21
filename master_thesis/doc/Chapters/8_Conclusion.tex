@@ -1,0 +1,40 @@
+\chapter{Conclusion}
+
+The goal of this Master-Thesis project was to extract structured information from unstructured text and store this information in a Knowledge Graph.\\
+
+In this thesis and the accompanying Python code, it was shown how a predefined set of corporate entity names and their \glspl{coref_definition} can be found in financial news articles.
+It was also shown, how sentences that contained this company information, were classified with a Topic model and stored in a Knowledge Graph.
+In the \emph{Information Extraction Pipeline}, different approaches were studied, implemented in code and compared with each other.
+It was learned, that \gls{gen-llm}s can be used for a wide range of extraction tasks and that these models often outperform other approaches.\\
+
+The conversion of formerly unstructured text in files to structured data in a Knowledge Graph facilitates information retrieval.
+Information that was previously stored in an inaccessible form can, after conversion, be more readily accessed through the use of structured \gls{cypher} queries or a \gls{graph-bot}.
+The retrieved information from the Knowledge Graph should also be more accurate than the information coming from a \gls{gen-llm} ChatBot, even if the \gls{gen-llm} ChatBot has a typical \gls{RAG} system attached to it.
+This is because the Knowledge Graph's response is more based on actual news articles and less on next-word probabilities.\\
+
+As already mentioned, the few-shot examples provided to the \gls{coref_resolution_definition}, Topic Modelling and \gls{graph-bot} models, would need to be improved
+in a production use case.
+Given the more limited scope of a Master-Thesis and to present the process rather than the result, I nevertheless deem the state of the current models sufficient.\\
+
+Evaluation of the different models was done by individually comparing their performance on some exemplary data.
+The exemplary data was randomly sampled and might not represent the feature/data distribution of all scraped financial news articles or financial news articles in general very well.
+The comparison of the different models was also done manually and individually without using common performance measurement metrics such as accuracy, precision or recall.
+A key reason for this was the challenge of categorizing model prediction outcomes into clear binary classes of \emph{correct} and \emph{incorrect}
+and the extensive nature of the performance evaluation process: each prediction from every component within the \emph{Information Extraction Pipeline} for each sentence would require manual assessment and verification.
+In a production use case, a more thorough performance assessment was necessary.
+But again: Given the more limited scope of a Master-Thesis, I nevertheless deem the model evaluation process sufficient.\\
+
+
+In hindsight, I would approach some tasks differently.
+The usage of a spacy pipeline was motivated by the initial assumption that pre-trained spacy pipelines were among the best-performing models.
+This assumption must be abandoned, at least for the given data samples, as none of spacy's models or external plugins could compete with either \gls{gen-llm}s or other pre-trained models.
+The \emph{Information Extraction Pipeline} could have been fully built without the spacy library.\\
+
+I would also focus more on \gls{llm} frameworks such as LangChain \cite{LangChain}, LlamaIndex \cite{llamaindex} or DSPy \cite{dspy} and their ever-growing capabilities.
+The usage of tools, agents and other innovative concepts and components could probably further improve the performance of \gls{gen-llm}s for all kinds of extraction tasks.\\
+
+
+
+
+
+

@@ -1,0 +1,210 @@
+\newglossaryentry{nlp}{
+        name=NLP,
+        description={Natural Language Processing}
+}
+\newglossaryentry{vocabulary}{
+        name=Vocabulary,
+        description={Set of unique words in a corpus or, more generally, in a natural language such as English}
+}
+\newglossaryentry{corpus}{
+        name=Corpus,
+        description={Collection or dataset of multiple unique documents}
+}
+\newglossaryentry{document}{
+        name=Document,
+        description={Text that might contain multiple sentences such as a news article}
+}
+\newglossaryentry{document_term_matrix}{
+        name=Document Term Matrix,
+        description={Tabular data structure where rows represent references to documents and columns represent the unique terms of a vocabulary.
+        These unique terms can be words or tokens and are usually sorted alphabetically. The table entries are counts of these terms found in the respective document}
+}
+\newglossaryentry{stop_words}{
+        name=Stop Words,
+        description={Common words in a natural language that carry neither much semantic nor grammatical information.
+        Stop Word types include articles, conjunctions, prepositions, pronouns and very common verbs such as \emph{is} \cite{StopWords}}
+}
+\newglossaryentry{content_words}{
+        name=Content Words,
+        description={Content Words possess semantic content and contribute to the meaning of the sentence.
+        Nouns, verbs, adjectives and adverbs are commonly considered Content Words \cite{ContentWords}}
+}
+\newglossaryentry{function_words}{
+        name=Function Words,
+        description={Function Words have little semantic meaning and mainly express grammatical relationships of words within a sentence \cite{FunctionWords}}
+}
+\newglossaryentry{lemmatization}{
+        name=Lemmatization,
+        description={Process of converting inflected forms of a word to their lemma or semantic word root such as \emph{is}, \emph{was}, \emph{were} to \emph{be}, \cite{Lemmatization}}
+}
+\newglossaryentry{stemming}{
+        name=Stemming,
+        description={Process of converting inflected or derived words to their word stem by removing suffixes such as \emph{fishing}, \emph{fished}, \emph{fisher} to \emph{fish} \cite{Stemming}.
+        The semantic meaning can change in the process such as \emph{fisher} and \emph{fish} are semantically different}
+}
+\newglossaryentry{tfidf}{
+        name=TF-IDF,
+        description={Term-Frequency-times-Inverse-Document-Frequency}
+}
+\newglossaryentry{anaphora}{
+        name=Anaphora,
+        description={Expression, most often a pronoun or other pro-form, that depends upon an antecedent expression \cite{anaphora}}
+}
+\newglossaryentry{cataphora}{
+        name=Cataphora,
+        description={Preceding expression, whose meaning is determined or specified by the later expression \cite{cataphora}}
+}
+\newglossaryentry{coref_cluster}{
+        name=Coreference Cluster,
+        description={Cluster of referencers in a semantic equivalence relation with the same referent \cite{coref-cluster}}
+}
+\newglossaryentry{coref_mention}{
+        name=Mention,
+        description={Subjects or entities mentioned in a text to which coreferences exist}
+}
+\newglossaryentry{coref_antecedent}{
+        name=Antecedent,
+        description={Word that establishes the meaning of a pronoun or other pro-form \cite{antecedent}}
+}
+\newglossaryentry{coref_definition}{
+        name=Coreference,
+        description={Two or more expressions refering to the same person or thing \cite{Coreference}}
+}
+\newglossaryentry{coref_resolution_definition}{
+        name=Coreference Resolution,
+        description={Task of finding all expressions that refer to the same entity in a text \cite{StanfordNLPCoref}}
+}
+\newglossaryentry{span}{
+        name=Span,
+        description={Chain of multiple tokens, often a spacy data object \cite{spacy}}
+}
+\newglossaryentry{ngram}{
+        name=N-Gram,
+        description={Sequence of N adjacent symbols such as letters in particular order \cite{n-gram}}
+}
+\newglossaryentry{pos}{
+        name=POS,
+        description={Part of Speech or word class such as Noun, Verb, Adverb, etc}
+}
+\newglossaryentry{ner}{
+        name=NER,
+        description={Named Entity Recognition}
+}
+\newglossaryentry{token}{
+        name=Token,
+        description={Word or Sub-Word such as a syllable or a letter, often a spacy data object \cite{spacy}}
+}
+\newglossaryentry{llm}{
+        name=LLM,
+        description={Large Language Model}
+}
+\newglossaryentry{ann}{
+        name=ANN,
+        description={Artificial Neural Network}
+}
+\newglossaryentry{cnn}{
+        name=CNN,
+        description={Convolutional Neural Network}
+}
+\newglossaryentry{BERT}{
+        name=BERT,
+        description={Bidirectional Encoder Representations from Transformers, a pretrained LLM \cite{BERT}}
+}
+\newglossaryentry{ROBERTA}{
+        name=ROBERTA,
+        description={Robustly Optimized BERT Pre-training Approach, a pretrained LLM \cite{roberta}}
+}
+\newglossaryentry{Transformer}{
+        name=Transformer,
+        description={ANN architecture laid out in the seminal \emph{Attention is all you need} paper \cite{aiayn}}
+}
+\newglossaryentry{SpanBERT}{
+        name=SpanBERT,
+        description={Pretrained LLM, see: \cite{SpanBERT}}
+}
+\newglossaryentry{CRF}{
+        name=CRF,
+        description={Conditional Random Fields, a type of Markov Network}
+}
+\newglossaryentry{HMM}{
+        name=HMM,
+        description={Hidden Markov Model}
+}
+\newglossaryentry{Hallucination}{
+        name=Hallucination,
+        description={Presentation of false or misleading information as facts by an LLM, see: \cite{Hallucination}}
+}
+\newglossaryentry{CPython}{
+        name=CPython,
+        description={Default implementation of the Python programming language}
+}
+\newglossaryentry{RAG}{
+        name=RAG,
+        description={Retrieval Augmented Generation}
+}
+\newglossaryentry{Regex}{
+        name=REGEX,
+        description={Regular Expression}
+}
+\newglossaryentry{gen-llm}{
+        name=Generative LLM,
+        description={A generative \gls{llm} that generates text in response to a \gls{prompt} request sent to it}
+}
+\newglossaryentry{prompt}{
+        name=Prompt,
+        description={Textual instruction sent to an \gls{llm} ChatBot in expectation to receive a desired response}
+}
+\newglossaryentry{lda}{
+        name=LDA,
+        description={Latent Dirichlet Allocation}
+}
+\newglossaryentry{nmf}{
+        name=NMF,
+        description={Non-Negative Matrix Factorization, a Matrix decomposition method}
+}
+\newglossaryentry{org}{
+        name=ORG,
+        description={Named entity of type Organization}
+}
+\newglossaryentry{per}{
+        name=PER,
+        description={Named entity of type Person}
+}
+\newglossaryentry{loc}{
+        name=LOC,
+        description={Named entity of type Location}
+}
+\newglossaryentry{gpe}{
+        name=GPE,
+        description={Named entity of type Geo-Political Entity}
+}
+\newglossaryentry{svd}{
+        name=SVD,
+        description={Singular Value Decomposition, a Matrix decomposition method}
+}
+\newglossaryentry{isin}{
+        name=ISIN,
+        description={International Securities Identification Number}
+}
+\newglossaryentry{iri}{
+        name=IRI,
+        description={Internationalized Resource Identifier as defined by \cite{w3c}}
+}
+\newglossaryentry{json}{
+        name=JSON,
+        description={JavaScript Object Notation}
+}
+\newglossaryentry{cypher}{
+        name=Cypher,
+        description={Query script language for Knowledge Graphs created by neo4j}
+}
+\newglossaryentry{graph-bot}{
+        name=Graph Bot,
+        description={Chatbot that is attached to the Knowledge Graph}
+}
+
+
+
+
+
+

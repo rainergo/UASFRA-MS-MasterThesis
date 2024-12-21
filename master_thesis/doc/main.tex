@@ -1,0 +1,168 @@
+%------------------------------------------------------
+%    PREAMBLE
+%------------------------------------------------------
+% --- DOCUMENT CLASS
+\documentclass[
+DIV=calc,
+a4paper,
+fontsize=12pt
+]{scrreprt}   % 'report'-class is used, alternatives: 'scrreprt' (see: https://www.ctan.org/pkg/scrreprt)
+% Check this page: https://www.overleaf.com/learn/latex/Sections_and_chapters
+
+
+% --- Packages
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{graphicx}   % Required for inserting images
+\usepackage{minted}     % Required for code blocks (i.e. Python)
+\usepackage{geometry}   % Required for page layout
+\usepackage{scrhack}    % To avoid warnings on floating
+%\usepackage{wrapfig}    % To wrap math formulas around a figure
+\usepackage{mathtools}
+%\usepackage{amsmath}
+\usepackage{glossaries}
+\usepackage{subcaption}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=blue,
+    urlcolor=blue,
+    citecolor=blue,
+    pdftitle={Master-Thesis Rainer Gogel},
+    pdfpagemode=FullScreen,
+    }
+
+\loadglsentries{Chapters/0_Glossary.tex}
+\makenoidxglossaries
+
+%------------------------------------------------------
+%    LAYOUT AND STYLE
+%------------------------------------------------------
+
+% Global settings for package 'minted'. Python 'styles' available in Pygment: https://pygments.org/styles/
+\setminted[python]{
+style=default,
+fontsize=\scriptsize,
+frame=lines,
+framesep=2mm,
+linenos=true,
+baselinestretch=1.2,
+breaklines=true
+}
+
+% This changes the name from "Listing ..." to "Python Code ..."
+\renewcommand{\listingscaption}{Python-Code}
+% --- Layout
+% \newgeometry{
+% top = 3cm,
+% bottom = 3cm,
+% outer = 3cm,
+% inner = 3cm
+% }
+
+%------------------------------------------------------
+%    FIRST PAGE
+%------------------------------------------------------
+\titlehead{\centering\includegraphics[width=0.25\textwidth]{Assets/uasfra-logo}\\[0.2cm]Department of Computer Science}
+\subject{Master-Thesis}
+\title{\Huge \emph{Constructing a Knowledge Graph by extracting information from financial news articles}}
+\author{\textbf{Rainer Gogel}\\ \normalsize{Student-ID: 1272442} \\[2cm]{Advisor: Prof. Dr. Joerg Schaefer}\\{Co-Advisor: Prof. Dr. Baris Sertkaya}\\[3cm]}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+
+%------------------------------------------------------
+%    CONTENT-INTRO
+%------------------------------------------------------
+
+\chapter*{Statutory Declaration}
+I herewith declare that I have completed this Master-Thesis independently, without making use of other than the specified literature and aids.
+All parts that were taken from published and non-published texts either verbally or in substance are clearly marked as such.
+This thesis has not been presented to any examination office before.\\
+
+
+Frankfurt am Main, November 10, 2024\\
+
+
+Rainer Gogel\\
+
+
+
+\begin{figure}[H]
+	\includegraphics[width=0.3\textwidth]{Assets/signature}
+\end{figure}
+Signature
+
+\chapter*{Acknowledgements}
+I would like to express my sincere gratitude to Professor Dr. Joerg Schaefer and Professor Dr. Baris Sertkaya for their willingness to supervise this Master-Thesis.
+I am particularly grateful to Professor Dr. Joerg Schaefer for stepping in as my primary supervisor at short notice, enabling me to escape an unpleasant situation.\\
+
+I am also grateful to them for being a part of my academic journey and for their guidance along the way.
+Their expertise, passion for their field, and dedication to imparting knowledge through insightful and inspiring lectures and exercises have significantly enriched this journey.
+I am truly grateful for the wonderful learning experience they have provided.
+
+\chapter*{Summary}
+Reading and understanding news articles takes time and effort and some readers are only interested in information that is relevant to them.
+This Master-Thesis project demonstrates how a user, who is only interested in news about certain companies and topics, can retrieve such information from financial news articles in an efficient manner.\\
+
+The project’s code extracts company names and their \gls{coref_definition} from the news text, classifies this text into different topic classes and stores this information in a Knowledge Graph.
+This way, the user can retrieve the desired information and discover complex relationships by querying the Knowledge Graph or by communicating with the Knowledge Graph’s ChatBot (\gls{graph-bot}).\\
+
+In the \emph{Information Extraction Pipeline}, different approaches were studied, implemented in code and compared with each other.
+One of the key findings was that \glspl{gen-llm} can be used for a wide range of extraction tasks and that these models often outperform other, more traditional approaches.\\
+
+Another key finding is that the retrieved information from the \gls{graph-bot} should also be more accurate than answers coming from a typical \gls{llm} ChatBot, even if that \gls{llm} ChatBot has a traditional \gls{RAG} system attached to it.
+This is because the \gls{graph-bot}’s response is more based and focused on the stored news articles in the Knowledge Graph and less on next-word probabilities and vector similarities.\\
+
+Such a Knowledge Graph can be seen as an alternative \gls{RAG} system that might replace the more commonly used vector databases there.
+This is supported by a recently published and influential research paper by Microsoft \cite{graphrag} that points in the same direction.
+
+%\listoffigures
+\printnoidxglossaries
+
+\tableofcontents
+
+%------------------------------------------------------
+%    CONTENT-CHAPTERS
+%------------------------------------------------------
+
+%\mainmatter % Starts regular arabic page numbering
+%\include{Chapters/0_Summary}
+
+
+\include{Chapters/1_Introduction}
+\include{Chapters/2_Project_Setup}
+\include{Chapters/3_Text_Representation}
+\include{Chapters/4_NER}
+\include{Chapters/5_Coreference_Resolution}
+\include{Chapters/6_Topic_modelling}
+\include{Chapters/7_Knowledge_Graph}
+%\include{Chapters/Chapter_1}
+%\include{Chapters/Chapter_2_Code}
+%\include{Chapters/Chapter_3_Pics}
+%\include{Chapters/Chapter_4_Footnotes}
+%\include{Chapters/Math_Formulas}
+
+%------------------------------------------------------
+%    CONTENT-OUTRO
+%------------------------------------------------------
+\include{Chapters/8_Conclusion}
+
+\appendix   % Resets enumeration from numerical to alphabetical enumeration
+\include{Chapters/9_Appendix_A}
+%\include{Chapters/MAIN2}
+\listoffigures
+%\printnoidxglossaries
+
+%------------------------------------------------------
+%    BIBLIOGRAPHY
+%------------------------------------------------------
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+\end{document}

@@ -1,0 +1,277 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{warnings}
+
+\PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
+\PYG{k+kn}{import} \PYG{n+nn}{spacy}
+\PYG{k+kn}{from} \PYG{n+nn}{spacy.language} \PYG{k+kn}{import} \PYG{n}{Language}
+
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.config} \PYG{k+kn}{import} \PYG{n}{ConfigBasic}
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.enums} \PYG{k+kn}{import} \PYG{n}{NaturalLanguage}\PYG{p}{,} \PYG{n}{SpacyTask}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{p}{,} \PYG{n}{ExtractionType}
+
+\PYG{n}{pd}\PYG{o}{.}\PYG{n}{set\PYGZus{}option}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}display.max\PYGZus{}columns\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{50}\PYG{p}{)}
+\PYG{n}{warnings}\PYG{o}{.}\PYG{n}{filterwarnings}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}ignore\PYGZdq{}}\PYG{p}{)}
+
+
+\PYG{k}{class} \PYG{n+nc}{SpacyPipeBuild}\PYG{p}{:}
+    \PYG{c+c1}{\PYGZsh{} Note: Custom funcs must be imported:}
+    \PYG{c+c1}{\PYGZsh{} noinspection PyUnresolvedReferences}
+    \PYG{k+kn}{from} \PYG{n+nn}{src.B\PYGZus{}spacy\PYGZus{}pipeline} \PYG{k+kn}{import} \PYG{n}{spacy\PYGZus{}pipe\PYGZus{}funcs}
+    \PYG{c+c1}{\PYGZsh{} noinspection PyUnresolvedReferences}
+    \PYG{k+kn}{from} \PYG{n+nn}{gliner\PYGZus{}spacy.pipeline} \PYG{k+kn}{import} \PYG{n}{GlinerSpacy}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{natural\PYGZus{}language}\PYG{p}{:} \PYG{n}{NaturalLanguage}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}task}\PYG{p}{:} \PYG{n}{SpacyTask}\PYG{p}{,} \PYG{n}{ner\PYGZus{}method}\PYG{p}{:} \PYG{n}{ExtractionType} \PYG{o}{=} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{PRETRAINED}\PYG{p}{,}
+            \PYG{n}{coref\PYGZus{}method}\PYG{p}{:} \PYG{n}{ExtractionType} \PYG{o}{=} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{PRETRAINED}\PYG{p}{,} \PYG{n}{use\PYGZus{}gpu}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{k+kc}{True}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{natural\PYGZus{}language} \PYG{o}{=} \PYG{n}{natural\PYGZus{}language}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}task} \PYG{o}{=} \PYG{n}{spacy\PYGZus{}task}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ner\PYGZus{}method} \PYG{o}{=} \PYG{n}{ner\PYGZus{}method}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{coref\PYGZus{}method} \PYG{o}{=} \PYG{n}{coref\PYGZus{}method}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{use\PYGZus{}gpu} \PYG{o}{=} \PYG{n}{use\PYGZus{}gpu}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{entity\PYGZus{}ruler} \PYG{o}{=} \PYG{k+kc}{None}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{default\PYGZus{}pipe\PYGZus{}components}\PYG{p}{:} \PYG{n+nb}{list} \PYG{o}{|} \PYG{k+kc}{None} \PYG{o}{=} \PYG{k+kc}{None}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vectorizer} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{set\PYGZus{}nlp}\PYG{p}{(}\PYG{n}{natural\PYGZus{}language}\PYG{o}{=}\PYG{n}{natural\PYGZus{}language}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}task}\PYG{o}{=}\PYG{n}{spacy\PYGZus{}task}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{build\PYGZus{}pipe}\PYG{p}{()}
+
+    \PYG{k}{def} \PYG{n+nf}{set\PYGZus{}nlp}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{natural\PYGZus{}language}\PYG{p}{:} \PYG{n}{NaturalLanguage}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}task}\PYG{p}{:} \PYG{n}{SpacyTask}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{tuple}\PYG{p}{[}\PYG{n}{Language}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{p}{]:}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{use\PYGZus{}gpu}\PYG{p}{:}
+            \PYG{n}{spacy}\PYG{o}{.}\PYG{n}{require\PYGZus{}gpu}\PYG{p}{()}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}GPU is used:\PYGZsq{}}\PYG{p}{,} \PYG{n}{spacy}\PYG{o}{.}\PYG{n}{prefer\PYGZus{}gpu}\PYG{p}{())}  \PYG{c+c1}{\PYGZsh{} ToDo: Logging here}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}CPU is used!\PYGZsq{}}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} ToDo: Logging here}
+        \PYG{n}{nlp} \PYG{o}{=} \PYG{k+kc}{None}
+        \PYG{n}{vectorizer} \PYG{o}{=} \PYG{k+kc}{None}
+        \PYG{k}{match} \PYG{n}{natural\PYGZus{}language}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}task}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} Note: Currently neither NER nor COREF can be run on German trf\PYGZhy{}models but this might change in the future.}
+            \PYG{c+c1}{\PYGZsh{}  Change here then:}
+            \PYG{k}{case} \PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{DE}\PYG{p}{,} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{NER} \PYG{o}{|} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{COREF} \PYG{o}{|} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{ALL} \PYG{o}{|} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{POS}\PYG{p}{:}
+                \PYG{n}{nlp} \PYG{o}{=} \PYG{n}{spacy}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}de\PYGZus{}core\PYGZus{}news\PYGZus{}lg\PYGZsq{}}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{default\PYGZus{}pipe\PYGZus{}components} \PYG{o}{=} \PYG{p}{[}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TOK2VEC}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TAGGER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{MORPHOLOGIZER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{PARSER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{LEMMATIZER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{SENTER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{ATTRIBUTE\PYGZus{}RULER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{NER}\PYG{p}{]}
+                \PYG{n}{vectorizer} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TOK2VEC}
+            \PYG{k}{case} \PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{EN}\PYG{p}{,} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{NER} \PYG{o}{|} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{COREF} \PYG{o}{|} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{ALL} \PYG{o}{|} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{POS}\PYG{p}{:}
+                \PYG{n}{nlp} \PYG{o}{=} \PYG{n}{spacy}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}en\PYGZus{}core\PYGZus{}web\PYGZus{}trf\PYGZsq{}}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{default\PYGZus{}pipe\PYGZus{}components} \PYG{o}{=} \PYG{p}{[}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TRANSFORMER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TAGGER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{PARSER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{ATTRIBUTE\PYGZus{}RULER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{LEMMATIZER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{NER}\PYG{p}{]}
+                \PYG{n}{vectorizer} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TRANSFORMER}
+            \PYG{k}{case} \PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{DE}\PYG{p}{,} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{BASIC}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{default\PYGZus{}pipe\PYGZus{}components} \PYG{o}{=} \PYG{p}{[}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TOK2VEC}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TAGGER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{MORPHOLOGIZER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{PARSER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{LEMMATIZER}\PYG{p}{]}
+                \PYG{n}{nlp} \PYG{o}{=} \PYG{n}{spacy}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}de\PYGZus{}core\PYGZus{}news\PYGZus{}lg\PYGZsq{}}\PYG{p}{,} \PYG{n}{enable}\PYG{o}{=}\PYG{p}{[}\PYG{n}{comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name} \PYG{k}{for} \PYG{n}{comp} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{default\PYGZus{}pipe\PYGZus{}components}\PYG{p}{])}
+                \PYG{n}{vectorizer} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TOK2VEC}
+            \PYG{k}{case} \PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{EN}\PYG{p}{,} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{BASIC}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{default\PYGZus{}pipe\PYGZus{}components} \PYG{o}{=} \PYG{p}{[}\PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TRANSFORMER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TAGGER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{PARSER}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{LEMMATIZER}\PYG{p}{]}
+                \PYG{n}{nlp} \PYG{o}{=} \PYG{n}{spacy}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}en\PYGZus{}core\PYGZus{}web\PYGZus{}trf\PYGZsq{}}\PYG{p}{,} \PYG{n}{enable}\PYG{o}{=}\PYG{p}{[}\PYG{n}{comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name} \PYG{k}{for} \PYG{n}{comp} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{default\PYGZus{}pipe\PYGZus{}components}\PYG{p}{])}
+                \PYG{n}{vectorizer} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TRANSFORMER}
+            \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}
+                \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}spaCy model for Natural language \PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{natural\PYGZus{}language}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZdq{} and task \PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{spacy\PYGZus{}task}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZdq{} could not be loaded.\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{nlp}\PYG{p}{,} \PYG{n}{vectorizer}
+
+    \PYG{k}{def} \PYG{n+nf}{build\PYGZus{}pipe}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}task} \PYG{o}{!=} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{BASIC}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}init\PYGZus{}extensions}\PYG{p}{()}
+        \PYG{k}{match} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}task}\PYG{p}{:}
+            \PYG{k}{case} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{ALL}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{select\PYGZus{}pipes}\PYG{p}{(}\PYG{n}{enable}\PYG{o}{=}\PYG{p}{[}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vectorizer}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{])}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{api\PYGZus{}parser}\PYG{p}{()}
+                \PYG{k}{match} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ner\PYGZus{}method}\PYG{p}{:}
+                    \PYG{k}{case} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{TRADITIONAL}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}own\PYGZus{}regex\PYGZus{}search}\PYG{p}{()}
+                        \PYG{c+c1}{\PYGZsh{} self.api\PYGZus{}entity\PYGZus{}ruler()}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}comp\PYGZus{}name\PYGZus{}token\PYGZus{}regex\PYGZus{}match}\PYG{p}{()}
+                    \PYG{k}{case} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{PRETRAINED}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{api\PYGZus{}ner}\PYG{p}{()}
+                \PYG{k}{match} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{coref\PYGZus{}method}\PYG{p}{:}
+                    \PYG{k}{case} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{PRETRAINED}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}coref\PYGZus{}resolve\PYGZus{}pretrained}\PYG{p}{()}
+                    \PYG{k}{case} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{GENERATIVE\PYGZus{}LLM}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}coref\PYGZus{}resolve\PYGZus{}generative}\PYG{p}{()}
+                    \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{:}
+                        \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Cases other than ExtractionType.PRETRAINED and ExtractionType.GENERATIVE\PYGZus{}LLM are not supported yet.\PYGZsq{}}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}sentencizer}\PYG{p}{()}  \PYG{c+c1}{\PYGZsh{} Must be in for correct sentence splitting}
+
+            \PYG{k}{case} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{COREF}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{select\PYGZus{}pipes}\PYG{p}{(}\PYG{n}{enable}\PYG{o}{=}\PYG{p}{[}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vectorizer}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{MORPHOLOGIZER}\PYG{p}{])}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}own\PYGZus{}regex\PYGZus{}search}\PYG{p}{()}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}comp\PYGZus{}name\PYGZus{}token\PYGZus{}regex\PYGZus{}match}\PYG{p}{()}
+                \PYG{k}{match} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{coref\PYGZus{}method}\PYG{p}{:}
+                    \PYG{k}{case} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{PRETRAINED}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}coref\PYGZus{}resolve\PYGZus{}pretrained}\PYG{p}{()}
+                    \PYG{k}{case} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{GENERATIVE\PYGZus{}LLM}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}coref\PYGZus{}resolve\PYGZus{}generative}\PYG{p}{()}
+                    \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{:}
+                        \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Cases other than ExtractionType.PRETRAINED and ExtractionType.GENERATIVE\PYGZus{}LLM are not supported yet.\PYGZsq{}}\PYG{p}{)}
+
+            \PYG{k}{case} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{NER}\PYG{p}{:}
+                \PYG{k}{match} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ner\PYGZus{}method}\PYG{p}{:}
+                    \PYG{k}{case} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{TRADITIONAL}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{select\PYGZus{}pipes}\PYG{p}{(}\PYG{n}{enable}\PYG{o}{=}\PYG{p}{[}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vectorizer}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{MORPHOLOGIZER}\PYG{p}{])}
+                        \PYG{c+c1}{\PYGZsh{} self.api\PYGZus{}parser()}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}own\PYGZus{}regex\PYGZus{}search}\PYG{p}{()}
+                        \PYG{c+c1}{\PYGZsh{} self.api\PYGZus{}entity\PYGZus{}ruler()}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}comp\PYGZus{}name\PYGZus{}token\PYGZus{}regex\PYGZus{}match}\PYG{p}{()}
+                        \PYG{c+c1}{\PYGZsh{} self.func\PYGZus{}check\PYGZus{}spacy\PYGZus{}ent\PYGZus{}with\PYGZus{}fuzzy\PYGZus{}match()}
+                    \PYG{k}{case} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{PRETRAINED}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{select\PYGZus{}pipes}\PYG{p}{(}\PYG{n}{enable}\PYG{o}{=}\PYG{p}{[}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vectorizer}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{])}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{api\PYGZus{}gliner}\PYG{p}{()}
+                    \PYG{k}{case} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{GENERATIVE\PYGZus{}LLM}\PYG{p}{:}
+                        \PYG{k}{pass}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}sentencizer}\PYG{p}{()}  \PYG{c+c1}{\PYGZsh{} Must be in for correct sentence splitting}
+
+            \PYG{k}{case} \PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{POS}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{select\PYGZus{}pipes}\PYG{p}{(}\PYG{n}{enable}\PYG{o}{=}\PYG{p}{[}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vectorizer}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{MORPHOLOGIZER}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{,} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{PARSER}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{,} \PYG{p}{])}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{func\PYGZus{}sentencizer}\PYG{p}{()}  \PYG{c+c1}{\PYGZsh{} Must be in for correct sentence splitting}
+
+    \PYG{k}{def} \PYG{n+nf}{func\PYGZus{}sentencizer}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{OWN\PYGZus{}SENTENCIZER}\PYG{p}{):}
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+            \PYG{c+c1}{\PYGZsh{} Note: custom\PYGZus{}sentencizer must come first, according to this: https://github.com/explosion/spaCy/discussions/6963}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{,} \PYG{n}{first}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}custom extensions \PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{except} \PYG{n+ne}{Exception} \PYG{k}{as} \PYG{n}{e}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}custom extensions not initialized: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{e}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{func\PYGZus{}init\PYGZus{}extensions}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{INIT\PYGZus{}EXTENSIONS}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Initialize spacy token extensions \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}custom extensions \PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{except} \PYG{n+ne}{Exception} \PYG{k}{as} \PYG{n}{e}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}custom extensions not initialized: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{e}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{api\PYGZus{}ner}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{NER}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{disabled}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{enable\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{)}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}api ner has pipe ner\PYGZsq{}}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Built\PYGZhy{}In \PYGZdq{}NER\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{api\PYGZus{}gliner}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{GLINER}\PYG{p}{):}
+        \PYG{n}{config} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}labels\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}organization\PYGZdq{}}\PYG{p}{],} \PYG{l+s+s2}{\PYGZdq{}gliner\PYGZus{}model\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}urchade/gliner\PYGZus{}multi\PYGZdq{}}\PYG{p}{\PYGZcb{}}
+        \PYG{k}{if} \PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{disabled}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{enable\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{)}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}api gliner already has pipe gliner\PYGZsq{}}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{,} \PYG{n}{config}\PYG{o}{=}\PYG{n}{config}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}\PYGZdq{}GLINER\PYGZdq{} api initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{func\PYGZus{}check\PYGZus{}spacy\PYGZus{}ent\PYGZus{}with\PYGZus{}fuzzy\PYGZus{}match}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{CHECK\PYGZus{}SPACY\PYGZus{}ENT\PYGZus{}WITH\PYGZus{}FUZZY\PYGZus{}MATCH}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} ToDo: Description \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{if} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{NER}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{pipe\PYGZus{}names}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}NER api must be in pipeline for func\PYGZus{}check\PYGZus{}spacy\PYGZus{}ent\PYGZus{}with\PYGZus{}fuzzy\PYGZus{}match to work. Will be added now!\PYGZsq{}}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{api\PYGZus{}ner}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Function \PYGZdq{}func\PYGZus{}check\PYGZus{}spacy\PYGZus{}ent\PYGZus{}with\PYGZus{}fuzzy\PYGZus{}match\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{api\PYGZus{}parser}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{PARSER}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{disabled}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{enable\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{)}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Built\PYGZhy{}In \PYGZdq{}PARSER\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{api\PYGZus{}senter}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{SENTER}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{disabled} \PYG{o+ow}{and} \PYG{n}{spacy\PYGZus{}comp} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{default\PYGZus{}pipe\PYGZus{}components}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{enable\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{name}\PYG{o}{=}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{)}
+        \PYG{k}{elif} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vectorizer} \PYG{o}{==} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{TRANSFORMER}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}INFO: TRANSFORMER pipelines need the parser for sentence\PYGZhy{}related tasks. Thus, the parser component will be set now.\PYGZsq{}}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{api\PYGZus{}parser}\PYG{p}{()}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Built\PYGZhy{}In \PYGZdq{}SENTER\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{func\PYGZus{}own\PYGZus{}regex\PYGZus{}search}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{OWN\PYGZus{}REGEX\PYGZus{}SEARCH}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Function \PYGZdq{}own\PYGZus{}regex\PYGZus{}search\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{func\PYGZus{}coref\PYGZus{}resolve\PYGZus{}generative}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{LLM\PYGZus{}COREF\PYGZus{}RESOLVE}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Function \PYGZdq{}own\PYGZus{}coref\PYGZus{}resolve\PYGZus{}generative\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{func\PYGZus{}coref\PYGZus{}resolve\PYGZus{}pretrained}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{XX\PYGZus{}COREF\PYGZus{}RESOLVE}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n}{config} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}natural\PYGZus{}language\PYGZdq{}}\PYG{p}{:} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{natural\PYGZus{}language}\PYG{p}{\PYGZcb{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{,} \PYG{n}{config}\PYG{o}{=}\PYG{n}{config}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Function \PYGZdq{}own\PYGZus{}coref\PYGZus{}resolve\PYGZus{}pretrained\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{func\PYGZus{}comp\PYGZus{}name\PYGZus{}token\PYGZus{}regex\PYGZus{}match}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{COMP\PYGZus{}NAME\PYGZus{}TOKEN\PYGZus{}REGEX\PYGZus{}MATCH}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} ToDo: Description \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{c+c1}{\PYGZsh{} if (SpacyComp.MORPHOLOGIZER.factory\PYGZus{}name not in self.nlp.pipe\PYGZus{}names or}
+        \PYG{c+c1}{\PYGZsh{}         SpacyComp.PARSER.factory\PYGZus{}name not in self.nlp.pipe\PYGZus{}names):}
+        \PYG{c+c1}{\PYGZsh{}     raise ValueError(\PYGZsq{}MORPHOLOGIZER and PARSER apis must be in pipeline for func\PYGZus{}comp\PYGZus{}name\PYGZus{}token\PYGZus{}regex\PYGZus{}match to work !\PYGZsq{})}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Function \PYGZdq{}func\PYGZus{}comp\PYGZus{}name\PYGZus{}token\PYGZus{}regex\PYGZus{}match\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{api\PYGZus{}entity\PYGZus{}ruler}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{ENTITY\PYGZus{}RULER}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Create entity\PYGZus{}specialchar\PYGZus{}ruler api (\PYGZsq{}EntityRuler\PYGZsq{}, see: https://spacy.io/usage/rule\PYGZhy{}based\PYGZhy{}matching\PYGZsh{}entityruler)}
+\PYG{l+s+sd}{                    and add patterns from SpacyInput instance (\PYGZsq{}entity\PYGZus{}patterns\PYGZsq{} and \PYGZsq{}alias\PYGZus{}dict\PYGZsq{}):}
+\PYG{l+s+sd}{                    Multiple EntiyRuler\PYGZhy{}Instances are allowed, but only the name must differ!}
+\PYG{l+s+sd}{                    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n}{config} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}overwrite\PYGZus{}ents\PYGZdq{}}\PYG{p}{:} \PYG{k+kc}{False}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}validate\PYGZdq{}}\PYG{p}{:} \PYG{k+kc}{True}\PYG{p}{\PYGZcb{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{entity\PYGZus{}ruler} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{factory\PYGZus{}name}\PYG{o}{=}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{,} \PYG{n}{name}\PYG{o}{=}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{,} \PYG{n}{last}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,} \PYG{n}{config}\PYG{o}{=}\PYG{n}{config}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} Note: The entity\PYGZus{}ruler tries to match patterns from \PYGZdq{}entity\PYGZus{}ruler\PYGZus{}patterns.jsonl\PYGZdq{}. If a match occurs,}
+        \PYG{c+c1}{\PYGZsh{}  it attaches the pattern\PYGZus{}key (company name) to the \PYGZdq{}span.ent\PYGZus{}id\PYGZus{}\PYGZdq{}\PYGZhy{}extension:}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{entity\PYGZus{}ruler}\PYG{o}{.}\PYG{n}{from\PYGZus{}disk}\PYG{p}{(}\PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{path\PYGZus{}to\PYGZus{}entity\PYGZus{}ruler\PYGZus{}patterns}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Patterns for \PYGZdq{}Entity\PYGZhy{}Ruler loaded from file.\PYGZdq{}\PYGZsq{}}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Note: Now that the company names are attached to the Spacy default \PYGZdq{}span.ent\PYGZus{}id\PYGZus{}\PYGZdq{}\PYGZhy{}extension, they also must be attached}
+        \PYG{c+c1}{\PYGZsh{}   to the custom extensions. This should only be done once, i.e. if other functions attach company names}
+        \PYG{c+c1}{\PYGZsh{}   to the \PYGZdq{}span.ent\PYGZus{}id\PYGZus{}\PYGZdq{}\PYGZhy{}extension, then run \PYGZdq{}self.\PYGZus{}func\PYGZus{}attach\PYGZus{}custom\PYGZus{}extension\PYGZus{}to\PYGZus{}spacy\PYGZus{}orgs()\PYGZdq{} at the end:}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}func\PYGZus{}attach\PYGZus{}custom\PYGZus{}extension\PYGZus{}to\PYGZus{}spacy\PYGZus{}orgs}\PYG{p}{()}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Built\PYGZhy{}In \PYGZdq{}Entity\PYGZhy{}Ruler\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{\PYGZus{}func\PYGZus{}attach\PYGZus{}custom\PYGZus{}extension\PYGZus{}to\PYGZus{}spacy\PYGZus{}orgs}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{ATTACH\PYGZus{}ENT\PYGZus{}ID\PYGZus{}FROM\PYGZus{}ENTITY\PYGZus{}RULER\PYGZus{}TO\PYGZus{}CUSTOM\PYGZus{}EXTENSION}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Attach custom extensions to already existing entity labels if entity is in fuzzy\PYGZus{}searched companies \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{api\PYGZus{}coreference}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{COREFEREE}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Python package \PYGZsq{}coreferee\PYGZsq{} (pip installation, see above) that in later spaCy versions (\PYGZgt{}3.5) will be}
+\PYG{l+s+sd}{                   replaced by spaCy\PYGZsq{}s proprietary CoreferenceResolver API (see: https://spacy.io/api/coref).}
+\PYG{l+s+sd}{                    Here it must be used like a spaCy Language.component, i.e. just by: \PYGZsq{}add\PYGZus{}pipe(name\PYGZus{}of\PYGZus{}package)\PYGZsq{}}
+\PYG{l+s+sd}{                    The package attaches the extension \PYGZsq{}coref\PYGZus{}chains\PYGZsq{} to those tokens where it finds co\PYGZhy{}references. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{):}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{factory\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Api \PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}func\PYGZus{}anaphora}\PYG{p}{()}
+        \PYG{k}{except}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}spacy api \PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZdq{} could not be initialized!\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{\PYGZus{}func\PYGZus{}anaphora}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}comp}\PYG{p}{:} \PYG{n}{SpacyComp} \PYG{o}{=} \PYG{n}{SpacyComp}\PYG{o}{.}\PYG{n}{ANAPHORA}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Anaphora resolution of entities. For instance, \PYGZsq{}it\PYGZsq{} in: \PYGZsq{}BMW made a profit. It earned Eur 1000 Mio.\PYGZsq{} \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{has\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{):}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{remove\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp}\PYG{o}{.}\PYG{n}{add\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{p}{)}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}spacy custom function \PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZdq{} initialized\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{except}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}spacy custom function \PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{spacy\PYGZus{}comp}\PYG{o}{.}\PYG{n}{custom\PYGZus{}name}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZdq{} could not be initialized!\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} def save\PYGZus{}trained\PYGZus{}model(self, model\PYGZus{}name\PYGZus{}suffix: str):  \PYGZsh{}     model\PYGZus{}custom\PYGZus{}name = self.nlp.meta[\PYGZsq{}lang\PYGZsq{}] + \PYGZsq{}\PYGZus{}\PYGZsq{} + self.nlp.meta[\PYGZsq{}name\PYGZsq{}] + \PYGZsq{}\PYGZus{}\PYGZsq{} + self.nlp.meta[  \PYGZsh{}         \PYGZsq{}version\PYGZsq{}] + \PYGZsq{}\PYGZus{}\PYGZsq{} + model\PYGZus{}name\PYGZus{}suffix  \PYGZsh{}     path = os.path.join(self.save\PYGZus{}model\PYGZus{}path, model\PYGZus{}custom\PYGZus{}name)  \PYGZsh{}     self.nlp.to\PYGZus{}disk(path=path)  \PYGZsh{}     print(\PYGZsq{}Done! New model was saved.\PYGZsq{})}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{n}{pipe} \PYG{o}{=} \PYG{n}{SpacyPipeBuild}\PYG{p}{(}\PYG{n}{natural\PYGZus{}language}\PYG{o}{=}\PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{DE}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}task}\PYG{o}{=}\PYG{n}{SpacyTask}\PYG{o}{.}\PYG{n}{ALL}\PYG{p}{,} \PYG{n}{ner\PYGZus{}method}\PYG{o}{=}\PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{TRADITIONAL}\PYG{p}{,} \PYG{n}{coref\PYGZus{}method}\PYG{o}{=}\PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{PRETRAINED}\PYG{p}{)}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{pipe}\PYG{o}{.}\PYG{n}{entity\PYGZus{}ruler}\PYG{o}{.}\PYG{n}{patterns}\PYG{p}{)}
+\end{Verbatim}

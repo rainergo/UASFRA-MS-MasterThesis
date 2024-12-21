@@ -1,0 +1,681 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{json}
+\PYG{k+kn}{import} \PYG{n+nn}{re}
+\PYG{k+kn}{from} \PYG{n+nn}{enum} \PYG{k+kn}{import} \PYG{n}{Enum}
+
+\PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
+\PYG{k+kn}{from} \PYG{n+nn}{icecream} \PYG{k+kn}{import} \PYG{n}{ic}
+\PYG{k+kn}{from} \PYG{n+nn}{spacy.lang.de.stop\PYGZus{}words} \PYG{k+kn}{import} \PYG{n}{STOP\PYGZus{}WORDS} \PYG{k}{as} \PYG{n}{stop\PYGZus{}words\PYGZus{}de}
+\PYG{k+kn}{from} \PYG{n+nn}{spacy.lang.en.stop\PYGZus{}words} \PYG{k+kn}{import} \PYG{n}{STOP\PYGZus{}WORDS} \PYG{k}{as} \PYG{n}{stop\PYGZus{}words\PYGZus{}en}
+
+\PYG{k+kn}{from} \PYG{n+nn}{src.A\PYGZus{}data.company\PYGZus{}data} \PYG{k+kn}{import} \PYG{n}{df\PYGZus{}companies}
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.config} \PYG{k+kn}{import} \PYG{n}{ConfigBasic}
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.enums} \PYG{k+kn}{import} \PYG{n}{NaturalLanguage}\PYG{p}{,} \PYG{n}{RegexFor}
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.params} \PYG{k+kn}{import} \PYG{n}{company\PYGZus{}name\PYGZus{}bindings}\PYG{p}{,} \PYG{n}{company\PYGZus{}name\PYGZus{}articles}
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.params} \PYG{k+kn}{import} \PYG{p}{(}\PYG{n}{company\PYGZus{}suffixes\PYGZus{}legal\PYGZus{}form}\PYG{p}{,} \PYG{n}{common\PYGZus{}person\PYGZus{}names\PYGZus{}in\PYGZus{}company\PYGZus{}names}\PYG{p}{,} \PYG{n}{company\PYGZus{}suffixes\PYGZus{}industry\PYGZus{}hints}\PYG{p}{,} \PYG{n}{common\PYGZus{}words\PYGZus{}in\PYGZus{}company\PYGZus{}names}\PYG{p}{)}
+\PYG{k+kn}{from} \PYG{n+nn}{src.B\PYGZus{}spacy\PYGZus{}pipeline.language\PYGZus{}data} \PYG{k+kn}{import} \PYG{n}{get\PYGZus{}most\PYGZus{}common\PYGZus{}words}\PYG{p}{,} \PYG{n}{get\PYGZus{}most\PYGZus{}common\PYGZus{}names}
+\PYG{k+kn}{from} \PYG{n+nn}{src.G\PYGZus{}utils.funcs} \PYG{k+kn}{import} \PYG{n}{fuzzy\PYGZus{}similarity}
+\PYG{k+kn}{from} \PYG{n+nn}{src.G\PYGZus{}utils.regex\PYGZus{}funcs} \PYG{k+kn}{import} \PYG{n}{check\PYGZus{}if\PYGZus{}name\PYGZus{}initials\PYGZus{}in\PYGZus{}substring}
+\PYG{k+kn}{from} \PYG{n+nn}{src.G\PYGZus{}utils.re\PYGZus{}patterns} \PYG{k+kn}{import} \PYG{n}{company\PYGZus{}name\PYGZus{}bindings\PYGZus{}pattern}
+
+\PYG{c+c1}{\PYGZsh{} Note: Used in checks:}
+\PYG{n}{common\PYGZus{}terms}\PYG{p}{:} \PYG{n+nb}{list} \PYG{o}{=} \PYG{p}{(}\PYG{n+nb}{sorted}\PYG{p}{(}\PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{set}\PYG{p}{(}\PYG{n}{common\PYGZus{}words\PYGZus{}in\PYGZus{}company\PYGZus{}names} \PYG{o}{+} \PYG{n}{get\PYGZus{}most\PYGZus{}common\PYGZus{}words}\PYG{p}{(}\PYG{n}{language}\PYG{o}{=}\PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{DE}\PYG{p}{,} \PYG{n}{exclude\PYGZus{}words}\PYG{o}{=}\PYG{n}{company\PYGZus{}suffixes\PYGZus{}industry\PYGZus{}hints}\PYG{p}{)} \PYG{o}{+} \PYG{n}{get\PYGZus{}most\PYGZus{}common\PYGZus{}words}\PYG{p}{(}\PYG{n}{language}\PYG{o}{=}\PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{EN}\PYG{p}{,} \PYG{n}{exclude\PYGZus{}words}\PYG{o}{=}\PYG{n}{company\PYGZus{}suffixes\PYGZus{}industry\PYGZus{}hints}\PYG{p}{)} \PYG{o}{+} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{stop\PYGZus{}words\PYGZus{}en}\PYG{p}{)} \PYG{o}{+} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{stop\PYGZus{}words\PYGZus{}de}\PYG{p}{)))))}
+
+\PYG{n}{person\PYGZus{}names}\PYG{p}{:} \PYG{n+nb}{list} \PYG{o}{=} \PYG{p}{(}\PYG{n+nb}{sorted}\PYG{p}{(}\PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{set}\PYG{p}{(}\PYG{n}{common\PYGZus{}person\PYGZus{}names\PYGZus{}in\PYGZus{}company\PYGZus{}names} \PYG{o}{+} \PYG{n}{get\PYGZus{}most\PYGZus{}common\PYGZus{}names}\PYG{p}{(}\PYG{n}{language}\PYG{o}{=}\PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{EN}\PYG{p}{)} \PYG{o}{+} \PYG{n}{get\PYGZus{}most\PYGZus{}common\PYGZus{}names}\PYG{p}{(}\PYG{n}{language}\PYG{o}{=}\PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{DE}\PYG{p}{)))))}
+
+
+\PYG{k}{class} \PYG{n+nc}{WordType}\PYG{p}{(}\PYG{n}{Enum}\PYG{p}{):}
+    \PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} letter/number/specialChar\PYGZhy{}mix, upper\PYGZus{}after\PYGZus{}lower}
+    \PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX\PYGZus{}SHORT} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX\PYGZus{}SHORT\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} like CHAR\PYGZus{}TYPE\PYGZus{}MIX but \PYGZlt{} 4}
+    \PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} upper\PYGZhy{}only, lower only with len \PYGZgt{}= 4  ===\PYGZgt{}\PYGZgt{}\PYGZgt{} Must not be in LEGAL}
+    \PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} upper\PYGZhy{}only, lower only with len \PYGZlt{} 4}
+    \PYG{n}{INDU\PYGZus{}HINT} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}INDU\PYGZus{}HINT\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} Indstry names like Pharma, Chemicals, Energy, etc.}
+    \PYG{n}{LEGAL\PYGZus{}TERM} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}LEGAL\PYGZus{}TERM\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} Legal abbreviations like SA}
+    \PYG{n}{SHORT\PYGZus{}NUM} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}SHORT\PYGZus{}NUM\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} len \PYGZlt{} 4}
+    \PYG{n}{LONG\PYGZus{}NUM} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}LONG\PYGZus{}NUM\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} len \PYGZgt{}= 4}
+    \PYG{n}{PER\PYGZus{}NAME} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}PER\PYGZus{}NAME\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} Person name}
+    \PYG{n}{PER\PYGZus{}INITIAL} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}PER\PYGZus{}INITIAL\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} Person name initials}
+    \PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}COMMON\PYGZus{}WORDS\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} stop\PYGZhy{}words, common words (solution, group, dynamics) not in industry hints}
+    \PYG{n}{BINDING} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}BINDING\PYGZsq{}}
+    \PYG{n}{ARTICLE} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}ARTICLE\PYGZsq{}}
+    \PYG{n}{UNKNOWN} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}UNKNOWN\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} None of the above with len \PYGZgt{}= 4}
+    \PYG{n}{UNKNOWN\PYGZus{}SHORT} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}UNKNOWN\PYGZus{}SHORT\PYGZsq{}}  \PYG{c+c1}{\PYGZsh{} like UNKNOWN but len \PYGZlt{} 4}
+
+
+\PYG{k}{class} \PYG{n+nc}{SpacyInput}\PYG{p}{:}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{df\PYGZus{}companies}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{,} \PYG{n}{min\PYGZus{}len\PYGZus{}word}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{4}\PYG{p}{,} \PYG{n}{min\PYGZus{}len\PYGZus{}long\PYGZus{}number}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{n}{fuzzy\PYGZus{}threshold}\PYG{p}{:} \PYG{n+nb}{float} \PYG{o}{=} \PYG{l+m+mf}{95.00}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{df\PYGZus{}companies} \PYG{o}{=} \PYG{n}{df\PYGZus{}companies}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{min\PYGZus{}len\PYGZus{}word}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{n}{min\PYGZus{}len\PYGZus{}word}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{min\PYGZus{}len\PYGZus{}long\PYGZus{}number}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{n}{min\PYGZus{}len\PYGZus{}long\PYGZus{}number}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{fuzzy\PYGZus{}threshold}\PYG{p}{:} \PYG{n+nb}{float} \PYG{o}{=} \PYG{n}{fuzzy\PYGZus{}threshold}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def} \PYG{n+nf}{compile\PYGZus{}regex\PYGZus{}entity\PYGZus{}patterns}\PYG{p}{()} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{re}\PYG{o}{.}\PYG{n}{Pattern}\PYG{p}{]:}
+        \PYG{n}{pattern\PYGZus{}list} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{file}\PYG{o}{=}\PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{path\PYGZus{}to\PYGZus{}entity\PYGZus{}regex\PYGZus{}patterns}\PYG{p}{,} \PYG{n}{mode}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}r\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{regex\PYGZus{}file}\PYG{p}{:}
+            \PYG{n}{json\PYGZus{}list} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{regex\PYGZus{}file}\PYG{p}{)}
+            \PYG{k}{for} \PYG{n}{json\PYGZus{}str} \PYG{o+ow}{in} \PYG{n}{json\PYGZus{}list}\PYG{p}{:}
+                \PYG{n}{result} \PYG{o}{=} \PYG{n}{json}\PYG{o}{.}\PYG{n}{loads}\PYG{p}{(}\PYG{n}{json\PYGZus{}str}\PYG{p}{)}
+                \PYG{n}{pattern\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{result}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}REGEX\PYGZdq{}}\PYG{p}{])}  \PYG{c+c1}{\PYGZsh{} pattern as string}
+            \PYG{k}{return} \PYG{n}{pattern\PYGZus{}list}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def} \PYG{n+nf}{symbol\PYGZus{}to\PYGZus{}groupname\PYGZus{}convert}\PYG{p}{(}\PYG{n}{symbol}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{named\PYGZus{}group\PYGZus{}prefix}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}SYMB\PYGZus{}\PYGZsq{}}\PYG{p}{,}
+                                    \PYG{n}{do\PYGZus{}reverse}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{k+kc}{False}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{str}\PYG{p}{:}
+        \PYG{n}{CONVERTER\PYGZus{}MAP} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}.\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}DOT\PYGZus{}\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}DASH\PYGZus{}\PYGZdq{}}\PYG{p}{\PYGZcb{}}
+        \PYG{n}{REVERSE\PYGZus{}CONVERTER\PYGZus{}MAP} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{n}{v}\PYG{p}{:} \PYG{n}{k} \PYG{k}{for} \PYG{n}{k}\PYG{p}{,} \PYG{n}{v} \PYG{o+ow}{in} \PYG{n}{CONVERTER\PYGZus{}MAP}\PYG{o}{.}\PYG{n}{items}\PYG{p}{()\PYGZcb{}}
+        \PYG{k}{if} \PYG{n}{do\PYGZus{}reverse}\PYG{p}{:}
+            \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{symbol}\PYG{o}{.}\PYG{n}{startswith}\PYG{p}{(}\PYG{n}{named\PYGZus{}group\PYGZus{}prefix}\PYG{p}{):}
+                \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Named group to be converted must start \PYGZdq{}}
+                                 \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}with symbol: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{named\PYGZus{}group\PYGZus{}prefix}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{symbol} \PYG{o}{=} \PYG{n}{symbol}\PYG{p}{[}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{named\PYGZus{}group\PYGZus{}prefix}\PYG{p}{):]}
+            \PYG{n}{conversion\PYGZus{}dict} \PYG{o}{=} \PYG{n}{REVERSE\PYGZus{}CONVERTER\PYGZus{}MAP}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{symbol}\PYG{o}{.}\PYG{n}{startswith}\PYG{p}{(}\PYG{n}{named\PYGZus{}group\PYGZus{}prefix}\PYG{p}{):}
+                \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Named group already converted as \PYGZdq{}}
+                                 \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}it starts with symbol: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{named\PYGZus{}group\PYGZus{}prefix}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{symbol} \PYG{o}{=} \PYG{n}{named\PYGZus{}group\PYGZus{}prefix} \PYG{o}{+} \PYG{n}{symbol}
+            \PYG{n}{conversion\PYGZus{}dict} \PYG{o}{=} \PYG{n}{CONVERTER\PYGZus{}MAP}
+        \PYG{n}{regex} \PYG{o}{=} \PYG{n}{re}\PYG{o}{.}\PYG{n}{compile}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}|\PYGZdq{}}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n+nb}{map}\PYG{p}{(}\PYG{n}{re}\PYG{o}{.}\PYG{n}{escape}\PYG{p}{,} \PYG{n}{conversion\PYGZus{}dict}\PYG{o}{.}\PYG{n}{keys}\PYG{p}{())))}
+        \PYG{k}{return} \PYG{n}{regex}\PYG{o}{.}\PYG{n}{sub}\PYG{p}{(}\PYG{k}{lambda} \PYG{n}{match}\PYG{p}{:} \PYG{n}{conversion\PYGZus{}dict}\PYG{p}{[}\PYG{n}{match}\PYG{o}{.}\PYG{n}{group}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{)],} \PYG{n}{symbol}\PYG{p}{)}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def} \PYG{n+nf}{adjust\PYGZus{}entity\PYGZus{}regex\PYGZus{}pattern}\PYG{p}{(}\PYG{n}{token\PYGZus{}pattern}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{named\PYGZus{}group}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{str}\PYG{p}{:}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} entity\PYGZus{}regex\PYGZus{}pattern must have space before and afterward to distinguish it from token\PYGZus{}pattern. Token patterns}
+\PYG{l+s+sd}{         shall match partial matches such as \PYGZdq{}Adidas\PYGZhy{}Aktie\PYGZdq{} or \PYGZdq{}BMW\PYGZhy{}Vorstand\PYGZdq{} but entity\PYGZus{}regex\PYGZus{}patterns shall not. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{space\PYGZus{}or\PYGZus{}line\PYGZus{}start\PYGZus{}before}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{r}\PYG{l+s+s1}{\PYGZsq{}(?:(?\PYGZlt{}=\PYGZbs{}s)|(?\PYGZlt{}=\PYGZca{}))\PYGZsq{}}
+        \PYG{n}{space\PYGZus{}afterward}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{r}\PYG{l+s+s1}{\PYGZsq{}(?=\PYGZbs{}s)\PYGZsq{}}
+        \PYG{n}{regex\PYGZus{}pattern} \PYG{o}{=} \PYG{l+s+sa}{rf}\PYG{l+s+s1}{\PYGZsq{}(?P\PYGZlt{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{named\PYGZus{}group}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZgt{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{space\PYGZus{}or\PYGZus{}line\PYGZus{}start\PYGZus{}before}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{(?:\PYGZsq{}} \PYG{o}{+} \PYG{n}{token\PYGZus{}pattern} \PYG{o}{+} \PYG{l+s+sa}{rf}\PYG{l+s+s1}{\PYGZsq{})}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{space\PYGZus{}afterward}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{)\PYGZsq{}}
+        \PYG{k}{return} \PYG{n}{regex\PYGZus{}pattern}
+
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}word\PYGZus{}type\PYGZus{}for\PYGZus{}term}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{term}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{WordType}\PYG{p}{:}
+        \PYG{n}{term\PYGZus{}is\PYGZus{}binding}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{n}{term}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{()} \PYG{o+ow}{in} \PYG{n}{company\PYGZus{}name\PYGZus{}bindings}
+        \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name\PYGZus{}initials}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{n}{check\PYGZus{}if\PYGZus{}name\PYGZus{}initials\PYGZus{}in\PYGZus{}substring}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{term}\PYG{p}{)}
+        \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{n}{fuzzy\PYGZus{}similarity}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{term}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{(),} \PYG{n}{choices}\PYG{o}{=}\PYG{n}{person\PYGZus{}names}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{fuzzy\PYGZus{}threshold} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name\PYGZus{}initials}
+        \PYG{n}{term\PYGZus{}is\PYGZus{}legal\PYGZus{}term}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{n}{fuzzy\PYGZus{}similarity}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{term}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{(),} \PYG{n}{choices}\PYG{o}{=}\PYG{n}{company\PYGZus{}suffixes\PYGZus{}legal\PYGZus{}form}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{fuzzy\PYGZus{}threshold} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name\PYGZus{}initials}
+        \PYG{n}{term\PYGZus{}is\PYGZus{}industry\PYGZus{}hint}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{n}{fuzzy\PYGZus{}similarity}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{term}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{(),} \PYG{n}{choices}\PYG{o}{=}\PYG{n}{company\PYGZus{}suffixes\PYGZus{}industry\PYGZus{}hints}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{fuzzy\PYGZus{}threshold}
+        \PYG{n}{term\PYGZus{}is\PYGZus{}number}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{n}{term}\PYG{o}{.}\PYG{n}{isnumeric}\PYG{p}{()}
+        \PYG{n}{term\PYGZus{}case\PYGZus{}upper\PYGZus{}after\PYGZus{}lower}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{o+ow}{not} \PYG{n}{term}\PYG{o}{.}\PYG{n}{islower}\PYG{p}{()} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term}\PYG{o}{.}\PYG{n}{isupper}\PYG{p}{()} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term}\PYG{o}{.}\PYG{n}{istitle}\PYG{p}{()} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term}\PYG{o}{.}\PYG{n}{isnumeric}\PYG{p}{()} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name\PYGZus{}initials}
+        \PYG{n}{term\PYGZus{}is\PYGZus{}article}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{n}{term}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{()} \PYG{o+ow}{in} \PYG{n}{company\PYGZus{}name\PYGZus{}articles}
+        \PYG{n}{term\PYGZus{}is\PYGZus{}common}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{p}{(}\PYG{n}{fuzzy\PYGZus{}similarity}\PYG{p}{(}\PYG{n}{text}\PYG{o}{=}\PYG{n}{term}\PYG{o}{.}\PYG{n}{lower}\PYG{p}{(),} \PYG{n}{choices}\PYG{o}{=}\PYG{n}{common\PYGZus{}terms}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{fuzzy\PYGZus{}threshold} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name\PYGZus{}initials} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}legal\PYGZus{}term} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}industry\PYGZus{}hint} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}number} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}case\PYGZus{}upper\PYGZus{}after\PYGZus{}lower} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}article}\PYG{p}{)}
+        \PYG{n}{term\PYGZus{}has\PYGZus{}numbers\PYGZus{}and\PYGZus{}letters}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{n}{term}\PYG{o}{.}\PYG{n}{isalnum}\PYG{p}{()} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term}\PYG{o}{.}\PYG{n}{isnumeric}\PYG{p}{()} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term}\PYG{o}{.}\PYG{n}{isalpha}\PYG{p}{()} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name\PYGZus{}initials}
+        \PYG{n}{term\PYGZus{}case\PYGZus{}either\PYGZus{}upper\PYGZus{}or\PYGZus{}lower}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{p}{(}\PYG{n}{term}\PYG{o}{.}\PYG{n}{isupper}\PYG{p}{()} \PYG{o+ow}{or} \PYG{n}{term}\PYG{o}{.}\PYG{n}{islower}\PYG{p}{())} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name\PYGZus{}initials} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}common} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}industry\PYGZus{}hint} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{term\PYGZus{}is\PYGZus{}legal\PYGZus{}term}
+
+        \PYG{n}{len\PYGZus{}term}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{term}\PYG{p}{)}
+
+        \PYG{k}{if} \PYG{n}{term\PYGZus{}is\PYGZus{}binding}\PYG{p}{:}
+            \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{BINDING}
+        \PYG{k}{elif} \PYG{n}{term\PYGZus{}is\PYGZus{}article}\PYG{p}{:}
+            \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{ARTICLE}
+        \PYG{k}{elif} \PYG{n}{term\PYGZus{}is\PYGZus{}common}\PYG{p}{:}
+            \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}
+        \PYG{k}{elif} \PYG{n}{term\PYGZus{}case\PYGZus{}upper\PYGZus{}after\PYGZus{}lower} \PYG{o+ow}{or} \PYG{n}{term\PYGZus{}has\PYGZus{}numbers\PYGZus{}and\PYGZus{}letters}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{len\PYGZus{}term} \PYG{o}{\PYGZgt{}=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{min\PYGZus{}len\PYGZus{}word}\PYG{p}{:}
+                \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX\PYGZus{}SHORT}
+        \PYG{k}{elif} \PYG{n}{term\PYGZus{}case\PYGZus{}either\PYGZus{}upper\PYGZus{}or\PYGZus{}lower}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{len\PYGZus{}term} \PYG{o}{\PYGZgt{}=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{min\PYGZus{}len\PYGZus{}word}\PYG{p}{:}
+                \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT}
+        \PYG{k}{elif} \PYG{n}{term\PYGZus{}is\PYGZus{}industry\PYGZus{}hint}\PYG{p}{:}
+            \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}
+        \PYG{k}{elif} \PYG{n}{term\PYGZus{}is\PYGZus{}number}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{len\PYGZus{}term} \PYG{o}{\PYGZgt{}=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{min\PYGZus{}len\PYGZus{}long\PYGZus{}number}\PYG{p}{:}
+                \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LONG\PYGZus{}NUM}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{SHORT\PYGZus{}NUM}
+        \PYG{k}{elif} \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name}\PYG{p}{:}
+            \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}
+        \PYG{k}{elif} \PYG{n}{term\PYGZus{}is\PYGZus{}person\PYGZus{}name\PYGZus{}initials}\PYG{p}{:}
+            \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}INITIAL}
+        \PYG{k}{elif} \PYG{n}{term\PYGZus{}is\PYGZus{}legal\PYGZus{}term}\PYG{p}{:}
+            \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LEGAL\PYGZus{}TERM}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{len\PYGZus{}term} \PYG{o}{\PYGZgt{}=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{min\PYGZus{}len\PYGZus{}word}\PYG{p}{:}
+                \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{word\PYGZus{}type} \PYG{o}{=} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN\PYGZus{}SHORT}
+        \PYG{k}{return} \PYG{n}{word\PYGZus{}type}
+
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}word\PYGZus{}type\PYGZus{}for\PYGZus{}all\PYGZus{}terms}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{])} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{WordType}\PYG{p}{]:}
+        \PYG{n}{word\PYGZus{}type\PYGZus{}list} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{()}
+        \PYG{k}{for} \PYG{n}{term} \PYG{o+ow}{in} \PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{:}
+            \PYG{n}{word\PYGZus{}type}\PYG{p}{:} \PYG{n}{WordType} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{get\PYGZus{}word\PYGZus{}type\PYGZus{}for\PYGZus{}term}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{term}\PYG{p}{)}
+            \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{word\PYGZus{}type}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{word\PYGZus{}type\PYGZus{}list}
+
+    \PYG{k}{def} \PYG{n+nf}{single\PYGZus{}entity\PYGZus{}pattern\PYGZus{}maker}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{name\PYGZus{}split\PYGZus{}legal}\PYG{p}{:} \PYG{n+nb}{tuple}\PYG{p}{[}\PYG{n+nb}{list}\PYG{p}{,} \PYG{n+nb}{str} \PYG{o}{|} \PYG{k+kc}{None}\PYG{p}{],}
+                                          \PYG{n}{regex\PYGZus{}for}\PYG{p}{:} \PYG{n}{RegexFor}\PYG{p}{,}
+                                          \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{k+kc}{True}\PYG{p}{,}
+                                          \PYG{n}{is\PYGZus{}for\PYGZus{}matcher}\PYG{p}{:} \PYG{n+nb}{bool} \PYG{o}{=} \PYG{k+kc}{False}\PYG{p}{):}
+        \PYG{n}{ic}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}legal}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{p}{:}
+            \PYG{n}{pattern}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n}{pattern}\PYG{p}{:} \PYG{n+nb}{list} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{()}
+
+        \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+            \PYG{n}{space}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{r}\PYG{l+s+s1}{\PYGZsq{}\PYGZbs{}s*\PYGZsq{}}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n}{space}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{r}\PYG{l+s+s1}{\PYGZsq{}\PYGZbs{}W*\PYGZsq{}}
+
+        \PYG{n}{pat}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{r}\PYG{l+s+s1}{\PYGZsq{}(?:\PYGZbs{}b}\PYG{l+s+si}{\PYGZob{}term\PYGZcb{}}\PYG{l+s+s1}{\PYGZbs{}b)\PYGZsq{}}
+        \PYG{n}{pat\PYGZus{}ign\PYGZus{}case}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{r}\PYG{l+s+s1}{\PYGZsq{}(?i:\PYGZbs{}b}\PYG{l+s+si}{\PYGZob{}term\PYGZcb{}}\PYG{l+s+s1}{\PYGZbs{}b)\PYGZsq{}}
+        \PYG{n}{pat\PYGZus{}upper\PYGZus{}lower} \PYG{o}{=} \PYG{l+s+sa}{r}\PYG{l+s+s1}{\PYGZsq{}(?:\PYGZbs{}b}\PYG{l+s+si}{\PYGZob{}term\PYGZcb{}}\PYG{l+s+s1}{|}\PYG{l+s+si}{\PYGZob{}term\PYGZus{}title\PYGZcb{}}\PYG{l+s+s1}{\PYGZbs{}b)\PYGZsq{}}
+        \PYG{n}{pat\PYGZus{}opt}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{r}\PYG{l+s+s1}{\PYGZsq{}(?:\PYGZbs{}b}\PYG{l+s+si}{\PYGZob{}term\PYGZcb{}}\PYG{l+s+s1}{\PYGZbs{}b)?\PYGZsq{}}
+        \PYG{n}{pat\PYGZus{}opt\PYGZus{}ign\PYGZus{}case}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+sa}{r}\PYG{l+s+s1}{\PYGZsq{}(?i:\PYGZbs{}b}\PYG{l+s+si}{\PYGZob{}term\PYGZcb{}}\PYG{l+s+s1}{\PYGZbs{}b)?\PYGZsq{}}
+
+        \PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{n}{name\PYGZus{}split\PYGZus{}legal}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{n}{legal}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{name\PYGZus{}split\PYGZus{}legal}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}
+        \PYG{c+c1}{\PYGZsh{} Get word types for each term and put it into list:}
+        \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{WordType}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{get\PYGZus{}word\PYGZus{}type\PYGZus{}for\PYGZus{}all\PYGZus{}terms}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{o}{=}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} terms:}
+        \PYG{n}{term1} \PYG{o}{=} \PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{)} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{1} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{n}{term2} \PYG{o}{=} \PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{)} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{2} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{n}{term3} \PYG{o}{=} \PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]} \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{)} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{3} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{n}{term4} \PYG{o}{=} \PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{]} \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{)} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{4} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{n}{terms} \PYG{o}{=} \PYG{p}{[}\PYG{n}{term1}\PYG{p}{,} \PYG{n}{term2}\PYG{p}{,} \PYG{n}{term3}\PYG{p}{,} \PYG{n}{term4}\PYG{p}{]}
+
+        \PYG{c+c1}{\PYGZsh{} types:}
+        \PYG{n}{type1} \PYG{o}{=} \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{1} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{n}{type2} \PYG{o}{=} \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{2} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{n}{type3} \PYG{o}{=} \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]} \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{3} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{n}{type4} \PYG{o}{=} \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{]} \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{4} \PYG{k}{else} \PYG{k+kc}{None}
+
+        \PYG{c+c1}{\PYGZsh{} pattern legal:}
+        \PYG{n}{pat\PYGZus{}legal} \PYG{o}{=} \PYG{n}{pat}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{legal}\PYG{p}{)} \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}TEXT\PYGZsq{}}\PYG{p}{:} \PYG{n}{legal}\PYG{p}{\PYGZcb{}} \PYG{k}{if} \PYG{n}{legal} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None} \PYG{k}{else} \PYG{k+kc}{None}
+        \PYG{n}{pat\PYGZus{}legal\PYGZus{}opt\PYGZus{}case} \PYG{o}{=} \PYG{n}{pat\PYGZus{}opt\PYGZus{}ign\PYGZus{}case}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{legal}\PYG{p}{)} \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}LOWER\PYGZsq{}}\PYG{p}{:} \PYG{n}{legal}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}OP\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}?\PYGZsq{}}\PYG{p}{\PYGZcb{}} \PYG{k}{if} \PYG{n}{legal} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None} \PYG{k}{else} \PYG{k+kc}{None}
+
+        \PYG{c+c1}{\PYGZsh{} patterns}
+        \PYG{n}{patterns} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+        \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat\PYGZus{}bind\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{company\PYGZus{}name\PYGZus{}bindings\PYGZus{}pattern} \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}LOWER\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}REGEX\PYGZdq{}}\PYG{p}{:} \PYG{n}{company\PYGZus{}name\PYGZus{}bindings\PYGZus{}pattern}\PYG{p}{\PYGZcb{}\PYGZcb{}}
+        \PYG{k}{for} \PYG{n}{ind}\PYG{p}{,} \PYG{n}{t} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{terms}\PYG{p}{,} \PYG{n}{start}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{):}
+            \PYG{k}{if} \PYG{n}{t} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None}\PYG{p}{:}
+                \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}pat}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{ind}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pat}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{t}\PYG{p}{)} \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}TEXT\PYGZsq{}}\PYG{p}{:} \PYG{n}{t}\PYG{p}{\PYGZcb{}}
+                \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}pat}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{ind}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZus{}opt\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pat\PYGZus{}opt}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{t}\PYG{p}{)} \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}TEXT\PYGZsq{}}\PYG{p}{:} \PYG{n}{t}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}OP\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}?\PYGZsq{}}\PYG{p}{\PYGZcb{}}
+                \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}pat}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{ind}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZus{}ign\PYGZus{}case\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pat\PYGZus{}ign\PYGZus{}case}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{t}\PYG{p}{)} \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}LOWER\PYGZsq{}}\PYG{p}{:} \PYG{n}{t}\PYG{p}{\PYGZcb{}}
+                \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}pat}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{ind}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pat\PYGZus{}opt\PYGZus{}ign\PYGZus{}case}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{t}\PYG{p}{)} \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}LOWER\PYGZsq{}}\PYG{p}{:} \PYG{n}{t}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}OP\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}?\PYGZsq{}}\PYG{p}{\PYGZcb{}}
+                \PYG{n}{t\PYGZus{}title} \PYG{o}{=} \PYG{n}{t}\PYG{o}{.}\PYG{n}{title}\PYG{p}{()}
+                \PYG{n}{terms}\PYG{p}{:} \PYG{n+nb}{list} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{set}\PYG{p}{([}\PYG{n}{t}\PYG{p}{,} \PYG{n}{t\PYGZus{}title}\PYG{p}{]))}
+                \PYG{k}{if} \PYG{n}{t} \PYG{o}{==} \PYG{n}{t\PYGZus{}title}\PYG{p}{:}
+                    \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}pat}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{ind}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZus{}up\PYGZus{}low\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pat}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{t}\PYG{p}{)} \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}TEXT\PYGZsq{}}\PYG{p}{:} \PYG{n}{t}\PYG{p}{\PYGZcb{}}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}pat}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{ind}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZus{}up\PYGZus{}low\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{pat\PYGZus{}upper\PYGZus{}lower}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{t}\PYG{p}{,} \PYG{n}{term\PYGZus{}title}\PYG{o}{=}\PYG{n}{t\PYGZus{}title}\PYG{p}{)} \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}TEXT\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}IN\PYGZsq{}}\PYG{p}{:} \PYG{n}{terms}\PYG{p}{\PYGZcb{}\PYGZcb{}}
+
+        \PYG{c+c1}{\PYGZsh{} Now apply pattern according to term sequence}
+        \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{1}\PYG{p}{:}
+            \PYG{k}{match} \PYG{n}{type1}\PYG{p}{:}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX\PYGZus{}SHORT} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}1\PYGZam{}1\PYGZsq{}], [\PYGZsq{}4imprint\PYGZsq{}], [\PYGZsq{}ABIONYX\PYGZsq{}], [\PYGZsq{}adesso\PYGZsq{}], [\PYGZsq{}adidas\PYGZsq{}],}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern\PYGZus{}legal} \PYG{o}{=} \PYG{n}{pat\PYGZus{}legal\PYGZus{}opt\PYGZus{}case}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Siemens\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern\PYGZus{}legal} \PYG{o}{=} \PYG{n}{pat\PYGZus{}legal\PYGZus{}opt\PYGZus{}case}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LONG\PYGZus{}NUM} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN\PYGZus{}SHORT}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}3i\PYGZsq{}], [\PYGZsq{}ABC\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern\PYGZus{}legal} \PYG{o}{=} \PYG{n}{pat\PYGZus{}legal}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern\PYGZus{}legal} \PYG{o}{=} \PYG{n}{pat\PYGZus{}legal\PYGZus{}opt\PYGZus{}case}
+
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}450\PYGZsq{}], [\PYGZsq{}Wes\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern\PYGZus{}legal} \PYG{o}{=} \PYG{n}{pat\PYGZus{}legal}
+
+            \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{p}{:}
+                \PYG{n}{pattern} \PYG{o}{+=} \PYG{n}{pattern1}
+                \PYG{k}{if} \PYG{n}{pattern\PYGZus{}legal}\PYG{p}{:}
+                    \PYG{n}{pattern} \PYG{o}{+=} \PYG{n}{space}
+                    \PYG{n}{pattern} \PYG{o}{+=} \PYG{n}{pattern\PYGZus{}legal}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern1}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{pattern\PYGZus{}legal}\PYG{p}{:}
+                    \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                    \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern\PYGZus{}legal}\PYG{p}{)}
+
+            \PYG{n}{ic}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}\PYGZsq{}}\PYG{p}{,} \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)}
+            \PYG{n}{ic}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}PATTERN:\PYGZsq{}}\PYG{p}{,} \PYG{n}{pattern}\PYG{p}{)}
+            \PYG{n}{ic}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZsq{}}\PYG{p}{)}
+
+        \PYG{k}{elif} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{2}\PYG{p}{:}
+            \PYG{k}{match} \PYG{n}{type1}\PYG{p}{,} \PYG{n}{type2}\PYG{p}{:}
+                \PYG{c+c1}{\PYGZsh{} CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX and UPPER\PYGZus{}OR\PYGZus{}LOWER (or vice versa):}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}SUESS\PYGZsq{}, \PYGZsq{}MicroTec\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX:}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}4imprint\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}B\PYGZhy{}A\PYGZhy{}L\PYGZsq{}, \PYGZsq{}Germany\PYGZsq{}], [\PYGZsq{}SolidWorld\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Team17\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}TraWell\PYGZsq{}, \PYGZsq{}Co\PYGZsq{}], [\PYGZsq{}BiVictriX\PYGZsq{}, \PYGZsq{}Therapeutics\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}2G\PYGZsq{}, \PYGZsq{}Energy\PYGZsq{}], [\PYGZsq{}B+S\PYGZsq{}, \PYGZsq{}Banksysteme\PYGZsq{}], [\PYGZsq{}S4\PYGZsq{}, \PYGZsq{}Capital\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}3i\PYGZsq{}, \PYGZsq{}Corporation\PYGZsq{}], [\PYGZsq{}U10\PYGZsq{}, \PYGZsq{}Corp\PYGZsq{}], [\PYGZsq{}B\PYGZam{}C\PYGZsq{}, \PYGZsq{}Speakers\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} UPPER\PYGZus{}OR\PYGZus{}LOWER:}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}SUESS\PYGZsq{}, \PYGZsq{}MicroTec\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LEGAL\PYGZus{}TERM}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}ABIONYX\PYGZsq{}, \PYGZsq{}Pharma\PYGZsq{}], [\PYGZsq{}BPER\PYGZsq{}, \PYGZsq{}Banca\PYGZsq{}], [\PYGZsq{}BRAIN\PYGZsq{}, \PYGZsq{}Biotech\PYGZsq{}], [\PYGZsq{}SCHOTT\PYGZsq{}, \PYGZsq{}Pharma\PYGZsq{}], [\PYGZsq{}BANIJAY\PYGZsq{}, \PYGZsq{}GROUP\PYGZsq{}], [\PYGZsq{}ASML\PYGZsq{}, \PYGZsq{}Holding\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LEGAL\PYGZus{}TERM}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}BAE\PYGZsq{}, \PYGZsq{}Systems\PYGZsq{}],  [\PYGZsq{}BSF\PYGZsq{}, \PYGZsq{}Enterprise\PYGZsq{}], [\PYGZsq{}BT\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}SBM\PYGZsq{}, \PYGZsq{}Offshore\PYGZsq{}], [\PYGZsq{}SDI\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}BD\PYGZsq{}, \PYGZsq{}Multimedia\PYGZsq{}], [\PYGZsq{}BFF\PYGZsq{}, \PYGZsq{}Bank\PYGZsq{}], [\PYGZsq{}SGL\PYGZsq{}, \PYGZsq{}Carbon\PYGZsq{}], [\PYGZsq{}SM\PYGZsq{}, \PYGZsq{}Wirtschaftsberatungs\PYGZsq{}], [\PYGZsq{}TAG\PYGZsq{}, \PYGZsq{}Immobilien\PYGZsq{}], [\PYGZsq{}WH\PYGZsq{}, \PYGZsq{}Smith\PYGZsq{}], [\PYGZsq{}BNP\PYGZsq{}, \PYGZsq{}Paribas\PYGZsq{}], [\PYGZsq{}BOA\PYGZsq{}, \PYGZsq{}Concept\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} INDU\PYGZus{}HINT:}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Banca\PYGZsq{}, \PYGZsq{}Generali\PYGZsq{}], [\PYGZsq{}Banca\PYGZsq{}, \PYGZsq{}Profilo\PYGZsq{}], [\PYGZsq{}Banco\PYGZsq{}, \PYGZsq{}Santander\PYGZsq{}], [\PYGZsq{}Banca\PYGZsq{}, \PYGZsq{}IFIS\PYGZsq{}], [\PYGZsq{}Banco\PYGZsq{}, \PYGZsq{}BPM\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} NUMBERS:}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LONG\PYGZus{}NUM}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}11880\PYGZsq{}, \PYGZsq{}Solutions\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{SHORT\PYGZus{}NUM}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}123\PYGZsq{}, \PYGZsq{}Corporation\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} PERSONS:}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}INITIAL}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}A.G.\PYGZsq{}, \PYGZsq{}BARR\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}INITIAL}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}S.S.\PYGZsq{}, \PYGZsq{}Lazio\PYGZsq{}], [\PYGZsq{}S.T.\PYGZsq{}, \PYGZsq{}Dupont\PYGZsq{}]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}John\PYGZsq{}, \PYGZsq{}Meyer\PYGZsq{}], evtl: [\PYGZsq{}Balfour\PYGZsq{}, \PYGZsq{}Beatty\PYGZsq{}], [\PYGZsq{}Barbara\PYGZsq{}, \PYGZsq{}Bui\PYGZsq{}], [\PYGZsq{}Robert\PYGZsq{}, \PYGZsq{}Walters\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Schneider\PYGZsq{}, \PYGZsq{}Electric\PYGZsq{}], [\PYGZsq{}Smiths\PYGZsq{}, \PYGZsq{}News\PYGZsq{}], [\PYGZsq{}Smiths\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                \PYG{c+c1}{\PYGZsh{} UNKNOWN:}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{SHORT\PYGZus{}NUM}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Amadeus\PYGZsq{}, \PYGZsq{}FiRe\PYGZsq{}], [\PYGZsq{}Tritax\PYGZsq{}, \PYGZsq{}EuroBox\PYGZsq{}], [\PYGZsq{}Anglo\PYGZsq{}, \PYGZsq{}American\PYGZsq{}], [\PYGZsq{}Balfour\PYGZsq{}, \PYGZsq{}Beatty\PYGZsq{}], [\PYGZsq{}Bastei\PYGZsq{}, \PYGZsq{}Luebbe\PYGZsq{}], [\PYGZsq{}Argentum\PYGZsq{}, \PYGZsq{}47\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Amigo\PYGZsq{}, \PYGZsq{}Holdings\PYGZsq{}], [\PYGZsq{}Bakkavor\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Barratt\PYGZsq{}, \PYGZsq{}Developments\PYGZsq{}], [\PYGZsq{}Sareum\PYGZsq{}, \PYGZsq{}Holdings\PYGZsq{}], [\PYGZsq{}Singular\PYGZsq{}, \PYGZsq{}People\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Amplitude\PYGZsq{}, \PYGZsq{}Surgical\PYGZsq{}], [\PYGZsq{}Baader\PYGZsq{}, \PYGZsq{}Bank\PYGZsq{}], [\PYGZsq{}Barinthus\PYGZsq{}, \PYGZsq{}Biotherapeutics\PYGZsq{}], [\PYGZsq{}Beowulf\PYGZsq{}, \PYGZsq{}Mining\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}S\PYGZsq{}, \PYGZsq{}Meyer\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} COMMON\PYGZus{}WORDS:}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Koninklijke\PYGZsq{}, \PYGZsq{}Philips\PYGZsq{}], [\PYGZsq{}Koninklijke\PYGZsq{}, \PYGZsq{}KPN\PYGZsq{}],}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Silence\PYGZsq{}, \PYGZsq{}Therapeutics\PYGZsq{}], [\PYGZsq{}Benchmark\PYGZsq{}, \PYGZsq{}Holdings\PYGZsq{}], [\PYGZsq{}Science\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN\PYGZus{}SHORT}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Triple\PYGZsq{}, \PYGZsq{}P\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} LEGAL\PYGZus{}TERM}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LEGAL\PYGZus{}TERM}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX\PYGZus{}SHORT}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}SA\PYGZsq{}, \PYGZsq{}Energisme\PYGZsq{}], [\PYGZsq{}SA\PYGZsq{}, \PYGZsq{}Entreparticuliers.com\PYGZsq{}], [\PYGZsq{}SAS\PYGZsq{}, \PYGZsq{}Florentaise\PYGZsq{}], [\PYGZsq{}SAS\PYGZsq{}, \PYGZsq{}AG3i\PYGZsq{}]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+
+            \PYG{n}{pattern\PYGZus{}legal} \PYG{o}{=} \PYG{n}{pat\PYGZus{}legal\PYGZus{}opt\PYGZus{}case}
+            \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{p}{:}
+                \PYG{n}{pattern} \PYG{o}{+=} \PYG{p}{(}\PYG{n}{pattern1} \PYG{o}{+} \PYG{n}{space} \PYG{o}{+} \PYG{n}{pattern2} \PYG{o}{+} \PYG{n}{space} \PYG{o}{+} \PYG{n}{pattern\PYGZus{}legal}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern1}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern2}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern\PYGZus{}legal}\PYG{p}{)}
+
+            \PYG{n}{ic}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}\PYGZsq{}}\PYG{p}{,} \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)}
+            \PYG{n}{ic}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}PATTERN:\PYGZsq{}}\PYG{p}{,} \PYG{n}{pattern}\PYG{p}{)}
+            \PYG{n}{ic}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZsq{}}\PYG{p}{)}
+
+        \PYG{k}{elif} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)} \PYG{o}{==} \PYG{l+m+mi}{3}\PYG{p}{:}
+
+            \PYG{k}{match} \PYG{n}{type1}\PYG{p}{,} \PYG{n}{type2}\PYG{p}{,} \PYG{n}{type3}\PYG{p}{:}
+                \PYG{c+c1}{\PYGZsh{} CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX and UPPER\PYGZus{}OR\PYGZus{}LOWER (or vice versa):}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{}}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} BINDINGS}
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{BINDING}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat\PYGZus{}bind\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+                \PYG{c+c1}{\PYGZsh{} CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX:}
+
+                \PYG{c+c1}{\PYGZsh{} UPPER OR LOWER}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}DEFAMA\PYGZsq{}, \PYGZsq{}Deutsche\PYGZsq{}, \PYGZsq{}Fachmarkt\PYGZsq{}], [\PYGZsq{}ACCENTRO\PYGZsq{}, \PYGZsq{}Real\PYGZsq{}, \PYGZsq{}Estate\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}ABN\PYGZsq{}, \PYGZsq{}AMRO\PYGZsq{}, \PYGZsq{}Bank\PYGZsq{}], [\PYGZsq{}AEW\PYGZsq{}, \PYGZsq{}UK\PYGZsq{}, \PYGZsq{}REIT\PYGZsq{}], [\PYGZsq{}RIT\PYGZsq{}, \PYGZsq{}Capital\PYGZsq{}, \PYGZsq{}Partners\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}ATON\PYGZsq{}, \PYGZsq{}Green\PYGZsq{}, \PYGZsq{}Storage\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                        \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                        \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}ASA\PYGZsq{}, \PYGZsq{}International\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}ADVA\PYGZsq{}, \PYGZsq{}Optical\PYGZsq{}, \PYGZsq{}Networking\PYGZsq{}], [\PYGZsq{}AEW\PYGZsq{}, \PYGZsq{}UK\PYGZsq{}, \PYGZsq{}REIT\PYGZsq{}], [\PYGZsq{}ASA\PYGZsq{}, \PYGZsq{}International\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} PERSONS:}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}INITIAL}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}A.S.\PYGZsq{}, \PYGZsq{}Creation\PYGZsq{}, \PYGZsq{}Tapeten\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Johnson\PYGZsq{}, \PYGZsq{}Smith\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Alba\PYGZsq{}, \PYGZsq{}Mineral\PYGZsq{}, \PYGZsq{}Resources\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} ARTICLES}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{ARTICLE}\PYG{p}{,} \PYG{k}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}The\PYGZsq{}, \PYGZsq{}Alumasc\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}The\PYGZsq{}, \PYGZsq{}Blockchain\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}The\PYGZsq{}, \PYGZsq{}Heavitree\PYGZsq{}, \PYGZsq{}Brewery\PYGZsq{}], [\PYGZsq{}The\PYGZsq{}, \PYGZsq{}PRS\PYGZsq{}, \PYGZsq{}REIT\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{ARTICLE}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Aeroports\PYGZsq{}, \PYGZsq{}de\PYGZsq{}, \PYGZsq{}Paris\PYGZsq{}], [\PYGZsq{}Banco\PYGZsq{}, \PYGZsq{}de\PYGZsq{}, \PYGZsq{}Sabadell\PYGZsq{}], [\PYGZsq{}Asturiana\PYGZsq{}, \PYGZsq{}de\PYGZsq{}, \PYGZsq{}Laminados\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} INDUSTRY HINT}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LEGAL\PYGZus{}TERM}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Auction\PYGZsq{}, \PYGZsq{}Technology\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Auto\PYGZsq{}, \PYGZsq{}Trader\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Capital\PYGZsq{}, \PYGZsq{}Venture\PYGZsq{}, \PYGZsq{}Europe\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} COMMON}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LEGAL\PYGZus{}TERM}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}ABOUT\PYGZsq{}, \PYGZsq{}YOU\PYGZsq{}, \PYGZsq{}Holding\PYGZsq{}], [\PYGZsq{}Alphawave\PYGZsq{}, \PYGZsq{}IP\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Big\PYGZsq{}, \PYGZsq{}Yellow\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Active\PYGZsq{}, \PYGZsq{}Energy\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Amadeus\PYGZsq{}, \PYGZsq{}IT\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}BE\PYGZsq{}, \PYGZsq{}Semiconductor\PYGZsq{}, \PYGZsq{}Industries\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LEGAL\PYGZus{}TERM}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Alpha\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}, \PYGZsq{}International\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{:}   \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Advanced\PYGZsq{}, \PYGZsq{}Bitcoin\PYGZsq{}, \PYGZsq{}Technologies\PYGZsq{}], [\PYGZsq{}Alternative\PYGZsq{}, \PYGZsq{}Income\PYGZsq{}, \PYGZsq{}REIT\PYGZsq{}], [\PYGZsq{}Applied\PYGZsq{}, \PYGZsq{}Graphene\PYGZsq{}, \PYGZsq{}Materials\PYGZsq{}], [\PYGZsq{}Associated\PYGZsq{}, \PYGZsq{}British\PYGZsq{}, \PYGZsq{}Foods\PYGZsq{}], [\PYGZsq{}Beta\PYGZsq{}, \PYGZsq{}Systems\PYGZsq{}, \PYGZsq{}Software\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} UNKNOWNS}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LEGAL\PYGZus{}TERM}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Aukett\PYGZsq{}, \PYGZsq{}Swanke\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Begbies\PYGZsq{}, \PYGZsq{}Traynor\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Britannia\PYGZsq{}, \PYGZsq{}Bulk\PYGZsq{}, \PYGZsq{}Holdings\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Bayerische\PYGZsq{}, \PYGZsq{}Motoren\PYGZsq{}, \PYGZsq{}Werke\PYGZsq{}], [\PYGZsq{}Brioschi\PYGZsq{}, \PYGZsq{}Sviluppo\PYGZsq{}, \PYGZsq{}Immobiliare\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN}\PYG{p}{,} \PYG{k}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Aptitude\PYGZsq{}, \PYGZsq{}Software\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Arbuthnot\PYGZsq{}, \PYGZsq{}Banking\PYGZsq{}, \PYGZsq{}Group\PYGZsq{}], [\PYGZsq{}Arteche\PYGZsq{}, \PYGZsq{}Lantegi\PYGZsq{}, \PYGZsq{}Elkartea\PYGZsq{}], [\PYGZsq{}Ashtead\PYGZsq{}, \PYGZsq{}Technology\PYGZsq{}, \PYGZsq{}Holdings\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n}{regex\PYGZus{}for} \PYG{o}{==} \PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                        \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                        \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UNKNOWN\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} [\PYGZsq{}Atai\PYGZsq{}, \PYGZsq{}Life\PYGZsq{}, \PYGZsq{}Sciences\PYGZsq{}]}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} OTHERS}
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+
+            \PYG{n}{pattern\PYGZus{}legal} \PYG{o}{=} \PYG{n}{pat\PYGZus{}legal\PYGZus{}opt\PYGZus{}case}
+            \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{p}{:}
+                \PYG{n}{pattern} \PYG{o}{+=} \PYG{p}{(}\PYG{n}{pattern1} \PYG{o}{+} \PYG{n}{space} \PYG{o}{+} \PYG{n}{pattern2} \PYG{o}{+} \PYG{n}{space} \PYG{o}{+} \PYG{n}{pattern3} \PYG{o}{+} \PYG{n}{space} \PYG{o}{+} \PYG{n}{pattern\PYGZus{}legal}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern1}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern2}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern3}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern\PYGZus{}legal}\PYG{p}{)}
+
+            \PYG{n}{ic}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}\PYGZsq{}}\PYG{p}{,} \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)}
+            \PYG{n}{ic}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}PATTERN:\PYGZsq{}}\PYG{p}{,} \PYG{n}{pattern}\PYG{p}{)}
+            \PYG{n}{ic}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZsq{}}\PYG{p}{)}
+
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{match} \PYG{n}{type1}\PYG{p}{,} \PYG{n}{type2}\PYG{p}{,} \PYG{n}{type3}\PYG{p}{,} \PYG{n}{type4}\PYG{p}{:}
+                \PYG{c+c1}{\PYGZsh{} CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX and UPPER\PYGZus{}OR\PYGZus{}LOWER (or vice versa):}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{}}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}up\PYGZus{}low\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern4} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat4\PYGZus{}opt\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} BINDINGS}
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{BINDING}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat\PYGZus{}bind\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern4} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat4\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} UPPER LOWER}
+                \PYG{k}{case} \PYG{p}{(}\PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{UPPER\PYGZus{}OR\PYGZus{}LOWER\PYGZus{}SHORT} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{CHAR\PYGZus{}TYPE\PYGZus{}CASE\PYGZus{}MIX\PYGZus{}SHORT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{):}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern4} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat4\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} PERSONS}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{PER\PYGZus{}NAME}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern4} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat4\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{c+c1}{\PYGZsh{} COMMON}
+                \PYG{k}{case} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS} \PYG{o}{|} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{INDU\PYGZus{}HINT}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{COMMON\PYGZus{}WORDS}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern4} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat4\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{BINDING}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat\PYGZus{}bind\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern4} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat4\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{BINDING}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern4} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat\PYGZus{}bind\PYGZsq{}}\PYG{p}{]}
+
+
+                \PYG{c+c1}{\PYGZsh{} LEGAL}
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{WordType}\PYG{o}{.}\PYG{n}{LEGAL\PYGZus{}TERM}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern4} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat4\PYGZus{}opt\PYGZus{}ign\PYGZus{}case\PYGZsq{}}\PYG{p}{]}
+
+                \PYG{k}{case} \PYG{k}{\PYGZus{}}\PYG{p}{:}
+                    \PYG{n}{pattern1} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat1\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern2} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat2\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern3} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat3\PYGZsq{}}\PYG{p}{]}
+                    \PYG{n}{pattern4} \PYG{o}{=} \PYG{n}{patterns}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pat4\PYGZsq{}}\PYG{p}{]}
+
+            \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{p}{:}
+                \PYG{n}{pattern} \PYG{o}{+=} \PYG{p}{(}\PYG{n}{pattern1} \PYG{o}{+} \PYG{n}{space} \PYG{o}{+} \PYG{n}{pattern2} \PYG{o}{+} \PYG{n}{space} \PYG{o}{+} \PYG{n}{pattern3} \PYG{o}{+} \PYG{n}{space} \PYG{o}{+} \PYG{n}{pattern4}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern1}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern2}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern3}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern4}\PYG{p}{)}
+
+            \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{4}\PYG{p}{:}
+
+                \PYG{k}{for} \PYG{n}{term} \PYG{o+ow}{in} \PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{[}\PYG{l+m+mi}{4}\PYG{p}{:]:}
+                    \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{p}{:}
+                        \PYG{n}{pattern} \PYG{o}{+=} \PYG{n}{space}
+                        \PYG{n}{pattern} \PYG{o}{+=} \PYG{n}{pat\PYGZus{}opt\PYGZus{}ign\PYGZus{}case}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{term}\PYG{o}{=}\PYG{n}{term}\PYG{p}{)}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                        \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}LOWER\PYGZsq{}}\PYG{p}{:} \PYG{n}{term}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}OP\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}?\PYGZsq{}}\PYG{p}{\PYGZcb{})}
+
+                \PYG{n}{pattern\PYGZus{}legal} \PYG{o}{=} \PYG{n}{pat\PYGZus{}legal\PYGZus{}opt\PYGZus{}case}
+                \PYG{k}{if} \PYG{n}{pattern\PYGZus{}legal}\PYG{p}{:}
+                    \PYG{k}{if} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{p}{:}
+                        \PYG{n}{pattern} \PYG{o}{+=} \PYG{n}{space}
+                        \PYG{n}{pattern} \PYG{o}{+=} \PYG{n}{pattern\PYGZus{}legal}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{space}\PYG{p}{)}
+                        \PYG{n}{pattern}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{pattern\PYGZus{}legal}\PYG{p}{)}
+            \PYG{n}{ic}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}list}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}\PYGZsq{}}\PYG{p}{,} \PYG{n}{word\PYGZus{}type\PYGZus{}list}\PYG{p}{)}
+            \PYG{n}{ic}\PYG{p}{(}\PYG{n}{pattern}\PYG{p}{)}
+            \PYG{n}{ic}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZsq{}}\PYG{p}{)}
+
+        \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{o+ow}{and} \PYG{n}{is\PYGZus{}for\PYGZus{}matcher}\PYG{p}{:}
+            \PYG{n}{pattern} \PYG{o}{=} \PYG{p}{[}\PYG{n}{item} \PYG{k}{for} \PYG{n}{item} \PYG{o+ow}{in} \PYG{n}{pattern} \PYG{k}{if} \PYG{n+nb}{isinstance}\PYG{p}{(}\PYG{n}{item}\PYG{p}{,} \PYG{n+nb}{dict}\PYG{p}{)]} \PYG{k}{if} \PYG{n}{is\PYGZus{}for\PYGZus{}matcher} \PYG{o+ow}{and} \PYG{o+ow}{not} \PYG{n}{make\PYGZus{}regex\PYGZus{}str} \PYG{k}{else} \PYG{n}{pattern}
+
+        \PYG{k}{return} \PYG{n}{pattern}
+
+    \PYG{k}{def} \PYG{n+nf}{create\PYGZus{}and\PYGZus{}save\PYGZus{}entity\PYGZus{}patterns}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{entity\PYGZus{}label}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{spacy\PYGZus{}comp\PYGZus{}label}\PYG{p}{):}
+        \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} The first \PYGZdq{}with...\PYGZdq{} here creates \PYGZdq{}entity\PYGZus{}ruler\PYGZus{}patterns\PYGZdq{}, the second creates \PYGZdq{}entity\PYGZus{}token\PYGZus{}matcher\PYGZus{}patterns\PYGZdq{} \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{start} \PYG{o}{=} \PYG{l+m+mi}{1981}
+        \PYG{n}{end} \PYG{o}{=} \PYG{l+m+mi}{1983}
+        \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{file}\PYG{o}{=}\PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{path\PYGZus{}to\PYGZus{}entity\PYGZus{}ruler\PYGZus{}patterns}\PYG{p}{,} \PYG{n}{mode}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{,} \PYG{n}{encoding}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}utf\PYGZhy{}8\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{span\PYGZus{}file}\PYG{p}{:}
+            \PYG{k}{for} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{row} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{df\PYGZus{}companies}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{start}\PYG{p}{:}\PYG{n}{end}\PYG{p}{]}\PYG{o}{.}\PYG{n}{iterrows}\PYG{p}{():}
+                \PYG{n}{span\PYGZus{}pattern}\PYG{p}{:} \PYG{n+nb}{list} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{single\PYGZus{}entity\PYGZus{}pattern\PYGZus{}maker}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}legal}\PYG{o}{=}\PYG{n}{row}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}name\PYGZus{}split\PYGZus{}and\PYGZus{}legal\PYGZsq{}}\PYG{p}{],} \PYG{n}{regex\PYGZus{}for}\PYG{o}{=}\PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{,} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{is\PYGZus{}for\PYGZus{}matcher}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+                \PYG{n}{pattern} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}label\PYGZdq{}}\PYG{p}{:} \PYG{n}{entity\PYGZus{}label}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}pattern\PYGZdq{}}\PYG{p}{:} \PYG{n}{span\PYGZus{}pattern}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}id\PYGZdq{}}\PYG{p}{:} \PYG{n}{row}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}name\PYGZsq{}}\PYG{p}{]\PYGZcb{}}
+                \PYG{n}{json}\PYG{o}{.}\PYG{n}{dump}\PYG{p}{(}\PYG{n}{pattern}\PYG{p}{,} \PYG{n}{span\PYGZus{}file}\PYG{p}{)}
+                \PYG{n}{span\PYGZus{}file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{file}\PYG{o}{=}\PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{path\PYGZus{}to\PYGZus{}entity\PYGZus{}token\PYGZus{}matcher\PYGZus{}patterns}\PYG{p}{,} \PYG{n}{mode}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{,} \PYG{n}{encoding}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}utf\PYGZhy{}8\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{token\PYGZus{}file}\PYG{p}{:}
+            \PYG{k}{for} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{row} \PYG{o+ow}{in} \PYG{n}{df\PYGZus{}companies}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{start}\PYG{p}{:}\PYG{n}{end}\PYG{p}{]}\PYG{o}{.}\PYG{n}{iterrows}\PYG{p}{():}
+                \PYG{n}{token\PYGZus{}pattern}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{single\PYGZus{}entity\PYGZus{}pattern\PYGZus{}maker}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}legal}\PYG{o}{=}\PYG{n}{row}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}name\PYGZus{}split\PYGZus{}and\PYGZus{}legal\PYGZsq{}}\PYG{p}{],} \PYG{n}{regex\PYGZus{}for}\PYG{o}{=}\PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{TOKEN}\PYG{p}{,} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+                \PYG{n}{pattern} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{n}{row}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}name\PYGZsq{}}\PYG{p}{]:} \PYG{p}{[[\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}TEXT\PYGZsq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}REGEX\PYGZdq{}}\PYG{p}{:} \PYG{n}{token\PYGZus{}pattern}\PYG{p}{\PYGZcb{}\PYGZcb{}]]\PYGZcb{}}
+                \PYG{n}{json}\PYG{o}{.}\PYG{n}{dump}\PYG{p}{(}\PYG{n}{pattern}\PYG{p}{,} \PYG{n}{token\PYGZus{}file}\PYG{p}{)}
+                \PYG{n}{token\PYGZus{}file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{file}\PYG{o}{=}\PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{path\PYGZus{}to\PYGZus{}entity\PYGZus{}regex\PYGZus{}patterns}\PYG{p}{,} \PYG{n}{mode}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{,} \PYG{n}{encoding}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}utf\PYGZhy{}8\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{regex\PYGZus{}file}\PYG{p}{:}
+            \PYG{k}{for} \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{row} \PYG{o+ow}{in} \PYG{n}{df\PYGZus{}companies}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{start}\PYG{p}{:}\PYG{n}{end}\PYG{p}{]}\PYG{o}{.}\PYG{n}{iterrows}\PYG{p}{():}
+                \PYG{n}{token\PYGZus{}pattern}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{single\PYGZus{}entity\PYGZus{}pattern\PYGZus{}maker}\PYG{p}{(}\PYG{n}{name\PYGZus{}split\PYGZus{}legal}\PYG{o}{=}\PYG{n}{row}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}name\PYGZus{}split\PYGZus{}and\PYGZus{}legal\PYGZsq{}}\PYG{p}{],} \PYG{n}{regex\PYGZus{}for}\PYG{o}{=}\PYG{n}{RegexFor}\PYG{o}{.}\PYG{n}{SPAN}\PYG{p}{,} \PYG{n}{make\PYGZus{}regex\PYGZus{}str}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+                \PYG{n}{named\PYGZus{}group} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{symbol\PYGZus{}to\PYGZus{}groupname\PYGZus{}convert}\PYG{p}{(}\PYG{n}{row}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}symbol\PYGZsq{}}\PYG{p}{])}
+                \PYG{n}{regex\PYGZus{}pattern}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{adjust\PYGZus{}entity\PYGZus{}regex\PYGZus{}pattern}\PYG{p}{(}\PYG{n}{token\PYGZus{}pattern}\PYG{o}{=}\PYG{n}{token\PYGZus{}pattern}\PYG{p}{,} \PYG{n}{named\PYGZus{}group}\PYG{o}{=}\PYG{n}{named\PYGZus{}group}\PYG{p}{)}
+                \PYG{n}{pattern} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}comp\PYGZus{}name\PYGZdq{}}\PYG{p}{:} \PYG{n}{row}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}name\PYGZsq{}}\PYG{p}{],} \PYG{l+s+s2}{\PYGZdq{}REGEX\PYGZdq{}}\PYG{p}{:} \PYG{n}{regex\PYGZus{}pattern}\PYG{p}{\PYGZcb{}}
+                \PYG{n}{json}\PYG{o}{.}\PYG{n}{dump}\PYG{p}{(}\PYG{n}{pattern}\PYG{p}{,} \PYG{n}{regex\PYGZus{}file}\PYG{p}{)}
+                \PYG{n}{regex\PYGZus{}file}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{c+c1}{\PYGZsh{} ic.disable()}
+    \PYG{n}{ic}\PYG{o}{.}\PYG{n}{enable}\PYG{p}{()}
+    \PYG{c+c1}{\PYGZsh{} print(df\PYGZus{}companies.head(n=20).to\PYGZus{}string())}
+
+    \PYG{n}{spin} \PYG{o}{=} \PYG{n}{SpacyInput}\PYG{p}{(}\PYG{n}{df\PYGZus{}companies}\PYG{o}{=}\PYG{n}{df\PYGZus{}companies}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} print(spin.compile\PYGZus{}regex\PYGZus{}entity\PYGZus{}patterns())}
+    \PYG{n}{spin}\PYG{o}{.}\PYG{n}{create\PYGZus{}and\PYGZus{}save\PYGZus{}entity\PYGZus{}patterns}\PYG{p}{()}
+    \PYG{c+c1}{\PYGZsh{} for item in df\PYGZus{}companies[\PYGZsq{}name\PYGZus{}split\PYGZus{}and\PYGZus{}legal\PYGZsq{}].to\PYGZus{}list():}
+    \PYG{c+c1}{\PYGZsh{}     if len(item[0]) == 3:}
+    \PYG{c+c1}{\PYGZsh{}         spin.single\PYGZus{}entity\PYGZus{}pattern\PYGZus{}maker(name\PYGZus{}split\PYGZus{}legal=item, regex\PYGZus{}for=RegexFor.TOKEN)  \PYGZsh{} frequency = \PYGZob{}f\PYGZsq{}c\PYGZob{}i\PYGZcb{}\PYGZsq{}: eval(f\PYGZsq{}spin.c\PYGZob{}i\PYGZcb{}\PYGZsq{}) for i in range(0, 44)\PYGZcb{}  \PYGZsh{} pprint(frequency)}
+\end{Verbatim}

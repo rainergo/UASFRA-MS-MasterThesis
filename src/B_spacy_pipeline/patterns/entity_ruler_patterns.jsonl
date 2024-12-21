@@ -1,0 +1,10 @@
+{"label": "ORG", "pattern": [{"TEXT": "ABC"}, {"TEXT": "arbitrage"}, {"LOWER": "SA", "OP": "?"}], "id": "ABC arbitrage SA"}
+{"label": "ORG", "pattern": [{"TEXT": {"IN": ["ABIONYX", "Abionyx"]}}, {"LOWER": "Pharma", "OP": "?"}, {"LOWER": "SA", "OP": "?"}], "id": "ABIONYX Pharma SA"}
+{"label": "ORG", "pattern": [{"TEXT": {"IN": ["ABIVAX", "Abivax"]}}, {"LOWER": "Societe Anonyme", "OP": "?"}], "id": "ABIVAX Societe Anonyme"}
+{"label": "ORG", "pattern": [{"TEXT": "ABL"}, {"LOWER": "Group"}, {"LOWER": "ASA", "OP": "?"}], "id": "ABL Group ASA"}
+{"label": "ORG", "pattern": [{"TEXT": "ABN"}, {"TEXT": "AMRO"}, {"TEXT": "Bank"}, {"LOWER": "N.V.", "OP": "?"}], "id": "ABN AMRO Bank N.V."}
+{"label": "ORG", "pattern": [{"TEXT": "ABO"}, {"LOWER": "Wind"}, {"LOWER": "AG", "OP": "?"}], "id": "ABO Wind AG"}
+{"label": "ORG", "pattern": [{"TEXT": "ABOUT"}, {"TEXT": "YOU"}, {"LOWER": "Holding", "OP": "?"}, {"LOWER": "AG", "OP": "?"}], "id": "ABOUT YOU Holding AG"}
+{"label": "ORG", "pattern": [{"TEXT": {"IN": ["Accentro", "ACCENTRO"]}}, {"TEXT": "Real", "OP": "?"}, {"TEXT": "Estate", "OP": "?"}, {"LOWER": "AG", "OP": "?"}], "id": "ACCENTRO Real Estate AG"}
+{"label": "ORG", "pattern": [{"TEXT": "ACS"}, {"TEXT": "Actividades"}, {"TEXT": "de"}, {"TEXT": "Construccion"}, {"LOWER": "y", "OP": "?"}, {"LOWER": "Servicios", "OP": "?"}, {"LOWER": "S.A.", "OP": "?"}], "id": "ACS Actividades de Construccion y Servicios S.A."}
+{"label": "ORG", "pattern": [{"TEXT": {"IN": ["ACTEOS", "Acteos"]}}, {"LOWER": "S.A.", "OP": "?"}], "id": "ACTEOS S.A."}

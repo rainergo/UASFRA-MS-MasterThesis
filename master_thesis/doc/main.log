@@ -1,0 +1,2280 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2024.7.1)  11 NOV 2024 12:58
+entering extended mode
+ \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**main.tex
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.tex
+LaTeX2e <2021-11-15> patch level 1
+L3 programming layer <2022-01-21>
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrreprt.cls
+Document Class: scrreprt 2021/11/13 v3.35 KOMA-Script document class (report)
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrkbase.sty
+Package: scrkbase 2021/11/13 v3.35 KOMA-Script package (KOMA-Script-dependent b
+asics and keyval usage)
+
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrbase.sty
+Package: scrbase 2021/11/13 v3.35 KOMA-Script package (KOMA-Script-independent 
+basics and keyval usage)
+
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrlfile.sty
+Package: scrlfile 2021/11/13 v3.35 KOMA-Script package (file load hooks)
+
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrlfile-hook.sty
+Package: scrlfile-hook 2021/11/13 v3.35 KOMA-Script package (using LaTeX hooks)
+
+
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrlogo.sty
+Package: scrlogo 2021/11/13 v3.35 KOMA-Script package (logo)
+)))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks16
+)
+Applying: [2021/05/01] Usage of raw or classic option list on input line 252.
+Already applied: [0000/00/00] Usage of raw or classic option list on input line
+ 368.
+))
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/tocbasic.sty
+Package: tocbasic 2021/11/13 v3.35 KOMA-Script package (handling toc-files)
+\scr@dte@tocline@numberwidth=\skip47
+\scr@dte@tocline@numbox=\box50
+)
+Package tocbasic Info: babel extension for `toc' omitted
+(tocbasic)             because of missing \bbl@set@language on input line 137.
+Class scrreprt Info: File `scrsize12pt.clo' used to setup font sizes on input l
+ine 2487.
+
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrsize12pt.clo
+File: scrsize12pt.clo 2021/11/13 v3.35 KOMA-Script font size class option (12pt
+)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/typearea.sty
+Package: typearea 2021/11/13 v3.35 KOMA-Script package (type area)
+\ta@bcor=\skip48
+\ta@div=\count185
+Package typearea Info: You've used standard option `a4paper'.
+(typearea)             This is correct!
+(typearea)             Internally I'm using `paper=a4'.
+(typearea)             If you'd like to set the option with \KOMAoptions,
+(typearea)             you'd have to use `paper=a4' there
+(typearea)             instead of `a4paper', too.
+\ta@hblk=\skip49
+\ta@vblk=\skip50
+\ta@temp=\skip51
+\footheight=\skip52
+
+DIV calculation for typearea with good linewidth.
+Package typearea Info: These are the values describing the layout:
+(typearea)             DIV  = 9
+(typearea)             BCOR = 0.0pt
+(typearea)             \paperwidth      = 597.50793pt
+(typearea)              \textwidth      = 398.33862pt
+(typearea)              DIV departure   = 0%
+(typearea)              \evensidemargin = 27.31467pt
+(typearea)              \oddsidemargin  = 27.31467pt
+(typearea)             \paperheight     = 845.04694pt
+(typearea)              \textheight     = 577.5pt
+(typearea)              \topmargin      = -18.25089pt
+(typearea)              \headheight     = 18.125pt
+(typearea)              \headsep        = 21.75pt
+(typearea)              \topskip        = 12.0pt
+(typearea)              \footskip       = 50.75pt
+(typearea)              \baselineskip   = 14.5pt
+(typearea)              on input line 1743.
+)
+\c@part=\count186
+\c@chapter=\count187
+\c@section=\count188
+\c@subsection=\count189
+\c@subsubsection=\count190
+\c@paragraph=\count191
+\c@subparagraph=\count192
+\scr@dte@chapter@maxnumwidth=\skip53
+Class scrreprt Info: using compatibility default `afterindent=bysign'
+(scrreprt)           for `\chapter on input line 5717.
+\scr@dte@section@maxnumwidth=\skip54
+Class scrreprt Info: using compatibility default `runin=bysign'
+(scrreprt)           for `\section on input line 5728.
+Class scrreprt Info: using compatibility default `afterindent=bysign'
+(scrreprt)           for `\section on input line 5728.
+\scr@dte@part@maxnumwidth=\skip55
+Class scrreprt Info: using compatibility default `afterindent=true'
+(scrreprt)           for `\part on input line 5737.
+\scr@dte@subsection@maxnumwidth=\skip56
+Class scrreprt Info: using compatibility default `runin=bysign'
+(scrreprt)           for `\subsection on input line 5747.
+Class scrreprt Info: using compatibility default `afterindent=bysign'
+(scrreprt)           for `\subsection on input line 5747.
+\scr@dte@subsubsection@maxnumwidth=\skip57
+Class scrreprt Info: using compatibility default `runin=bysign'
+(scrreprt)           for `\subsubsection on input line 5757.
+Class scrreprt Info: using compatibility default `afterindent=bysign'
+(scrreprt)           for `\subsubsection on input line 5757.
+\scr@dte@paragraph@maxnumwidth=\skip58
+Class scrreprt Info: using compatibility default `runin=bysign'
+(scrreprt)           for `\paragraph on input line 5768.
+Class scrreprt Info: using compatibility default `afterindent=bysign'
+(scrreprt)           for `\paragraph on input line 5768.
+\scr@dte@subparagraph@maxnumwidth=\skip59
+Class scrreprt Info: using compatibility default `runin=bysign'
+(scrreprt)           for `\subparagraph on input line 5778.
+Class scrreprt Info: using compatibility default `afterindent=bysign'
+(scrreprt)           for `\subparagraph on input line 5778.
+\abovecaptionskip=\skip60
+\belowcaptionskip=\skip61
+\c@pti@nb@sid@b@x=\box51
+Package tocbasic Info: babel extension for `lof' omitted
+(tocbasic)             because of missing \bbl@set@language on input line 6958.
+
+\scr@dte@figure@maxnumwidth=\skip62
+\c@figure=\count193
+Package tocbasic Info: babel extension for `lot' omitted
+(tocbasic)             because of missing \bbl@set@language on input line 6974.
+
+\scr@dte@table@maxnumwidth=\skip63
+\c@table=\count194
+Class scrreprt Info: Redefining `\numberline' on input line 7142.
+\bibindent=\dimen138
+) (/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2021/02/14 v1.3d Input encoding file
+\inpenc@prehook=\toks17
+\inpenc@posthook=\toks18
+)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2021-06-07 v7.00m Hypertext links for LaTeX
+
+(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2020-05-10 v1.25 LaTeX kernel commands for general use (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2020/03/06 v1.0d TeX engine tests
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+(/usr/share/texlive/texmf-dist/tex/generic/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2019/12/15 v1.18 Key value parser (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/letltxmacro/letltxmacro.sty
+Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/auxhook/auxhook.sty
+Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2020-10-07 v3.14 Key value format for package options (HO)
+)
+\@linkdim=\dimen139
+\Hy@linkcounter=\count195
+\Hy@pagecounter=\count196
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2021-06-07 v7.00m Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref-langpatches.def
+File: hyperref-langpatches.def 2021-06-07 v7.00m Hyperref: patches for babel la
+nguages
+)
+(/usr/share/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/generic/etexcmds/etexcmds.sty
+Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
+)
+\Hy@SavedSpaceFactor=\count197
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def
+File: puenc.def 2021-06-07 v7.00m Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Hyper figures OFF on input line 4192.
+Package hyperref Info: Link nesting OFF on input line 4197.
+Package hyperref Info: Hyper index ON on input line 4200.
+Package hyperref Info: Plain pages OFF on input line 4207.
+Package hyperref Info: Backreferencing OFF on input line 4212.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4445.
+\c@Hy@tempcnt=\count198
+
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip16
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4804.
+\XeTeXLinkMargin=\dimen140
+
+(/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count199
+\Field@Width=\dimen141
+\Fld@charsize=\dimen142
+Package hyperref Info: Hyper figures OFF on input line 6076.
+Package hyperref Info: Link nesting OFF on input line 6081.
+Package hyperref Info: Hyper index ON on input line 6084.
+Package hyperref Info: backreferencing OFF on input line 6091.
+Package hyperref Info: Link coloring OFF on input line 6096.
+Package hyperref Info: Link coloring with OCG OFF on input line 6101.
+Package hyperref Info: PDF/A mode OFF on input line 6106.
+LaTeX Info: Redefining \ref on input line 6146.
+LaTeX Info: Redefining \pageref on input line 6150.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/atbegshi-ltx.sty
+Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
+package with kernel methods
+)
+\Hy@abspage=\count266
+\c@Item=\count267
+\c@Hfootnote=\count268
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
+File: hpdftex.def 2021-06-07 v7.00m Hyperref driver for pdfTeX
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/atveryend-ltx.sty
+Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend pac
+kage
+with kernel methods
+)
+\Fld@listcount=\count269
+\c@bookmark@seq@number=\count270
+
+(/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+Package: rerunfilecheck 2019/12/05 v1.9 Rerun checks for auxiliary files (HO)
+
+(/usr/share/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+86.
+)
+\Hy@SectionHShift=\skip64
+)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2021/03/04 v1.4d Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 107.
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2020/10/05 v1.2a Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen143
+\Gin@req@width=\dimen144
+)
+(/usr/share/texlive/texmf-dist/tex/latex/minted/minted.sty
+Package: minted 2021/12/24 v2.6 Yet another Pygments shim for LaTeX
+
+(/usr/share/texlive/texmf-dist/tex/latex/fvextra/fvextra.sty
+Package: fvextra 2019/02/04 v1.4 fvextra - extensions and patches for fancyvrb
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2020/11/24 v1.1c Standard LaTeX ifthen package (DPC)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count271
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
+Package: fancyvrb 2021/12/21 4.1b verbatim text (tvz,hv)
+\FV@CodeLineNo=\count272
+\FV@InFile=\read2
+\FV@TabBox=\box52
+\c@FancyVerbLine=\count273
+\FV@StepNumber=\count274
+\FV@OutFile=\write3
+)
+(/usr/share/texlive/texmf-dist/tex/latex/upquote/upquote.sty
+Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
+tim
+)
+(/usr/share/texlive/texmf-dist/tex/latex/lineno/lineno.sty
+Package: lineno 2005/11/02 line numbers on paragraphs v4.41
+\linenopenalty=\count275
+\output=\toks19
+\linenoprevgraf=\count276
+\linenumbersep=\dimen145
+\linenumberwidth=\dimen146
+\c@linenumber=\count277
+\c@pagewiselinenumber=\count278
+\c@LN@truepage=\count279
+\c@internallinenumber=\count280
+\c@internallinenumbers=\count281
+\quotelinenumbersep=\dimen147
+\bframerule=\dimen148
+\bframesep=\dimen149
+\bframebox=\box53
+LaTeX Info: Redefining \\ on input line 3056.
+)
+\c@FV@TrueTabGroupLevel=\count282
+\c@FV@TrueTabCounter=\count283
+\FV@TabBox@Group=\box54
+\FV@TmpLength=\skip65
+\c@FV@HighlightLinesStart=\count284
+\c@FV@HighlightLinesStop=\count285
+\FV@LoopCount=\count286
+\FV@NCharsBox=\box55
+\FV@BreakIndent=\dimen150
+\FV@BreakIndentNChars=\count287
+\FV@BreakSymbolSepLeft=\dimen151
+\FV@BreakSymbolSepLeftNChars=\count288
+\FV@BreakSymbolSepRight=\dimen152
+\FV@BreakSymbolSepRightNChars=\count289
+\FV@BreakSymbolIndentLeft=\dimen153
+\FV@BreakSymbolIndentLeftNChars=\count290
+\FV@BreakSymbolIndentRight=\dimen154
+\FV@BreakSymbolIndentRightNChars=\count291
+\c@FancyVerbLineBreakLast=\count292
+\FV@LineBox=\box56
+\FV@LineIndentBox=\box57
+\FV@LineWidth=\dimen155
+)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty
+Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count293
+\calc@Bcount=\count294
+\calc@Adimen=\dimen156
+\calc@Bdimen=\dimen157
+\calc@Askip=\skip66
+\calc@Bskip=\skip67
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count295
+\calc@Cskip=\skip68
+)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/shellesc.sty
+Package: shellesc 2019/11/08 v1.0c unified shell escape interface for LaTeX
+Package shellesc Info: Unrestricted shell escape enabled on input line 75.
+)
+(/usr/share/texlive/texmf-dist/tex/latex/ifplatform/ifplatform.sty
+Package: ifplatform 2017/10/13 v0.4a Testing for the operating system
+
+(/usr/share/texlive/texmf-dist/tex/generic/catchfile/catchfile.sty
+Package: catchfile 2019/12/09 v1.8 Catch the contents of a file (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifluatex.sty
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+)
+runsystem(uname -s > "main.w18")...executed.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.w18)
+runsystem(rm -- "main.w18")...executed.
+
+)
+(/usr/share/texlive/texmf-dist/tex/generic/xstring/xstring.sty
+(/usr/share/texlive/texmf-dist/tex/generic/xstring/xstring.tex
+\integerpart=\count296
+\decimalpart=\count297
+)
+Package: xstring 2021/07/21 v1.84 String manipulations (CT)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/framed/framed.sty
+Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
+\OuterFrameSep=\skip69
+\fb@frw=\dimen158
+\fb@frh=\dimen159
+\FrameRule=\dimen160
+\FrameSep=\dimen161
+)
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count298
+\float@exts=\toks20
+\float@box=\box58
+\@float@everytoks=\toks21
+\@floatcapt=\box59
+)
+\minted@appexistsfile=\read3
+\minted@bgbox=\box60
+\minted@code=\write4
+\c@minted@FancyVerbLineTemp=\count299
+\c@minted@pygmentizecounter=\count300
+\@float@every@listing=\toks22
+\c@listing=\count301
+)
+runsystem(mkdir -p _minted-main)...executed.
+
+
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+)
+\Gm@cnth=\count302
+\Gm@cntv=\count303
+\c@Gm@tempcnt=\count304
+\Gm@bindingoffset=\dimen162
+\Gm@wd@mp=\dimen163
+\Gm@odd@mp=\dimen164
+\Gm@even@mp=\dimen165
+\Gm@layoutwidth=\dimen166
+\Gm@layoutheight=\dimen167
+\Gm@layouthoffset=\dimen168
+\Gm@layoutvoffset=\dimen169
+\Gm@dimlist=\toks23
+)
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrhack.sty
+Package: scrhack 2021/11/13 v3.35 KOMA-Script package (hacking other packages)
+
+(/usr/share/texlive/texmf-dist/tex/latex/xpatch/xpatch.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2022-01-21 L3 programming layer (loader) 
+
+(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2022-01-12 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count305
+\l__pdf_internal_box=\box61
+))
+Package: xpatch 2020/03/25 v0.3a Extending etoolbox patching commands
+
+(/usr/share/texlive/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
+Package: xparse 2022-01-12 L3 Experimental document command parser
+))
+Package scrhack Info: hyperref hack deactivated because of
+(scrhack)             detection of hyperref version, that doesn't
+(scrhack)             need that hack, on input line 162.
+Package scrhack Info: loading float hack on input line 178.
+
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/float.hak
+File: float.hak 2021/11/13 v3.35 KOMA-Script scrhack part (hacking package floa
+t)
+Package scrhack Info: redefining \newfloat on input line 163.
+Package scrhack Info: redefining \listof on input line 163.
+Package scrhack Info: undefining \float@addtolists on input line 163.
+))
+(/usr/share/texlive/texmf-dist/tex/latex/mathtools/mathtools.sty
+Package: mathtools 2021/02/02 v1.28 mathematical typesetting tools
+
+(/usr/share/texlive/texmf-dist/tex/latex/mathtools/mhsetup.sty
+Package: mhsetup 2021/03/18 v1.4 programming setup (MH)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2021/10/15 v2.17l AMS math features
+\@mathmargin=\skip70
+
+For additional information on amsmath, use the `?' option.
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2021/08/26 v2.01 AMS text
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks24
+\ex@=\dimen170
+))
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen171
+)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2021/08/26 v2.02 operator names
+)
+\inf@bad=\count306
+LaTeX Info: Redefining \frac on input line 234.
+\uproot@=\count307
+\leftroot@=\count308
+LaTeX Info: Redefining \overline on input line 399.
+\classnum@=\count309
+\DOTSCASE@=\count310
+LaTeX Info: Redefining \ldots on input line 496.
+LaTeX Info: Redefining \dots on input line 499.
+LaTeX Info: Redefining \cdots on input line 620.
+\Mathstrutbox@=\box62
+\strutbox@=\box63
+\big@size=\dimen172
+LaTeX Font Info:    Redeclaring font encoding OML on input line 743.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 744.
+\macc@depth=\count311
+\c@MaxMatrixCols=\count312
+\dotsspace@=\muskip17
+\c@parentequation=\count313
+\dspbrk@lvl=\count314
+\tag@help=\toks25
+\row@=\count315
+\column@=\count316
+\maxfields@=\count317
+\andhelp@=\toks26
+\eqnshift@=\dimen173
+\alignsep@=\dimen174
+\tagshift@=\dimen175
+\tagwidth@=\dimen176
+\totwidth@=\dimen177
+\lineht@=\dimen178
+\@envbody=\toks27
+\multlinegap=\skip71
+\multlinetaggap=\skip72
+\mathdisplay@stack=\toks28
+LaTeX Info: Redefining \[ on input line 2938.
+LaTeX Info: Redefining \] on input line 2939.
+)
+\g_MT_multlinerow_int=\count318
+\l_MT_multwidth_dim=\dimen179
+\origjot=\skip73
+\l_MT_shortvdotswithinadjustabove_dim=\dimen180
+\l_MT_shortvdotswithinadjustbelow_dim=\dimen181
+\l_MT_above_intertext_sep=\dimen182
+\l_MT_below_intertext_sep=\dimen183
+\l_MT_above_shortintertext_sep=\dimen184
+\l_MT_below_shortintertext_sep=\dimen185
+\xmathstrut@box=\box64
+\xmathstrut@dim=\dimen186
+)
+(/usr/share/texlive/texmf-dist/tex/latex/glossaries/base/glossaries.sty
+Package: glossaries 2021/11/01 v4.49 (NLCT)
+
+(/usr/share/texlive/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+Package: xkeyval 2020/11/20 v2.8 package option processing (HA)
+
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+\XKV@toks=\toks29
+\XKV@tempa@toks=\toks30
+)
+\XKV@depth=\count319
+File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
+))
+(/usr/share/texlive/texmf-dist/tex/latex/mfirstuc/mfirstuc.sty
+Package: mfirstuc 2021/10/15 v2.07 (NLCT)
+\@glsmfirst=\toks31
+\@glsmrest=\toks32
+)
+(/usr/share/texlive/texmf-dist/tex/latex/textcase/textcase.sty
+Package: textcase 2019/09/14 v1.00 Text only upper/lower case changing (DPC)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/xfor/xfor.sty
+Package: xfor 2009/02/05 v1.05 (NLCT)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/datatool/datatool-base.sty
+Package: datatool-base 2019/09/27 v2.32 (NLCT)
+
+(/usr/share/texlive/texmf-dist/tex/latex/substr/substr.sty
+Package: substr 2009/10/20 v1.2 Handle substrings
+\c@su@anzahl=\count320
+)
+(/usr/share/texlive/texmf-dist/tex/latex/datatool/datatool-fp.sty
+Package: datatool-fp 2019/09/27 v2.32 (NLCT)
+
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp.sty
+Package: fp 1995/04/02
+
+`Fixed Point Package', Version 0.8, April 2, 1995 (C) Michael Mehlich
+(/usr/share/texlive/texmf-dist/tex/latex/fp/defpattern.sty
+Package: defpattern 1994/10/12
+\actioncount=\count321
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-basic.sty
+Package: fp-basic 1996/05/13
+\FP@xs=\count322
+\FP@xia=\count323
+\FP@xib=\count324
+\FP@xfa=\count325
+\FP@xfb=\count326
+\FP@rega=\count327
+\FP@regb=\count328
+\FP@regs=\count329
+\FP@times=\count330
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-addons.sty
+Package: fp-addons 1995/03/15
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-snap.sty
+Package: fp-snap 1995/04/05
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-exp.sty
+Package: fp-exp 1995/04/03
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-trigo.sty
+Package: fp-trigo 1995/04/14
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-pas.sty
+Package: fp-pas 1994/08/29
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-random.sty
+Package: fp-random 1995/02/23
+\FPseed=\count331
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-eqn.sty
+Package: fp-eqn 1995/04/03
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-upn.sty
+Package: fp-upn 1996/10/21
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fp/fp-eval.sty
+Package: fp-eval 1995/04/03
+)))
+\@dtl@toks=\toks33
+\@dtl@tmpcount=\count332
+\dtl@tmplength=\skip74
+\dtl@sortresult=\count333
+\@dtl@numgrpsepcount=\count334
+\@dtl@datatype=\count335
+\dtl@codeA=\count336
+\dtl@codeB=\count337
+\@dtl@foreach@level=\count338
+)
+(/usr/share/texlive/texmf-dist/tex/latex/glossaries/base/glossaries-compatible-
+307.sty
+Package: glossaries-compatible-307 2021/11/01 v4.49 (NLCT)
+)
+\gls@level=\count339
+\@gls@tmpb=\toks34
+\gls@tmplen=\skip75
+\glskeylisttok=\toks35
+\glslabeltok=\toks36
+\glsshorttok=\toks37
+\glslongtok=\toks38
+
+(/usr/share/texlive/texmf-dist/tex/latex/glossaries/styles/glossary-hypernav.st
+y
+Package: glossary-hypernav 2021/11/01 v4.49 (NLCT)
+) (/usr/share/texlive/texmf-dist/tex/latex/glossaries/styles/glossary-list.sty
+Package: glossary-list 2021/11/01 v4.49 (NLCT)
+\glslistdottedwidth=\skip76
+) (/usr/share/texlive/texmf-dist/tex/latex/glossaries/styles/glossary-long.sty
+Package: glossary-long 2021/11/01 v4.49 (NLCT)
+
+(/usr/share/texlive/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2021-09-01 v4.17 Multi-page Table package (DPC)
+\LTleft=\skip77
+\LTright=\skip78
+\LTpre=\skip79
+\LTpost=\skip80
+\LTchunksize=\count340
+\LTcapwidth=\dimen187
+\LT@head=\box65
+\LT@firsthead=\box66
+\LT@foot=\box67
+\LT@lastfoot=\box68
+\LT@gbox=\box69
+\LT@cols=\count341
+\LT@rows=\count342
+\c@LT@tables=\count343
+\c@LT@chunks=\count344
+\LT@p@ftn=\toks39
+)
+Class scrreprt Info: longtable captions redefined on input line 43.
+\glsdescwidth=\skip81
+\glspagelistwidth=\skip82
+)
+(/usr/share/texlive/texmf-dist/tex/latex/glossaries/styles/glossary-super.sty
+Package: glossary-super 2021/11/01 v4.49 (NLCT)
+
+(/usr/share/texlive/texmf-dist/tex/latex/supertabular/supertabular.sty
+Package: supertabular 2020/02/02 v4.1g the supertabular environment
+\c@tracingst=\count345
+\ST@wd=\dimen188
+\ST@rightskip=\skip83
+\ST@leftskip=\skip84
+\ST@parfillskip=\skip85
+\ST@pageleft=\dimen189
+\ST@headht=\dimen190
+\ST@tailht=\dimen191
+\ST@pagesofar=\dimen192
+\ST@pboxht=\dimen193
+\ST@lineht=\dimen194
+\ST@prevht=\dimen195
+\ST@toadd=\dimen196
+\ST@dimen=\dimen197
+\ST@pbox=\box70
+))
+(/usr/share/texlive/texmf-dist/tex/latex/glossaries/styles/glossary-tree.sty
+Package: glossary-tree 2021/11/01 v4.49 (NLCT)
+\glstreeindent=\skip86
+))
+(/usr/share/texlive/texmf-dist/tex/latex/caption/subcaption.sty
+Package: subcaption 2020/10/07 v1.3j Sub-captions (AR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2020/10/26 v3.5g Customizing captions (AR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2020/10/21 v2.2e caption3 kernel (AR)
+\captionmargin=\dimen198
+\captionmargin@=\dimen199
+\captionwidth=\dimen256
+\caption@tempdima=\dimen257
+\caption@indent=\dimen258
+\caption@parindent=\dimen259
+\caption@hangindent=\dimen260
+Package caption Info: KOMA-Script document class detected.
+
+(/usr/share/texlive/texmf-dist/tex/latex/caption/caption-koma.sto
+File: caption-koma.sto 2020/09/21 v2.0b Adaption of the caption package to the 
+KOMA-Script document classes (AR)
+))
+\c@caption@flags=\count346
+\c@continuedfloat=\count347
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+Package caption Info: longtable package is loaded.
+
+(/usr/share/texlive/texmf-dist/tex/latex/caption/ltcaption.sty
+Package: ltcaption 2020/05/30 v1.4b longtable captions (AR)
+)
+Package caption Info: supertabular package is loaded.
+)
+\c@subfigure=\count348
+\c@subtable=\count349
+)
+Package hyperref Info: Option `colorlinks' set `true' on input line 34.
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/0_Glossary.tex)
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2021/10/31 v2.13 LaTeX color extensions (UK)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 227.
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1352.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1356.
+Package xcolor Info: Model `RGB' extended on input line 1368.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1370.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1371.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1372.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1373.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1374.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1375.
+)
+runsystem(which pygmentize && touch main.aex)...executed.
+
+runsystem(rm main.aex)...executed.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.aux
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/1_Introduction.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/2_Project_Setup.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/3_Text_Representation.a
+ux) (/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/4_NER.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/5_Coreference_Resolutio
+n.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/6_Topic_modelling.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/7_Knowledge_Graph.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/8_Conclusion.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/9_Appendix_A.aux))
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 74.
+LaTeX Font Info:    ... okay on input line 74.
+Package scrbase Info: activating english \contentsname on input line 74.
+Package scrbase Info: activating english \listfigurename on input line 74.
+Package scrbase Info: activating english \listtablename on input line 74.
+Package hyperref Info: Link coloring ON on input line 74.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
+
+(/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+)
+\c@section@level=\count350
+)
+LaTeX Info: Redefining \ref on input line 74.
+LaTeX Info: Redefining \pageref on input line 74.
+LaTeX Info: Redefining \nameref on input line 74.
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.out)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.out)
+\@outlinefile=\write5
+\openout5 = `main.out'.
+
+Class scrreprt Info: loading recommended package `bookmark'.
+(scrreprt)           Using `bookmark' together with `hyperref' is recommended,
+(scrreprt)           because of handling of possible bookmark level gaps.
+(scrreprt)           You can avoid loading `bookmark' with KOMA-Script option
+(scrreprt)           `bookmarkpackage=false' before \begin{document} and
+(scrreprt)           you can avoid this message adding:
+(scrreprt)             \usepackage{bookmark}
+(scrreprt)           before \begin{document} on input line 74.
+
+(/usr/share/texlive/texmf-dist/tex/latex/bookmark/bookmark.sty
+Package: bookmark 2020-11-06 v1.29 PDF bookmarks (HO)
+
+(/usr/share/texlive/texmf-dist/tex/latex/bookmark/bkm-pdftex.def
+File: bkm-pdftex.def 2020-11-06 v1.29 bookmark driver for pdfTeX (HO)
+\BKM@id=\count351
+))
+(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count352
+\scratchdimen=\dimen261
+\scratchbox=\box71
+\nofMPsegments=\count353
+\nofMParguments=\count354
+\everyMPshowfont=\toks40
+\MPscratchCnt=\count355
+\MPscratchDim=\dimen262
+\MPnumerator=\count356
+\makeMPintoPDFobject=\count357
+\everyMPtoPDFconversion=\toks41
+) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(89.62709pt, 418.25368pt, 89.6271pt)
+* v-part:(T,H,B)=(101.40665pt, 591.5302pt, 152.11pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=418.25368pt
+* \textheight=591.5302pt
+* \oddsidemargin=17.3571pt
+* \evensidemargin=17.3571pt
+* \topmargin=-10.73834pt
+* \headheight=18.125pt
+* \headsep=21.75pt
+* \topskip=12.0pt
+* \footskip=50.75pt
+* \marginparwidth=66.38977pt
+* \marginparsep=12.8401pt
+* \columnsep=10.0pt
+* \skip\footins=10.8pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.glsdefs
+
+Package glossaries Warning: entry `nlp' has already been defined in the preambl
+e (if you have moved the definition there from the document environment, delete
+ main.glsdefs) on input line 27.
+
+)
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+<Assets/uasfra-logo.png, id=4, 350.30875pt x 144.54pt>
+File: Assets/uasfra-logo.png Graphic file (type png)
+<use Assets/uasfra-logo.png>
+Package pdftex.def Info: Assets/uasfra-logo.png  used on input line 77.
+(pdftex.def)             Requested size: 104.56342pt x 43.14398pt.
+
+
+LaTeX Font Warning: Font shape `OT1/cmss/bx/it' undefined
+(Font)              using `OT1/cmss/bx/n' instead on input line 77.
+
+[1
+
+
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} </media/rainergo/PROJECTS/U
+ASFRA-MS-Thesis/doc/Assets/uasfra-logo.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 84--87
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 89--90
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--93
+
+ []
+
+<Assets/signature.png, id=15, 118.19156pt x 48.18pt>
+File: Assets/signature.png Graphic file (type png)
+<use Assets/signature.png>
+Package pdftex.def Info: Assets/signature.png  used on input line 97.
+(pdftex.def)             Requested size: 125.47737pt x 51.15138pt.
+[2
+
+ </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/signature.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 102--104
+
+ []
+
+[3
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 110--112
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 113--115
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 116--118
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 119--121
+
+ []
+
+Using TeX to sort glossary entries---this may take a while
+[4
+
+] [5
+
+
+] [6] [7] [8] (/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.toc
+[9
+
+]
+Overfull \hbox (1.58777pt too wide) detected at line 139
+ []\OT1/cmss/bx/n/12 106
+ []
+
+
+Overfull \hbox (1.58777pt too wide) detected at line 140
+ []\OT1/cmss/bx/n/12 108
+ []
+
+)
+\tf@toc=\write6
+\openout6 = `main.toc'.
+
+ [10] [11]
+\openout2 = `Chapters/1_Introduction.aux'.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/1_Introduction.tex
+chapter 1.
+<Assets/pipelineAll.png, id=745, 892.33376pt x 163.61125pt>
+File: Assets/pipelineAll.png Graphic file (type png)
+<use Assets/pipelineAll.png>
+Package pdftex.def Info: Assets/pipelineAll.png  used on input line 10.
+(pdftex.def)             Requested size: 418.25368pt x 76.68758pt.
+<Assets/kg_schema.png, id=750, 753.81625pt x 412.54124pt>
+File: Assets/kg_schema.png Graphic file (type png)
+<use Assets/kg_schema.png>
+Package pdftex.def Info: Assets/kg_schema.png  used on input line 27.
+(pdftex.def)             Requested size: 355.51817pt x 194.56166pt.
+[12
+
+
+ </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/pipelineAll.png>]
+[13 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/kg_schema.png>]
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 59.
+)
+[14]
+\openout2 = `Chapters/2_Project_Setup.aux'.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/2_Project_Setup.tex
+chapter 2.
+
+Underfull \hbox (badness 10000) in paragraph at lines 17--20
+
+ []
+
+[15
+
+
+
+
+]
+<Assets/spacypipe.png, id=805, 1159.33125pt x 221.82875pt>
+File: Assets/spacypipe.png Graphic file (type png)
+<use Assets/spacypipe.png>
+Package pdftex.def Info: Assets/spacypipe.png  used on input line 58.
+(pdftex.def)             Requested size: 418.25368pt x 80.02751pt.
+ [16] [17 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/spacypipe.png>]
+ [18]
+Package hyperref Info: bookmark level for unknown listing defaults to 0 on inpu
+t line 127.
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/default.pygstyle)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/22DCB4BFBAD8BE3B297
+A77D0DB696D4FE47DC2E637D9022FD925F926E03C1FFD.pygtex
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <8> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 61.
+)) [19]
+\openout2 = `Chapters/3_Text_Representation.aux'.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/3_Text_Representation.t
+ex
+chapter 3.
+<Assets/topic_model_text.png, id=895, 354.8457pt x 168.3891pt>
+File: Assets/topic_model_text.png Graphic file (type png)
+<use Assets/topic_model_text.png>
+Package pdftex.def Info: Assets/topic_model_text.png  used on input line 24.
+(pdftex.def)             Requested size: 212.90904pt x 101.03423pt.
+[20
+
+
+
+
+]
+<Assets/topic_model_count_vector.png, id=907, 1025.5113pt x 168.3891pt>
+File: Assets/topic_model_count_vector.png Graphic file (type png)
+<use Assets/topic_model_count_vector.png>
+Package pdftex.def Info: Assets/topic_model_count_vector.png  used on input lin
+e 35.
+(pdftex.def)             Requested size: 418.25368pt x 68.67767pt.
+ [21 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/topic_model_text.png
+> </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/topic_model_count_vecto
+r.png>] [22] [23]
+<Assets/topic_model_tfidf_vector.png, id=992, 1065.2598pt x 168.3891pt>
+File: Assets/topic_model_tfidf_vector.png Graphic file (type png)
+<use Assets/topic_model_tfidf_vector.png>
+Package pdftex.def Info: Assets/topic_model_tfidf_vector.png  used on input lin
+e 130.
+(pdftex.def)             Requested size: 418.25368pt x 66.1134pt.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\@ifnextchar' on input line 139.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\@ifnextchar' on input line 139.
+
+<Assets/onehot.png, id=1000, 668.4975pt x 192.41887pt>
+File: Assets/onehot.png Graphic file (type png)
+<use Assets/onehot.png>
+Package pdftex.def Info: Assets/onehot.png  used on input line 148.
+(pdftex.def)             Requested size: 292.77629pt x 84.27406pt.
+[24 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/topic_model_tfidf_vec
+tor.png>]
+<Assets/wordfeaturesmanually.png, id=1015, 597.13087pt x 285.76762pt>
+File: Assets/wordfeaturesmanually.png Graphic file (type png)
+<use Assets/wordfeaturesmanually.png>
+Package pdftex.def Info: Assets/wordfeaturesmanually.png  used on input line 16
+5.
+(pdftex.def)             Requested size: 292.77629pt x 140.1102pt.
+<Assets/horsevector.png, id=1017, 603.4545pt x 36.135pt>
+File: Assets/horsevector.png Graphic file (type png)
+<use Assets/horsevector.png>
+Package pdftex.def Info: Assets/horsevector.png  used on input line 174.
+(pdftex.def)             Requested size: 292.77629pt x 17.5315pt.
+ [25 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/onehot.png> </media/
+rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/wordfeaturesmanually.png>]
+<Assets/cossimvalues.png, id=1031, 590.205pt x 342.078pt>
+File: Assets/cossimvalues.png Graphic file (type png)
+<use Assets/cossimvalues.png>
+Package pdftex.def Info: Assets/cossimvalues.png  used on input line 185.
+(pdftex.def)             Requested size: 250.95476pt x 145.44646pt.
+<Assets/featureslearned.png, id=1038, 676.272pt x 448.95pt>
+File: Assets/featureslearned.png Graphic file (type png)
+<use Assets/featureslearned.png>
+Package pdftex.def Info: Assets/featureslearned.png  used on input line 201.
+(pdftex.def)             Requested size: 250.95476pt x 166.59528pt.
+ [26 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/horsevector.png> </m
+edia/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/cossimvalues.png>]
+<Assets/featvalueslearned.png, id=1053, 624.369pt x 391.134pt>
+File: Assets/featvalueslearned.png Graphic file (type png)
+<use Assets/featvalueslearned.png>
+Package pdftex.def Info: Assets/featvalueslearned.png  used on input line 211.
+(pdftex.def)             Requested size: 334.60422pt x 209.61569pt.
+
+[27 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/featureslearned.png> 
+</media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/featvalueslearned.png>]
+<Assets/interdepend.png, id=1063, 644.298pt x 348.867pt>
+File: Assets/interdepend.png Graphic file (type png)
+<use Assets/interdepend.png>
+Package pdftex.def Info: Assets/interdepend.png  used on input line 227.
+(pdftex.def)             Requested size: 292.77629pt x 158.53244pt.
+
+[28 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/interdepend.png>]
+<Assets/transformers.png, id=1082, 503.8825pt x 706.64pt>
+File: Assets/transformers.png Graphic file (type png)
+<use Assets/transformers.png>
+Package pdftex.def Info: Assets/transformers.png  used on input line 249.
+(pdftex.def)             Requested size: 167.2989pt x 234.6152pt.
+<Assets/attn1.png, id=1089, 577.722pt x 354.78pt>
+File: Assets/attn1.png Graphic file (type png)
+<use Assets/attn1.png>
+Package pdftex.def Info: Assets/attn1.png  used on input line 262.
+(pdftex.def)             Requested size: 292.77629pt x 179.79314pt.
+
+[29 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/transformers.png>]
+<Assets/qkv1.png, id=1105, 593.21625pt x 385.44pt>
+File: Assets/qkv1.png Graphic file (type png)
+<use Assets/qkv1.png>
+Package pdftex.def Info: Assets/qkv1.png  used on input line 271.
+(pdftex.def)             Requested size: 292.77629pt x 190.2376pt.
+<Assets/attnfilter.png, id=1107, 593.709pt x 443.256pt>
+File: Assets/attnfilter.png Graphic file (type png)
+<use Assets/attnfilter.png>
+Package pdftex.def Info: Assets/attnfilter.png  used on input line 280.
+(pdftex.def)             Requested size: 292.77629pt x 218.59062pt.
+
+[30 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/attn1.png> </media/ra
+inergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/qkv1.png>]
+<Assets/filter1.png, id=1118, 704.304pt x 285.795pt>
+File: Assets/filter1.png Graphic file (type png)
+<use Assets/filter1.png>
+Package pdftex.def Info: Assets/filter1.png  used on input line 296.
+(pdftex.def)             Requested size: 292.77629pt x 118.80331pt.
+
+Overfull \hbox (10.44867pt too wide) in paragraph at lines 301--304
+\OT1/cmr/m/n/12 and se-man-tics of the in-put text though still static at this 
+stage. The [][][][][][]
+ []
+
+
+Overfull \hbox (24.28325pt too wide) in paragraph at lines 301--304
+\OT1/cmr/m/n/12 trix that are im-por-tant to un-der-stand the con-text of the w
+ords. As the [][][][][][]
+ []
+
+
+Overfull \hbox (2.65178pt too wide) in paragraph at lines 301--304
+\OT1/cmr/m/n/12 is dif-fer-ent for ev-ery sen-tence de-pend-ing on its con-text
+, the re-sult-ing [][][][][][]
+ []
+
+[31 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/attnfilter.png> </med
+ia/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/filter1.png>]
+<Assets/filteredvalues1.png, id=1127, 455.301pt x 186.99863pt>
+File: Assets/filteredvalues1.png Graphic file (type png)
+<use Assets/filteredvalues1.png>
+Package pdftex.def Info: Assets/filteredvalues1.png  used on input line 311.
+(pdftex.def)             Requested size: 376.42575pt x 154.60959pt.
+ [32 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/filteredvalues1.png>
+]
+<Assets/filteredvalues2.png, id=1140, 455.301pt x 186.99863pt>
+File: Assets/filteredvalues2.png Graphic file (type png)
+<use Assets/filteredvalues2.png>
+Package pdftex.def Info: Assets/filteredvalues2.png  used on input line 335.
+(pdftex.def)             Requested size: 376.42575pt x 154.60959pt.
+ [33 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/filteredvalues2.png>
+]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 356.
+
+[34]
+Underfull \hbox (badness 10000) in paragraph at lines 401--403
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 409--410
+
+ []
+
+) [35]
+\openout2 = `Chapters/4_NER.aux'.
+
+ (/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/4_NER.tex
+chapter 4.
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 1.
+
+[36
+
+
+
+
+]
+<Assets/HMM.png, id=1241, 553.06625pt x 332.24126pt>
+File: Assets/HMM.png Graphic file (type png)
+<use Assets/HMM.png>
+Package pdftex.def Info: Assets/HMM.png  used on input line 33.
+(pdftex.def)             Requested size: 209.12683pt x 125.62434pt.
+<Assets/CRF.png, id=1255, 553.06625pt x 332.24126pt>
+File: Assets/CRF.png Graphic file (type png)
+<use Assets/CRF.png>
+Package pdftex.def Info: Assets/CRF.png  used on input line 47.
+(pdftex.def)             Requested size: 230.04079pt x 138.19185pt.
+ [37 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/HMM.png> </media/rai
+nergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/CRF.png>] [38]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/22DCB4BFBAD8BE3B297
+A77D0DB696D4FE47DC2E637D9022FD925F926E03C1FFD.pygtex) [39]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/22DCB4BFBAD8BE3B297
+A77D0DB696D4FE47DC2E637D9022FD925F926E03C1FFD.pygtex) [40]
+LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 1
+39.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/bx/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/b/n' tried instead on input line 139.
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 144.
+ [41]
+LaTeX Font Info:    Font shape `OMS/cmr/bx/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/b/n' tried instead on input line 188.
+
+Overfull \hbox (10.00645pt too wide) in paragraph at lines 188--189
+ \OT1/cmr/bx/n/10 (?:\OMS/cmsy/b/n/10 n\OT1/cmr/bx/n/10 bACCENTRO\OMS/cmsy/b/n/
+10 j\OT1/cmr/bx/n/10 Accentro\OMS/cmsy/b/n/10 n\OT1/cmr/bx/n/10 b)\OMS/cmsy/b/n
+/10 n\OT1/cmr/bx/n/10 s*(?i:\OMS/cmsy/b/n/10 n\OT1/cmr/bx/n/10 bReal\OMS/cmsy/b
+/n/10 n\OT1/cmr/bx/n/10 b)?\OMS/cmsy/b/n/10 n\OT1/cmr/bx/n/10 s*(?i:\OMS/cmsy/b
+/n/10 n\OT1/cmr/bx/n/10 bEstate\OMS/cmsy/b/n/10 n\OT1/cmr/bx/n/10 b)?\OMS/cmsy/
+b/n/10 n\OT1/cmr/bx/n/10 s*(?i:\OMS/cmsy/b/n/10 n\OT1/cmr/bx/n/10 bAG\OMS/cmsy/
+b/n/10 n\OT1/cmr/bx/n/10 b)? 
+ []
+
+LaTeX Font Info:    Font shape `OMS/cmr/m/it' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 192.
+[42]
+Underfull \hbox (badness 10000) in paragraph at lines 225--226
+
+ []
+
+[43]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/4571D852AE5A653E833
+128BDB73E5EA5D641526816D2B07F4B775C5AE1460067.pygtex)
+LaTeX Font Info:    Trying to load font information for OML+cmr on input line 2
+88.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/omlcmr.fd
+File: omlcmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OML/cmr/bx/n' in size <10> not available
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 288.
+ [44]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/5D2CE2BFC0CB3CCA990
+512875F456402CB019B030C0DE06107896645A14C7A8B.pygtex)
+Overfull \hbox (39.01521pt too wide) in paragraph at lines 322--325
+\OT1/cmr/m/n/12 ist-ing list of per-son names for the clas-si-fi-ca-tion task i
+n the \OT1/cmr/m/it/12 cre-ate[]and[]save[]entity[]patterns()
+ []
+
+[45]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 326.
+
+<Assets/chatgpt11.png, id=1419, 528.97626pt x 493.845pt>
+File: Assets/chatgpt11.png Graphic file (type png)
+<use Assets/chatgpt11.png>
+Package pdftex.def Info: Assets/chatgpt11.png  used on input line 332.
+(pdftex.def)             Requested size: 376.42575pt x 351.42361pt.
+<Assets/chatgpt12.png, id=1424, 528.97626pt x 383.4325pt>
+File: Assets/chatgpt12.png Graphic file (type png)
+<use Assets/chatgpt12.png>
+Package pdftex.def Info: Assets/chatgpt12.png  used on input line 338.
+(pdftex.def)             Requested size: 376.42575pt x 272.8533pt.
+[46 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/chatgpt11.png>]
+<Assets/chatgpt2.png, id=1434, 682.55pt x 394.47375pt>
+File: Assets/chatgpt2.png Graphic file (type png)
+<use Assets/chatgpt2.png>
+Package pdftex.def Info: Assets/chatgpt2.png  used on input line 345.
+(pdftex.def)             Requested size: 376.42575pt x 217.55713pt.
+
+[47 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/chatgpt12.png> </medi
+a/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/chatgpt2.png>]
+<Assets/pipelineNER.png, id=1455, 934.49126pt x 331.2375pt>
+File: Assets/pipelineNER.png Graphic file (type png)
+<use Assets/pipelineNER.png>
+Package pdftex.def Info: Assets/pipelineNER.png  used on input line 376.
+(pdftex.def)             Requested size: 355.51817pt x 126.01813pt.
+) [48] [49 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/pipelineNER.pn
+g>]
+\openout2 = `Chapters/5_Coreference_Resolution.aux'.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/5_Coreference_Resolutio
+n.tex
+chapter 5.
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 1.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 1.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 1.
+
+<Assets/spacycorefpic.png, id=1474, 1204.5pt x 542.025pt>
+File: Assets/spacycorefpic.png Graphic file (type png)
+<use Assets/spacycorefpic.png>
+Package pdftex.def Info: Assets/spacycorefpic.png  used on input line 10.
+(pdftex.def)             Requested size: 292.77629pt x 131.75105pt.
+[50
+
+
+
+
+ </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/spacycorefpic.png (PNG c
+opy)>]
+Overfull \hbox (9.04189pt too wide) in paragraph at lines 53--54
+[]\OT1/cmr/m/n/12 Nevertheless, cor-rectly de-tect-ing co-referential [][][]Men
+-tions[][] re-mained dif-fi-cult, mainly
+ []
+
+[51]
+<Assets/e2e1.png, id=1571, 502.87875pt x 190.7125pt>
+File: Assets/e2e1.png Graphic file (type png)
+<use Assets/e2e1.png>
+Package pdftex.def Info: Assets/e2e1.png  used on input line 92.
+(pdftex.def)             Requested size: 418.25368pt x 158.61725pt.
+ [52]
+<Assets/e2e2.png, id=1596, 282.05376pt x 165.61874pt>
+File: Assets/e2e2.png Graphic file (type png)
+<use Assets/e2e2.png>
+Package pdftex.def Info: Assets/e2e2.png  used on input line 104.
+(pdftex.def)             Requested size: 292.77629pt x 171.92606pt.
+ [53 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/e2e1.png> </media/ra
+inergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/e2e2.png>]
+Overfull \hbox (7.70647pt too wide) in paragraph at lines 125--126
+[] []\OT1/cmss/bx/it/12 s2e: [][][]Coref-er-ence Res-o-lu-tion[][] with-out [][
+][]Span[][] Rep-re-sen-ta-tions[][] \OT1/cmr/m/n/12 In 2021, Kirstain
+ []
+
+<Assets/Kirstain1.png, id=1644, 628.3475pt x 72.27pt>
+File: Assets/Kirstain1.png Graphic file (type png)
+<use Assets/Kirstain1.png>
+Package pdftex.def Info: Assets/Kirstain1.png  used on input line 129.
+(pdftex.def)             Requested size: 292.77629pt x 33.67355pt.
+<Assets/Kirstain2.png, id=1648, 551.05875pt x 118.4425pt>
+File: Assets/Kirstain2.png Graphic file (type png)
+<use Assets/Kirstain2.png>
+Package pdftex.def Info: Assets/Kirstain2.png  used on input line 137.
+(pdftex.def)             Requested size: 250.95476pt x 53.9402pt.
+[54 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/Kirstain1.png> </medi
+a/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/Kirstain2.png>] [55]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 184.
+
+[56]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/E08B58ECE039BBEB851
+AF021D2CF8787471DBA13078B441F320C3A43757F3A46.pygtex) [57]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/E08B58ECE039BBEB851
+AF021D2CF8787471DBA13078B441F320C3A43757F3A46.pygtex) [58] [59]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 248.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/193D4A78613C4DF6401
+57042A021F060AAB0828D0435891124695BB90843A2A8.pygtex) [60]
+Overfull \vbox (38.86856pt too high) has occurred while \output is active []
+
+
+[61]
+Overfull \hbox (0.8088pt too wide) in paragraph at lines 277--278
+\OT1/cmr/m/n/12 vi-ously ex-tracted by the pipeline's [][][]NER[][] com-po-nent
+: the com-pany name (\OT1/cmr/m/it/12 head[]text\OT1/cmr/m/n/12 )
+ []
+
+
+Overfull \hbox (8.80931pt too wide) in paragraph at lines 279--280
+\OT1/cmr/m/n/12 the [][][]Coref-er-ence[][] string with two words on the right 
+and left (\OT1/cmr/m/it/12 coref[]with[]surroundings\OT1/cmr/m/n/12 ). 
+ []
+
+[62]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/02B817A7D10DA5CC9AF
+E15CAD77C22FA9CC73004384D20BA9C376FC40FF481A5.pygtex) [63]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/E08B58ECE039BBEB851
+AF021D2CF8787471DBA13078B441F320C3A43757F3A46.pygtex
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <6> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 419.
+) [64]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/E08B58ECE039BBEB851
+AF021D2CF8787471DBA13078B441F320C3A43757F3A46.pygtex)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/4B2269362DF04867D27
+5BAAF28B5FC371EF9830FCF0742196D1880CE2183EB2C.pygtex) [65] [66]
+Underfull \hbox (badness 10000) in paragraph at lines 407--409
+
+ []
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/0B4B57628CCAC71C518
+FE3C3E4D39A03FADE034AD70D1C1B9EB9E678B47236AA.pygtex)
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 432.
+
+
+Overfull \hbox (9.57811pt too wide) in paragraph at lines 433--439
+\OT1/cmr/m/n/12 The [][][]Gen-er-a-tive LLM[][] ap-proach out-per-forms the pre
+-trained Crosslingual-Coreference
+ []
+
+[67]
+<Assets/pipelineCoref.png, id=1919, 934.49126pt x 411.5375pt>
+File: Assets/pipelineCoref.png Graphic file (type png)
+<use Assets/pipelineCoref.png>
+Package pdftex.def Info: Assets/pipelineCoref.png  used on input line 445.
+(pdftex.def)             Requested size: 355.51817pt x 156.56798pt.
+) [68 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/pipelineCoref.png>]
+\openout2 = `Chapters/6_Topic_modelling.aux'.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/6_Topic_modelling.tex
+chapter 6.
+<Assets/sub-pred-obj.png, id=1934, 1020.06094pt x 496.85625pt>
+File: Assets/sub-pred-obj.png Graphic file (type png)
+<use Assets/sub-pred-obj.png>
+Package pdftex.def Info: Assets/sub-pred-obj.png  used on input line 25.
+(pdftex.def)             Requested size: 418.25368pt x 203.72754pt.
+[69
+
+
+
+
+] [70 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/sub-pred-obj.png>]
+<Assets/lda-out.png, id=1949, 636.3775pt x 647.41875pt>
+File: Assets/lda-out.png Graphic file (type png)
+<use Assets/lda-out.png>
+Package pdftex.def Info: Assets/lda-out.png  used on input line 56.
+(pdftex.def)             Requested size: 250.95476pt x 255.30775pt.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 61.
+
+<Assets/nmf.png, id=1956, 1142.2675pt x 487.8225pt>
+File: Assets/nmf.png Graphic file (type png)
+<use Assets/nmf.png>
+Package pdftex.def Info: Assets/nmf.png  used on input line 67.
+(pdftex.def)             Requested size: 292.77629pt x 125.02951pt.
+[71 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/lda-out.png> </media/
+rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/nmf.png (PNG copy)>]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 78.
+
+<Assets/svd.png, id=1979, 1429.34pt x 487.8225pt>
+File: Assets/svd.png Graphic file (type png)
+<use Assets/svd.png>
+Package pdftex.def Info: Assets/svd.png  used on input line 83.
+(pdftex.def)             Requested size: 292.77629pt x 99.92238pt.
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 92.
+
+[72 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/svd.png (PNG copy)>]
+<Assets/huggingface-topic-models.png, id=2009, 1112.155pt x 711.65875pt>
+File: Assets/huggingface-topic-models.png Graphic file (type png)
+<use Assets/huggingface-topic-models.png>
+Package pdftex.def Info: Assets/huggingface-topic-models.png  used on input lin
+e 113.
+(pdftex.def)             Requested size: 355.51817pt x 227.49655pt.
+
+[73 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/huggingface-topic-mod
+els.png>]
+<Assets/topic-classes-1.png, id=2023, 347.2975pt x 475.7775pt>
+File: Assets/topic-classes-1.png Graphic file (type png)
+<use Assets/topic-classes-1.png>
+Package pdftex.def Info: Assets/topic-classes-1.png  used on input line 123.
+(pdftex.def)             Requested size: 146.39133pt x 200.55115pt.
+<Assets/topic-classes-2.png, id=2024, 973.6375pt x 498.86375pt>
+File: Assets/topic-classes-2.png Graphic file (type png)
+<use Assets/topic-classes-2.png>
+Package pdftex.def Info: Assets/topic-classes-2.png  used on input line 128.
+(pdftex.def)             Requested size: 230.04079pt x 117.86479pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 141--147
+
+ []
+
+[74 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/topic-classes-1.png> 
+</media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/topic-classes-2.png>]
+Overfull \hbox (4.21077pt too wide) in paragraph at lines 153--154
+[]\OT1/cmr/bx/n/12 Embeddings\OT1/cmr/m/n/12 : Choose and ap-ply an em-bed-ding
+ com-po-nent, typ-i-cally SBERT
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 164--168
+
+ []
+
+
+Overfull \hbox (17.07782pt too wide) in paragraph at lines 178--179
+[]\OT1/cmr/bx/n/12 topic[]vectorize\OT1/cmr/m/n/12 : Choose be-tween [][][]TF-I
+DF[][] (Sec.[][]3.3.5[][]), Bag-of-Word (Sec.[][]3.3.2[][]),
+ []
+
+[75]
+<Assets/topic-embedd-cluster.png, id=2075, 596.2275pt x 630.355pt>
+File: Assets/topic-embedd-cluster.png Graphic file (type png)
+<use Assets/topic-embedd-cluster.png>
+Package pdftex.def Info: Assets/topic-embedd-cluster.png  used on input line 19
+7.
+(pdftex.def)             Requested size: 209.12683pt x 221.09885pt.
+ [76 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/topic-embedd-cluster
+.png>]
+<Assets/topic-tfidf-cluster.png, id=2089, 691.58376pt x 617.30624pt>
+File: Assets/topic-tfidf-cluster.png Graphic file (type png)
+<use Assets/topic-tfidf-cluster.png>
+Package pdftex.def Info: Assets/topic-tfidf-cluster.png  used on input line 212
+.
+(pdftex.def)             Requested size: 209.12683pt x 186.6627pt.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 225.
+
+[77 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/topic-tfidf-cluster.p
+ng>]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/2B1CB49EBBC9F05B02E
+73DD50E6181BB282489BF502A94E914DE79FAE3BE70C5.pygtex)
+Overfull \hbox (0.31837pt too wide) in paragraph at lines 248--250
+[]\OT1/cmr/m/n/12 There are 17 pre-defined top-ics for-mu-lated in Ger-man that
+ were man-u-ally crafted
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 248--250
+
+ []
+
+[78]
+Underfull \hbox (badness 10000) in paragraph at lines 251--253
+
+ []
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/4F30D5E97CAC91D7F0E
+08DA23E21E6F4106555AB34D27E905CFBBBCE2E2C1E13.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 267--268
+
+ []
+
+[79]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/EDF8B2306CB75EB3A15
+02DFDB6EDAC8E74F55CE78DC8DBA882FCFCD212326299.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 281--284
+
+ []
+
+[80]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/2B1CB49EBBC9F05B02E
+73DD50E6181BB282489BF502A94E914DE79FAE3BE70C5.pygtex)
+Underfull \hbox (badness 10000) in paragraph at lines 308--310
+
+ []
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/0B4B57628CCAC71C518
+FE3C3E4D39A03FADE034AD70D1C1B9EB9E678B47236AA.pygtex) [81] [82]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 337.
+
+
+Overfull \hbox (9.20302pt too wide) in paragraph at lines 338--340
+\OT1/cmr/m/n/12 As out-lined above, the clus-ter based meth-ods such as the sel
+f-implemented BERTopic
+ []
+
+<Assets/pipelineTopic.png, id=2163, 934.49126pt x 348.30125pt>
+File: Assets/pipelineTopic.png Graphic file (type png)
+<use Assets/pipelineTopic.png>
+Package pdftex.def Info: Assets/pipelineTopic.png  used on input line 355.
+(pdftex.def)             Requested size: 376.42575pt x 140.30124pt.
+[83]) [84 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/pipelineTopic.p
+ng>]
+\openout2 = `Chapters/7_Knowledge_Graph.aux'.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/7_Knowledge_Graph.tex
+chapter 7.
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\@ifnextchar' on input line 1.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\@ifnextchar' on input line 1.
+
+File: Assets/kg_schema.png Graphic file (type png)
+<use Assets/kg_schema.png>
+Package pdftex.def Info: Assets/kg_schema.png  used on input line 15.
+(pdftex.def)             Requested size: 313.69025pt x 171.67354pt.
+[85
+
+
+
+
+]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/50662E8353F648E3843
+C3FC33ED3BA3D7B9ED8DBFDC480496E2E980D7108BEFC.pygtex)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/50662E8353F648E3843
+C3FC33ED3BA3D7B9ED8DBFDC480496E2E980D7108BEFC.pygtex) [86]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/50662E8353F648E3843
+C3FC33ED3BA3D7B9ED8DBFDC480496E2E980D7108BEFC.pygtex)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/50662E8353F648E3843
+C3FC33ED3BA3D7B9ED8DBFDC480496E2E980D7108BEFC.pygtex) [87]
+Underfull \hbox (badness 10000) in paragraph at lines 91--92
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 101--104
+
+ []
+
+[88]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/4B2269362DF04867D27
+5BAAF28B5FC371EF9830FCF0742196D1880CE2183EB2C.pygtex) [89]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/0B4B57628CCAC71C518
+FE3C3E4D39A03FADE034AD70D1C1B9EB9E678B47236AA.pygtex)
+Overfull \hbox (35.14948pt too wide) in paragraph at lines 147--151
+[]\OT1/cmr/m/n/12 It ex-tracts and in-serts the \OT1/cmr/m/it/12 en-ti-ties \OT
+1/cmr/m/n/12 list into the new DataFrame col-umn \OT1/cmr/m/it/12 ner[]coref[]e
+ntities
+ []
+
+
+Overfull \hbox (15.74031pt too wide) in paragraph at lines 163--165
+\OT1/cmr/m/n/12 gen-eral pa-ram-e-ters for neo4j, the method \OT1/cmr/m/it/12 l
+oad[]data[]into[]knowledge[]graph() \OT1/cmr/m/n/12 in Python-
+ []
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/0FCF884151FF6969343
+1C4BD4121285944336DF16469BD4D5B69B01E691C6E65.pygtex) [90]
+Overfull \vbox (32.26852pt too high) has occurred while \output is active []
+
+
+[91]
+Underfull \hbox (badness 10000) in paragraph at lines 177--182
+
+ []
+
+<Assets/kg-data-1.png, id=2279, 909.3975pt x 722.7pt>
+File: Assets/kg-data-1.png Graphic file (type png)
+<use Assets/kg-data-1.png>
+Package pdftex.def Info: Assets/kg-data-1.png  used on input line 189.
+(pdftex.def)             Requested size: 418.25368pt x 332.39088pt.
+<Assets/kg-data-2.png, id=2281, 860.21375pt x 653.44125pt>
+File: Assets/kg-data-2.png Graphic file (type png)
+<use Assets/kg-data-2.png>
+Package pdftex.def Info: Assets/kg-data-2.png  used on input line 198.
+(pdftex.def)             Requested size: 418.25368pt x 317.71628pt.
+[92 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/kg-data-1.png>]
+<Assets/kg-data-3-article.png, id=2290, 459.7175pt x 417.56pt>
+File: Assets/kg-data-3-article.png Graphic file (type png)
+<use Assets/kg-data-3-article.png>
+Package pdftex.def Info: Assets/kg-data-3-article.png  used on input line 214.
+(pdftex.def)             Requested size: 198.67303pt x 180.4584pt.
+<Assets/kg-data-3-sentence.png, id=2291, 461.725pt x 333.245pt>
+File: Assets/kg-data-3-sentence.png Graphic file (type png)
+<use Assets/kg-data-3-sentence.png>
+Package pdftex.def Info: Assets/kg-data-3-sentence.png  used on input line 221.
+
+(pdftex.def)             Requested size: 198.67303pt x 143.38916pt.
+<Assets/kg-data-3-topic.png, id=2292, 457.71pt x 309.155pt>
+File: Assets/kg-data-3-topic.png Graphic file (type png)
+<use Assets/kg-data-3-topic.png>
+Package pdftex.def Info: Assets/kg-data-3-topic.png  used on input line 228.
+(pdftex.def)             Requested size: 198.67303pt x 134.18886pt.
+<Assets/kg-data-3-company.png, id=2293, 460.72125pt x 236.885pt>
+File: Assets/kg-data-3-company.png Graphic file (type png)
+<use Assets/kg-data-3-company.png>
+Package pdftex.def Info: Assets/kg-data-3-company.png  used on input line 235.
+(pdftex.def)             Requested size: 198.67303pt x 102.14772pt.
+
+[93 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/kg-data-2.png>]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/0FCF884151FF6969343
+1C4BD4121285944336DF16469BD4D5B69B01E691C6E65.pygtex) [94 </media/rainergo/PROJ
+ECTS/UASFRA-MS-Thesis/doc/Assets/kg-data-3-article.png> </media/rainergo/PROJEC
+TS/UASFRA-MS-Thesis/doc/Assets/kg-data-3-sentence.png> </media/rainergo/PROJECT
+S/UASFRA-MS-Thesis/doc/Assets/kg-data-3-topic.png> </media/rainergo/PROJECTS/UA
+SFRA-MS-Thesis/doc/Assets/kg-data-3-company.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 266--270
+
+ []
+
+[95]
+<Assets/wikirequest-indu.png, id=2336, 799.98875pt x 236.885pt>
+File: Assets/wikirequest-indu.png Graphic file (type png)
+<use Assets/wikirequest-indu.png>
+Package pdftex.def Info: Assets/wikirequest-indu.png  used on input line 283.
+(pdftex.def)             Requested size: 334.60422pt x 99.07895pt.
+<Assets/wikirequest-country.png, id=2337, 796.9775pt x 209.78375pt>
+File: Assets/wikirequest-country.png Graphic file (type png)
+<use Assets/wikirequest-country.png>
+Package pdftex.def Info: Assets/wikirequest-country.png  used on input line 290
+.
+(pdftex.def)             Requested size: 334.60422pt x 88.07655pt.
+<Assets/dbpedia-request-abstract.png, id=2338, 615.29875pt x 300.12125pt>
+File: Assets/dbpedia-request-abstract.png Graphic file (type png)
+<use Assets/dbpedia-request-abstract.png>
+Package pdftex.def Info: Assets/dbpedia-request-abstract.png  used on input lin
+e 297.
+(pdftex.def)             Requested size: 230.04079pt x 112.20172pt.
+ [96 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/wikirequest-indu.png
+> </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/wikirequest-country.png
+> </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/dbpedia-request-abstrac
+t.png>]
+<Assets/kg-data-4-company.png, id=2347, 1185.42876pt x 387.4475pt>
+File: Assets/kg-data-4-company.png Graphic file (type png)
+<use Assets/kg-data-4-company.png>
+Package pdftex.def Info: Assets/kg-data-4-company.png  used on input line 310.
+(pdftex.def)             Requested size: 418.25368pt x 136.70236pt.
+<Assets/cypher-1.png, id=2352, 953.5625pt x 156.585pt>
+File: Assets/cypher-1.png Graphic file (type png)
+<use Assets/cypher-1.png>
+Package pdftex.def Info: Assets/cypher-1.png  used on input line 334.
+(pdftex.def)             Requested size: 418.25368pt x 68.68257pt.
+<Assets/cypher-2.png, id=2353, 1184.425pt x 174.6525pt>
+File: Assets/cypher-2.png Graphic file (type png)
+<use Assets/cypher-2.png>
+Package pdftex.def Info: Assets/cypher-2.png  used on input line 341.
+(pdftex.def)             Requested size: 418.25368pt x 61.67294pt.
+ [97 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/kg-data-4-company.pn
+g>]
+<Assets/cypher-3.png, id=2365, 1178.4025pt x 162.6075pt>
+File: Assets/cypher-3.png Graphic file (type png)
+<use Assets/cypher-3.png>
+Package pdftex.def Info: Assets/cypher-3.png  used on input line 356.
+(pdftex.def)             Requested size: 418.25368pt x 57.71489pt.
+<Assets/cypher-4.png, id=2366, 967.615pt x 189.70876pt>
+File: Assets/cypher-4.png Graphic file (type png)
+<use Assets/cypher-4.png>
+Package pdftex.def Info: Assets/cypher-4.png  used on input line 363.
+(pdftex.def)             Requested size: 418.25368pt x 82.00159pt.
+ [98 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/cypher-1.png> </medi
+a/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/cypher-2.png> </media/rainergo/
+PROJECTS/UASFRA-MS-Thesis/doc/Assets/cypher-3.png> </media/rainergo/PROJECTS/UA
+SFRA-MS-Thesis/doc/Assets/cypher-4.png>]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/0FCF884151FF6969343
+1C4BD4121285944336DF16469BD4D5B69B01E691C6E65.pygtex)
+<Assets/sent-embed.png, id=2379, 1166.3575pt x 396.48125pt>
+File: Assets/sent-embed.png Graphic file (type png)
+<use Assets/sent-embed.png>
+Package pdftex.def Info: Assets/sent-embed.png  used on input line 395.
+(pdftex.def)             Requested size: 418.25368pt x 142.17654pt.
+ [99]
+Underfull \hbox (badness 10000) in paragraph at lines 399--400
+
+ []
+
+<Assets/sentiment.png, id=2388, 958.58125pt x 202.7575pt>
+File: Assets/sentiment.png Graphic file (type png)
+<use Assets/sentiment.png>
+Package pdftex.def Info: Assets/sentiment.png  used on input line 420.
+(pdftex.def)             Requested size: 418.25368pt x 88.46796pt.
+[100 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/sent-embed.png>]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gls' on input line 426.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/EAFC031A1F062C897CF
+A803B50A33B3FEE8BE10B305AF6F1EE0E154AA198D397.pygtex)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/EAFC031A1F062C897CF
+A803B50A33B3FEE8BE10B305AF6F1EE0E154AA198D397.pygtex) [101 </media/rainergo/PRO
+JECTS/UASFRA-MS-Thesis/doc/Assets/sentiment.png>]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/EAFC031A1F062C897CF
+A803B50A33B3FEE8BE10B305AF6F1EE0E154AA198D397.pygtex) [102]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/EAFC031A1F062C897CF
+A803B50A33B3FEE8BE10B305AF6F1EE0E154AA198D397.pygtex)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/_minted-main/EAFC031A1F062C897CF
+A803B50A33B3FEE8BE10B305AF6F1EE0E154AA198D397.pygtex)
+<Assets/chatbot-question.png, id=2435, 1075.01625pt x 57.21375pt>
+File: Assets/chatbot-question.png Graphic file (type png)
+<use Assets/chatbot-question.png>
+Package pdftex.def Info: Assets/chatbot-question.png  used on input line 500.
+(pdftex.def)             Requested size: 418.25368pt x 22.26001pt.
+<Assets/chatbot-processing.png, id=2440, 1132.23pt x 236.885pt>
+File: Assets/chatbot-processing.png Graphic file (type png)
+<use Assets/chatbot-processing.png>
+Package pdftex.def Info: Assets/chatbot-processing.png  used on input line 508.
+
+(pdftex.def)             Requested size: 418.25368pt x 87.5051pt.
+ [103 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/chatbot-question.pn
+g>]
+<Assets/chatbot-answer.png, id=2457, 989.6975pt x 325.215pt>
+File: Assets/chatbot-answer.png Graphic file (type png)
+<use Assets/chatbot-answer.png>
+Package pdftex.def Info: Assets/chatbot-answer.png  used on input line 516.
+(pdftex.def)             Requested size: 418.25368pt x 137.43793pt.
+ [104 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/chatbot-processing.
+png> </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/chatbot-answer.png>]
+) [105]
+\openout2 = `Chapters/8_Conclusion.aux'.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/8_Conclusion.tex
+chapter 8.
+
+Underfull \hbox (badness 10000) in paragraph at lines 3--4
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5--9
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 10--14
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 15--18
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 19--26
+
+ []
+
+[106
+
+
+
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 28--32
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 33--35
+
+ []
+
+) [107]
+\openout2 = `Chapters/9_Appendix_A.aux'.
+
+
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/9_Appendix_A.tex
+chapter A.
+<Assets/main-1.png, id=2534, 654.445pt x 287.0725pt>
+File: Assets/main-1.png Graphic file (type png)
+<use Assets/main-1.png>
+Package pdftex.def Info: Assets/main-1.png  used on input line 8.
+(pdftex.def)             Requested size: 397.3397pt x 174.29045pt.
+<Assets/main-2.png, id=2535, 662.475pt x 304.13625pt>
+File: Assets/main-2.png Graphic file (type png)
+<use Assets/main-2.png>
+Package pdftex.def Info: Assets/main-2.png  used on input line 15.
+(pdftex.def)             Requested size: 397.3397pt x 182.41354pt.
+<Assets/main-3.png, id=2536, 718.685pt x 186.6975pt>
+File: Assets/main-3.png Graphic file (type png)
+<use Assets/main-3.png>
+Package pdftex.def Info: Assets/main-3.png  used on input line 21.
+(pdftex.def)             Requested size: 397.3397pt x 103.22235pt.
+<Assets/main-4.png, id=2537, 767.86874pt x 249.93375pt>
+File: Assets/main-4.png Graphic file (type png)
+<use Assets/main-4.png>
+Package pdftex.def Info: Assets/main-4.png  used on input line 27.
+(pdftex.def)             Requested size: 397.3397pt x 129.33322pt.
+[108
+
+
+
+
+ </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/main-1.png> </media/rain
+ergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/main-2.png>]
+<Assets/main-5.png, id=2547, 700.6175pt x 120.45pt>
+File: Assets/main-5.png Graphic file (type png)
+<use Assets/main-5.png>
+Package pdftex.def Info: Assets/main-5.png  used on input line 33.
+(pdftex.def)             Requested size: 397.3397pt x 68.31168pt.
+<Assets/main-6.png, id=2548, 763.85374pt x 154.5775pt>
+File: Assets/main-6.png Graphic file (type png)
+<use Assets/main-6.png>
+Package pdftex.def Info: Assets/main-6.png  used on input line 39.
+(pdftex.def)             Requested size: 397.3397pt x 80.4067pt.
+<Assets/main-7.png, id=2549, 685.56125pt x 95.35625pt>
+File: Assets/main-7.png Graphic file (type png)
+<use Assets/main-7.png>
+Package pdftex.def Info: Assets/main-7.png  used on input line 45.
+(pdftex.def)             Requested size: 397.3397pt x 55.26881pt.
+<Assets/main-8.png, id=2550, 744.7825pt x 288.07625pt>
+File: Assets/main-8.png Graphic file (type png)
+<use Assets/main-8.png>
+Package pdftex.def Info: Assets/main-8.png  used on input line 51.
+(pdftex.def)             Requested size: 397.3397pt x 153.69067pt.
+ [109 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/main-3.png> </media
+/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/main-4.png> </media/rainergo/PRO
+JECTS/UASFRA-MS-Thesis/doc/Assets/main-5.png> </media/rainergo/PROJECTS/UASFRA-
+MS-Thesis/doc/Assets/main-6.png>]
+<Assets/main-9.png, id=2564, 752.8125pt x 633.36626pt>
+File: Assets/main-9.png Graphic file (type png)
+<use Assets/main-9.png>
+Package pdftex.def Info: Assets/main-9.png  used on input line 57.
+(pdftex.def)             Requested size: 397.3397pt x 334.3005pt.
+<Assets/main-10.png, id=2565, 787.94376pt x 254.9525pt>
+File: Assets/main-10.png Graphic file (type png)
+<use Assets/main-10.png>
+Package pdftex.def Info: Assets/main-10.png  used on input line 63.
+(pdftex.def)             Requested size: 397.3397pt x 128.5652pt.
+ [110 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/main-7.png> </media
+/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/main-8.png>]
+<Assets/main-11.png, id=2574, 679.53876pt x 91.34125pt>
+File: Assets/main-11.png Graphic file (type png)
+<use Assets/main-11.png>
+Package pdftex.def Info: Assets/main-11.png  used on input line 69.
+(pdftex.def)             Requested size: 397.3397pt x 53.40862pt.
+<Assets/main-12.png, id=2575, 741.77126pt x 302.12875pt>
+File: Assets/main-12.png Graphic file (type png)
+<use Assets/main-12.png>
+Package pdftex.def Info: Assets/main-12.png  used on input line 75.
+(pdftex.def)             Requested size: 397.3397pt x 161.84242pt.
+
+[111 </media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/main-9.png> </media/
+rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/main-10.png>]) [112 </media/raine
+rgo/PROJECTS/UASFRA-MS-Thesis/doc/Assets/main-11.png> </media/rainergo/PROJECTS
+/UASFRA-MS-Thesis/doc/Assets/main-12.png>]
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.lof [113
+
+
+
+]
+
+Package tocbasic Warning: number width of figure toc entries should be increase
+d!
+(tocbasic)                Currently used number width = 27.08583pt,
+(tocbasic)                Wanted number separation    = 4.69987pt,
+(tocbasic)                Reserved number width       = 27.02475pt on input lin
+e 73.
+
+
+Package tocbasic Warning: number width of figure toc entries should be increase
+d!
+(tocbasic)                Currently used number width = 27.08583pt,
+(tocbasic)                Wanted number separation    = 4.69987pt,
+(tocbasic)                Reserved number width       = 27.02475pt on input lin
+e 74.
+
+
+Package tocbasic Warning: number width of figure toc entries should be increase
+d!
+(tocbasic)                Currently used number width = 27.08583pt,
+(tocbasic)                Wanted number separation    = 4.69987pt,
+(tocbasic)                Reserved number width       = 27.02475pt on input lin
+e 75.
+
+)
+\tf@lof=\write7
+\openout7 = `main.lof'.
+
+ (/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.bbl [114]
+Underfull \hbox (badness 10000) in paragraph at lines 9--13
+[]\OT1/cmr/m/n/12 Allennlp: Coref-er-ence model.  [][]$\OT1/cmtt/m/n/12 https :
+ / / github . com / allenai /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 9--13
+\OT1/cmtt/m/n/12 allennlp-[]models / blob / main / allennlp _ models / modelcar
+ds /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 25--29
+[]\OT1/cmr/m/n/12 Medium: How to make an ef-fec-tive coref-er-ence res-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 25--29
+\OT1/cmr/m/n/12 o-lu-tion model.  [][]$\OT1/cmtt/m/n/12 https : / / towardsdata
+science . com /
+ []
+
+
+Overfull \hbox (26.58784pt too wide) in paragraph at lines 25--29
+\OT1/cmtt/m/n/12 how-[]to-[]make-[]an-[]effective-[]coreference-[]resolution-[]
+model-[]55875d2b5f19$[][]\OT1/cmr/m/n/12 .
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 52--57
+[]\OT1/cmr/m/n/12 Jens Al-brecht, Sid-harth Ra-machan-dran, and Chris-tian Win-
+kler.
+ []
+
+
+Underfull \hbox (badness 2707) in paragraph at lines 52--57
+\OT1/cmr/m/n/12 Blueprints for text an-a-lyt-ics us-ing python.  [][]$\OT1/cmtt
+/m/n/12 https : / / github . com /
+ []
+
+[115
+
+]
+Underfull \hbox (badness 3088) in paragraph at lines 79--83
+[]\OT1/cmr/m/n/12 Cardiff nlp - pre-trained topic model.  [][]$\OT1/cmtt/m/n/12
+ https : / / huggingface . co /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 79--83
+\OT1/cmtt/m/n/12 cardiffnlp / twitter-[]roberta-[]base-[]dec2021-[]tweet-[]topi
+c-[]multi-[]all$[][]\OT1/cmr/m/n/12 .
+ []
+
+
+Underfull \hbox (badness 1533) in paragraph at lines 85--89
+[]\OT1/cmr/m/n/12 Dimos ste-fani-dis - pre-trained topic model.  [][]$\OT1/cmtt
+/m/n/12 https : / / huggingface .
+ []
+
+[116]
+Underfull \hbox (badness 1117) in paragraph at lines 165--168
+[]\OT1/cmr/m/n/12 Vladimir Do-bro-vol-skii.  Word-level coref-er-ence res-o-lu-
+tion.  [][]$\OT1/cmtt/m/n/12 https : / /
+ []
+
+
+Underfull \hbox (badness 1173) in paragraph at lines 189--196
+[]\OT1/cmr/m/n/12 Rainer Gogel.  Talk 15: Trans-former ap-pli-ca-tions in nlp. 
+ [][]$\OT1/cmtt/m/n/12 https :
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 189--196
+\OT1/cmtt/m/n/12 / / github . com / rainergo / Fileserver / blob / master / tra
+nsformer _
+ []
+
+
+Underfull \hbox (badness 1715) in paragraph at lines 189--196
+\OT1/cmtt/m/n/12 applications _ in _ nlp . pdf ? raw = true$[][]\OT1/cmr/m/n/12
+ , 2023.  Frank-furt UAS, Mas-ter
+ []
+
+[117]
+Underfull \hbox (badness 10000) in paragraph at lines 221--225
+[]\OT1/cmr/m/n/12 Richard Paul Hud-son.  Coref-eree.  [][]$\OT1/cmtt/m/n/12 htt
+ps : / / github . com /
+ []
+
+
+Underfull \hbox (badness 4634) in paragraph at lines 270--274
+[]\OT1/cmr/m/n/12 David S. Lim.  bert-base-ner.  [][]$\OT1/cmtt/m/n/12 https : 
+/ / huggingface . co / dslim /
+ []
+
+[118]
+Underfull \hbox (badness 1314) in paragraph at lines 307--312
+\OT1/cmr/m/n/12 tor space.  [][]$\OT1/cmtt/m/n/12 https : / / www . khoury . no
+rtheastern . edu / home / vip / teach /
+ []
+
+
+Underfull \hbox (badness 1708) in paragraph at lines 314--320
+\OT1/cmr/m/n/12 Dean.  Dis-tributed rep-re-sen-ta-tions of words and phrases an
+d their
+ []
+
+
+Overfull \hbox (134.0629pt too wide) in paragraph at lines 328--333
+\OT1/cmtt/m/n/12 lawyer-[]used-[]chatgpt-[]in-[]court-[]and-[]cited-[]fake-[]ca
+ses-[]a-[]judge-[]is-[]considering-[]sanctions/$[][]\OT1/cmr/m/n/12 .
+ []
+
+[119]
+Underfull \hbox (badness 1342) in paragraph at lines 346--351
+[]\OT1/cmr/m/n/12 Gerhard Paa^^Y and Sven Gies-sel-bach.  Foun-da-tion mod-els 
+for in-for-
+ []
+
+
+Underfull \hbox (badness 3417) in paragraph at lines 380--385
+[]\OT1/cmr/m/n/12 Richard Socher.  Stan-ford nlp: Cs224n lec-ture slides.  [][]
+$\OT1/cmtt/m/n/12 https :
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 380--385
+\OT1/cmtt/m/n/12 / / web . stanford . edu / class / archive / cs / cs224n / cs2
+24n . 1184 /
+ []
+
+
+Underfull \hbox (badness 2662) in paragraph at lines 393--397
+[]\OT1/cmr/m/n/12 Nmf.  [][]$\OT1/cmtt/m/n/12 https : / / scikit-[]learn . org 
+/ dev / modules / generated / sklearn .
+ []
+
+
+Underfull \hbox (badness 5924) in paragraph at lines 404--407
+[]\OT1/cmr/m/n/12 Python langchain web-site.  [][]$\OT1/cmtt/m/n/12 https : / /
+ python . langchain . com / docs /
+ []
+
+[120]
+Underfull \hbox (badness 2119) in paragraph at lines 429--433
+[]\OT1/cmr/m/n/12 Wikipedia: Hal-lu-ci-na-tion in ai.  [][]$\OT1/cmtt/m/n/12 ht
+tps : / / en . wikipedia . org / wiki /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 435--438
+[]\OT1/cmr/m/n/12 Wikipedia: Lemma-ti-za-tion.  [][]$\OT1/cmtt/m/n/12 https : /
+ / en . wikipedia . org / wiki /
+ []
+
+
+Underfull \hbox (badness 4254) in paragraph at lines 475--478
+[]\OT1/cmr/m/n/12 neo4j: What is a knowl-edge graph.  [][]$\OT1/cmtt/m/n/12 htt
+ps : / / neo4j . com / blog /
+ []
+
+
+Underfull \hbox (badness 2608) in paragraph at lines 485--488
+[]\OT1/cmr/m/n/12 Rdflib: Python pack-age for work-ing with rdf.  [][]$\OT1/cmt
+t/m/n/12 https : / / rdflib .
+ []
+
+[121]
+Underfull \hbox (badness 1137) in paragraph at lines 495--498
+[]\OT1/cmr/m/n/12 W3c: Owl web on-tol-ogy lan-guage guide.  [][]$\OT1/cmtt/m/n/
+12 https : / / www . w3 . org / TR /
+ []
+
+
+Underfull \hbox (badness 2189) in paragraph at lines 510--513
+[]\OT1/cmr/m/n/12 Wikipedia: Anaphora.  [][]$\OT1/cmtt/m/n/12 https : / / en . 
+wikipedia . org / wiki / Anaphora _
+ []
+
+[122]
+Underfull \hbox (badness 10000) in paragraph at lines 570--575
+[]\OT1/cmr/m/n/12 Leon Zuc-chini.  Why your rag sys-tem is fail-ing | and
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 570--575
+\OT1/cmr/m/n/12 how to fix it.  [][]$\OT1/cmtt/m/n/12 https : / / blog . curios
+ity . ai / %EF % B8 %
+ []
+
+
+Overfull \hbox (16.23784pt too wide) in paragraph at lines 570--575
+\OT1/cmtt/m/n/12 8F-[]why-[]your-[]rag-[]system-[]is-[]failing-[]and-[]how-[]to
+-[]fix-[]it-[]7fe66780a335$[][]\OT1/cmr/m/n/12 .
+ []
+
+) [123] (/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.aux
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/1_Introduction.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/2_Project_Setup.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/3_Text_Representation.a
+ux) (/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/4_NER.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/5_Coreference_Resolutio
+n.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/6_Topic_modelling.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/7_Knowledge_Graph.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/8_Conclusion.aux)
+(/media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/Chapters/9_Appendix_A.aux))
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
+ ) 
+Here is how much of TeX's memory you used:
+ 26589 strings out of 480247
+ 510183 string characters out of 5896152
+ 1004462 words of memory out of 5000000
+ 43305 multiletter control sequences out of 15000+600000
+ 486822 words of font info for 89 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 108i,12n,131p,10599b,846s stack positions out of 5000i,500n,10000p,200000b,80000s
+ </home/rainergo/.texlive2021/texmf-var/fonts/pk/ljfour/jknappen/ec/tcti1200.
+600pk> </home/rainergo/.texlive2021/texmf-var/fonts/pk/ljfour/jknappen/ec/tcbx1
+200.600pk> </home/rainergo/.texlive2021/texmf-var/fonts/pk/ljfour/jknappen/ec/t
+crm1200.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmb
+sy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/share/te
+xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></usr/share/texlive/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+r17.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb>
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/pub
+lic/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmti8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmt
+t8.pfb>
+Output written on /media/rainergo/PROJECTS/UASFRA-MS-Thesis/doc/main.pdf (123 p
+ages, 6041497 bytes).
+PDF statistics:
+ 3359 PDF objects out of 3580 (max. 8388607)
+ 2972 compressed objects within 30 object streams
+ 626 named destinations out of 1000 (max. 500000)
+ 904 words of extra memory for PDF output out of 10000 (max. 10000000)
+

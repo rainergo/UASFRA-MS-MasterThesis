@@ -1,0 +1,41 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Optional}
+\PYG{k+kn}{from} \PYG{n+nn}{fastapi} \PYG{k+kn}{import} \PYG{n}{Query}
+\PYG{k+kn}{from} \PYG{n+nn}{uuid} \PYG{k+kn}{import} \PYG{n}{UUID}\PYG{p}{,} \PYG{n}{uuid4}
+\PYG{k+kn}{from} \PYG{n+nn}{pydantic} \PYG{k+kn}{import} \PYG{n}{BaseModel}\PYG{p}{,} \PYG{n}{Field}
+
+
+\PYG{k}{class} \PYG{n+nc}{Coreference}\PYG{p}{(}\PYG{n}{BaseModel}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} Coreferences occur when one or more expressions or mentions in a text refer to a company name at another position in that text.}
+\PYG{l+s+sd}{    For example: In the text \PYGZsq{}Steve Jobs founded Apple. The company was very successful. Today it is a media company.\PYGZsq{} the mention \PYGZsq{}company\PYGZsq{} in the second sentence and the mention \PYGZsq{}it\PYGZsq{} in the third sentence are coreferences to the company name \PYGZsq{}Apple\PYGZsq{}.}
+\PYG{l+s+sd}{    The \PYGZsq{}coref\PYGZus{}text\PYGZsq{}\PYGZhy{}attribute is the substring of the found coreference within the text string.}
+\PYG{l+s+sd}{    The \PYGZsq{}coref\PYGZus{}with\PYGZus{}surrounding\PYGZsq{}\PYGZhy{}attribute is the coreference substring plus its surrounding characters to the left and right that can include up to two words on each side. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{coref\PYGZus{}text}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}The coreference substring in the text string\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{coref\PYGZus{}with\PYGZus{}surroundings}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}The coreference substring plus its characters to the left and right in the text string up to two words on each side.\PYGZsq{}}\PYG{p}{)}
+
+
+\PYG{k}{class} \PYG{n+nc}{ClusterHead}\PYG{p}{(}\PYG{n}{BaseModel}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} The cluster head is the anchor text of a coreference cluster to which coreferences refer.}
+\PYG{l+s+sd}{    The cluster head always is the name of a company which is provided in the user message.}
+\PYG{l+s+sd}{    The \PYGZsq{}head\PYGZus{}index\PYGZus{}start\PYGZsq{}\PYGZhy{} and the \PYGZsq{}head\PYGZus{}index\PYGZus{}end\PYGZsq{}\PYGZhy{}attributes are integer values that mark the start and end position of the cluster head substring within the text.\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{head\PYGZus{}text}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}The string characters of the cluster head which is a company name\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{head\PYGZus{}index\PYGZus{}start}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}The position index of the first character of the cluster head substring\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{head\PYGZus{}index\PYGZus{}end}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}The position index of the last character of the cluster head substring plus one\PYGZsq{}}\PYG{p}{)}
+
+
+\PYG{k}{class} \PYG{n+nc}{Cluster}\PYG{p}{(}\PYG{n}{BaseModel}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} A coreference cluster consists of one cluster head in a text and one or more coreferences at another position in that text that co\PYGZhy{}refer to this cluster head.}
+\PYG{l+s+sd}{        For example: In the text \PYGZsq{}Steve Jobs founded Apple. The company was very successful. Today it is a media company.\PYGZsq{} the coreference \PYGZsq{}company\PYGZsq{} in the second sentence and the coreference \PYGZsq{}it\PYGZsq{} in the third sentence co\PYGZhy{}refer to the cluster head which is \PYGZsq{}Apple\PYGZsq{}.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{cluster\PYGZus{}id}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}The identification number of the cluster provided by the user. Always return the same number that was provided by the user.\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{text}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}The text to search in\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{cluster\PYGZus{}head}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n}{ClusterHead}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}The cluster object which is is provided in the user message\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{coreferences}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{Coreference}\PYG{p}{]]} \PYG{o}{=} \PYG{k+kc}{None}
+
+
+\PYG{k}{class} \PYG{n+nc}{DataContainer}\PYG{p}{(}\PYG{n}{BaseModel}\PYG{p}{):}
+    \PYG{n}{data\PYGZus{}list}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{Cluster}\PYG{p}{]} \PYG{o}{=} \PYG{p}{[]}
+
+    \PYG{c+c1}{\PYGZsh{} \PYGZus{}\PYGZus{}hash\PYGZus{}\PYGZus{} = object.\PYGZus{}\PYGZus{}hash\PYGZus{}\PYGZus{}}
+
+\end{Verbatim}

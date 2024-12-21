@@ -1,0 +1,16 @@
+FROM python:3.12
+
+WORKDIR /code
+
+# This individual mentioning of files is only done to show which files are needed for docker
+COPY coref_langchain.py /code/coref_langchain.py
+COPY data_models.py /code/data_models.py
+COPY examples.py /code/examples.py
+COPY main.py /code/main.py
+COPY prompts.py /code/prompts.py
+
+COPY requirements.txt /code/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "12345"]

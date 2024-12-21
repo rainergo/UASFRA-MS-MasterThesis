@@ -1,0 +1,166 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{requests}
+\PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+\PYG{k+kn}{from} \PYG{n+nn}{pathlib} \PYG{k+kn}{import} \PYG{n}{Path}
+\PYG{k+kn}{import} \PYG{n+nn}{concurrent.futures}
+\PYG{k+kn}{import} \PYG{n+nn}{traceback}
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Callable}\PYG{p}{,} \PYG{n}{Generator}
+\PYG{k+kn}{from} \PYG{n+nn}{functools} \PYG{k+kn}{import} \PYG{n}{reduce}
+\PYG{k+kn}{from} \PYG{n+nn}{spacy.language} \PYG{k+kn}{import} \PYG{n}{Language}
+\PYG{k+kn}{import} \PYG{n+nn}{time}
+
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.config} \PYG{k+kn}{import} \PYG{n}{ConfigBasic}
+\PYG{k+kn}{from} \PYG{n+nn}{src.settings.enums} \PYG{k+kn}{import} \PYG{n}{NaturalLanguage}\PYG{p}{,} \PYG{n}{SpacyTask}\PYG{p}{,} \PYG{n}{ExtractionType}
+\PYG{k+kn}{from} \PYG{n+nn}{src.B\PYGZus{}spacy\PYGZus{}pipeline.spacy\PYGZus{}pipe\PYGZus{}process} \PYG{k+kn}{import} \PYG{n}{SpacyPipeProcess}
+\PYG{k+kn}{from} \PYG{n+nn}{src.B\PYGZus{}spacy\PYGZus{}pipeline.spacy\PYGZus{}pipe\PYGZus{}funcs} \PYG{k+kn}{import} \PYG{n}{PipeFunc}
+\PYG{k+kn}{from} \PYG{n+nn}{src.E\PYGZus{}topic\PYGZus{}model.img\PYGZus{}llm\PYGZus{}extract\PYGZus{}topic.data\PYGZus{}models} \PYG{k+kn}{import} \PYG{n}{Frame}\PYG{p}{,} \PYG{n}{TopicExplain}
+\PYG{k+kn}{from} \PYG{n+nn}{src.A\PYGZus{}data.data\PYGZus{}loader} \PYG{k+kn}{import} \PYG{n}{DataLoader}
+
+
+\PYG{k}{class} \PYG{n+nc}{SpacyProcess}\PYG{p}{:}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}task}\PYG{p}{:} \PYG{n}{SpacyTask}\PYG{p}{,} \PYG{n}{ner\PYGZus{}method}\PYG{p}{:} \PYG{n}{ExtractionType} \PYG{o}{=} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{PRETRAINED}\PYG{p}{,} \PYG{n}{coref\PYGZus{}method}\PYG{p}{:} \PYG{n}{ExtractionType} \PYG{o}{=} \PYG{n}{ExtractionType}\PYG{o}{.}\PYG{n}{PRETRAINED}\PYG{p}{):}
+        \PYG{c+c1}{\PYGZsh{} Note: GPU does not work with multi\PYGZhy{}threading, use CPU:}
+        \PYG{n}{use\PYGZus{}gpu} \PYG{o}{=} \PYG{k+kc}{False}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}en}\PYG{p}{:} \PYG{n}{Language} \PYG{o}{=} \PYG{n}{SpacyPipeProcess}\PYG{p}{(}\PYG{n}{natural\PYGZus{}language}\PYG{o}{=}\PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{EN}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}task}\PYG{o}{=}\PYG{n}{spacy\PYGZus{}task}\PYG{p}{,} \PYG{n}{ner\PYGZus{}method}\PYG{o}{=}\PYG{n}{ner\PYGZus{}method}\PYG{p}{,} \PYG{n}{coref\PYGZus{}method}\PYG{o}{=}\PYG{n}{coref\PYGZus{}method}\PYG{p}{,} \PYG{n}{use\PYGZus{}gpu}\PYG{o}{=}\PYG{n}{use\PYGZus{}gpu}\PYG{p}{)}\PYG{o}{.}\PYG{n}{nlp}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}de}\PYG{p}{:} \PYG{n}{Language} \PYG{o}{=} \PYG{n}{SpacyPipeProcess}\PYG{p}{(}\PYG{n}{natural\PYGZus{}language}\PYG{o}{=}\PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{DE}\PYG{p}{,} \PYG{n}{spacy\PYGZus{}task}\PYG{o}{=}\PYG{n}{spacy\PYGZus{}task}\PYG{p}{,} \PYG{n}{ner\PYGZus{}method}\PYG{o}{=}\PYG{n}{ner\PYGZus{}method}\PYG{p}{,} \PYG{n}{coref\PYGZus{}method}\PYG{o}{=}\PYG{n}{coref\PYGZus{}method}\PYG{p}{,} \PYG{n}{use\PYGZus{}gpu}\PYG{o}{=}\PYG{n}{use\PYGZus{}gpu}\PYG{p}{)}\PYG{o}{.}\PYG{n}{nlp}
+
+    \PYG{k}{def} \PYG{n+nf}{reduce\PYGZus{}pipe}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n}{en\PYGZus{}pipes\PYGZus{}needed} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}transformer\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}tagger\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}parser\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}lemmatizer\PYGZsq{}}\PYG{p}{]}
+        \PYG{k}{for} \PYG{n}{pipe} \PYG{o+ow}{in} \PYG{n}{en\PYGZus{}pipes\PYGZus{}needed}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{pipe} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}en}\PYG{o}{.}\PYG{n}{pipe\PYGZus{}names}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}en}\PYG{o}{.}\PYG{n}{enable\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{pipe}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{pipe} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}en}\PYG{o}{.}\PYG{n}{pipe\PYGZus{}names}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{pipe} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{en\PYGZus{}pipes\PYGZus{}needed}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}en}\PYG{o}{.}\PYG{n}{disable\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{pipe}\PYG{p}{)}
+        \PYG{n}{de\PYGZus{}pipes\PYGZus{}needed} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}tok2vec\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}tagger\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}morphologizer\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}parser\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}lemmatizer\PYGZsq{}}\PYG{p}{]}
+        \PYG{k}{for} \PYG{n}{pipe} \PYG{o+ow}{in} \PYG{n}{de\PYGZus{}pipes\PYGZus{}needed}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{pipe} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}de}\PYG{o}{.}\PYG{n}{pipe\PYGZus{}names}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}de}\PYG{o}{.}\PYG{n}{enable\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{pipe}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{pipe} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}de}\PYG{o}{.}\PYG{n}{pipe\PYGZus{}names}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{pipe} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{de\PYGZus{}pipes\PYGZus{}needed}\PYG{p}{:}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}de}\PYG{o}{.}\PYG{n}{disable\PYGZus{}pipe}\PYG{p}{(}\PYG{n}{pipe}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{process\PYGZus{}text}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{text}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{lang}\PYG{p}{:} \PYG{n}{NaturalLanguage}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{dict}\PYG{p}{]:}
+        \PYG{k}{if} \PYG{n+nb}{isinstance}\PYG{p}{(}\PYG{n}{text}\PYG{p}{,} \PYG{n+nb}{str}\PYG{p}{):}
+            \PYG{k}{if} \PYG{n}{lang} \PYG{o}{==} \PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{EN}\PYG{p}{:}
+                \PYG{n}{doc} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}en}\PYG{p}{(}\PYG{n}{text}\PYG{p}{)}
+                \PYG{k}{return} \PYG{n}{PipeFunc}\PYG{o}{.}\PYG{n}{get\PYGZus{}sentences\PYGZus{}with\PYGZus{}custom\PYGZus{}extensions}\PYG{p}{(}\PYG{n}{processed\PYGZus{}doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{)}
+            \PYG{k}{elif} \PYG{n}{lang} \PYG{o}{==} \PYG{n}{NaturalLanguage}\PYG{o}{.}\PYG{n}{DE}\PYG{p}{:}
+                \PYG{n}{doc} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{nlp\PYGZus{}de}\PYG{p}{(}\PYG{n}{text}\PYG{p}{)}
+                \PYG{k}{return} \PYG{n}{PipeFunc}\PYG{o}{.}\PYG{n}{get\PYGZus{}sentences\PYGZus{}with\PYGZus{}custom\PYGZus{}extensions}\PYG{p}{(}\PYG{n}{processed\PYGZus{}doc}\PYG{o}{=}\PYG{n}{doc}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Language }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{lang}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{ is not supported\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def} \PYG{n+nf}{concurrent\PYGZus{}df\PYGZus{}apply}\PYG{p}{(}\PYG{n}{df}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{,} \PYG{n}{function}\PYG{p}{:} \PYG{n}{Callable}\PYG{p}{,} \PYG{n}{df\PYGZus{}col\PYGZus{}name\PYGZus{}1}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{df\PYGZus{}col\PYGZus{}name\PYGZus{}2}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{name\PYGZus{}new\PYGZus{}col}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+        \PYG{k}{with} \PYG{n}{concurrent}\PYG{o}{.}\PYG{n}{futures}\PYG{o}{.}\PYG{n}{ThreadPoolExecutor}\PYG{p}{(}\PYG{n}{max\PYGZus{}workers}\PYG{o}{=}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{df}\PYG{o}{.}\PYG{n}{index}\PYG{p}{))} \PYG{k}{as} \PYG{n}{executor}\PYG{p}{:}
+            \PYG{n}{generator}\PYG{p}{:} \PYG{n}{Generator} \PYG{o}{=} \PYG{n}{executor}\PYG{o}{.}\PYG{n}{map}\PYG{p}{(}\PYG{n}{function}\PYG{p}{,}\PYG{n}{df}\PYG{p}{[}\PYG{n}{df\PYGZus{}col\PYGZus{}name\PYGZus{}1}\PYG{p}{],} \PYG{n}{df}\PYG{p}{[}\PYG{n}{df\PYGZus{}col\PYGZus{}name\PYGZus{}2}\PYG{p}{])}
+            \PYG{k}{try}\PYG{p}{:}
+                \PYG{n}{df}\PYG{p}{[}\PYG{n}{name\PYGZus{}new\PYGZus{}col}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{generator}\PYG{p}{)}
+            \PYG{k}{except} \PYG{p}{(}\PYG{n+ne}{Exception}\PYG{p}{,} \PYG{n+ne}{TimeoutError}\PYG{p}{):}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Fetching concurrent.future failed: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{traceback}\PYG{o}{.}\PYG{n}{format\PYGZus{}exc}\PYG{p}{()}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZsq{}}\PYG{p}{)}
+            \PYG{k}{return} \PYG{n}{df}
+
+    \PYG{k}{def} \PYG{n+nf}{run\PYGZus{}spacy\PYGZus{}pipeline}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{df}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{SpacyProcess}\PYG{o}{.}\PYG{n}{concurrent\PYGZus{}df\PYGZus{}apply}\PYG{p}{(}\PYG{n}{df}\PYG{o}{=}\PYG{n}{df}\PYG{p}{,} \PYG{n}{function}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{process\PYGZus{}text}\PYG{p}{,} \PYG{n}{df\PYGZus{}col\PYGZus{}name\PYGZus{}1}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}pp\PYGZus{}art\PYGZus{}text\PYGZsq{}}\PYG{p}{,} \PYG{n}{df\PYGZus{}col\PYGZus{}name\PYGZus{}2}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}art\PYGZus{}language\PYGZsq{}}\PYG{p}{,} \PYG{n}{name\PYGZus{}new\PYGZus{}col}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}ner\PYGZus{}coref\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def} \PYG{n+nf}{mask\PYGZus{}sent}\PYG{p}{(}\PYG{n}{comp\PYGZus{}dict}\PYG{p}{,} \PYG{n}{mask}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Comp@Name@Placeholder\PYGZdq{}}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{str}\PYG{p}{:}
+        \PYG{n}{sent} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{NA}
+        \PYG{k}{if} \PYG{n+nb}{isinstance}\PYG{p}{(}\PYG{n}{comp\PYGZus{}dict}\PYG{p}{,} \PYG{n+nb}{dict}\PYG{p}{):}
+            \PYG{n}{replacements}\PYG{p}{:} \PYG{n+nb}{dict} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{n}{ent}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ent\PYGZus{}text\PYGZsq{}}\PYG{p}{]:} \PYG{n}{mask} \PYG{k}{for} \PYG{n}{ent} \PYG{o+ow}{in} \PYG{n}{comp\PYGZus{}dict}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}entities\PYGZsq{}}\PYG{p}{]\PYGZcb{}}
+            \PYG{n}{sent}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{comp\PYGZus{}dict}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}sentence\PYGZsq{}}\PYG{p}{]}
+            \PYG{n}{sent} \PYG{o}{=} \PYG{n}{reduce}\PYG{p}{(}\PYG{k}{lambda} \PYG{n}{x}\PYG{p}{,} \PYG{n}{kv}\PYG{p}{:} \PYG{n}{x}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{o}{*}\PYG{n}{kv}\PYG{p}{),} \PYG{n}{replacements}\PYG{o}{.}\PYG{n}{items}\PYG{p}{(),} \PYG{n}{sent}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{sent}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def} \PYG{n+nf}{convert\PYGZus{}nested\PYGZus{}ner\PYGZus{}coref\PYGZus{}dict}\PYG{p}{(}\PYG{n}{df}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{:}
+        \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}art\PYGZus{}id\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{index}
+        \PYG{n}{df} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{explode}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}ner\PYGZus{}coref\PYGZsq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{reset\PYGZus{}index}\PYG{p}{(}\PYG{n}{drop}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}top\PYGZus{}sent\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ner\PYGZus{}coref\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{str}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}sentence\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{astype}\PYG{p}{(}\PYG{n+nb}{object}\PYG{p}{)}\PYG{o}{.}\PYG{n}{replace}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{nan}\PYG{p}{,} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{NA}\PYG{p}{)}
+        \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}top\PYGZus{}sent\PYGZus{}masked\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ner\PYGZus{}coref\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{apply}\PYG{p}{(}\PYG{n}{SpacyProcess}\PYG{o}{.}\PYG{n}{mask\PYGZus{}sent}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{df}
+
+
+\PYG{k}{class} \PYG{n+nc}{Process}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{topic\PYGZus{}gen\PYGZus{}llm\PYGZus{}docker\PYGZus{}container\PYGZus{}url}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}http://127.0.0.1:54321\PYGZsq{}}
+        \PYG{c+c1}{\PYGZsh{} df = df[df.duplicated(subset=[\PYGZsq{}ner\PYGZus{}coref\PYGZsq{}])]  \PYGZsh{} df = df[df.duplicated(subset=[\PYGZsq{}ner\PYGZus{}coref\PYGZus{}entities\PYGZsq{}])]}
+    \PYG{k}{def} \PYG{n+nf}{prepare\PYGZus{}df\PYGZus{}for\PYGZus{}kg}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{df}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{:}
+        \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ner\PYGZus{}coref\PYGZus{}entities\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{ner\PYGZus{}coref}\PYG{o}{.}\PYG{n}{str}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}entities\PYGZsq{}}\PYG{p}{]}
+        \PYG{n}{df} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{explode}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}ner\PYGZus{}coref\PYGZus{}entities\PYGZsq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{reset\PYGZus{}index}\PYG{p}{(}\PYG{n}{drop}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}symbol\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{ner\PYGZus{}coref\PYGZus{}entities}\PYG{o}{.}\PYG{n}{str}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}symbol\PYGZsq{}}\PYG{p}{]}
+        \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}name\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{ner\PYGZus{}coref\PYGZus{}entities}\PYG{o}{.}\PYG{n}{str}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}name\PYGZsq{}}\PYG{p}{]}
+        \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}top\PYGZus{}description\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{topic}\PYG{o}{.}\PYG{n}{apply}\PYG{p}{(}\PYG{k}{lambda} \PYG{n}{x}\PYG{p}{:} \PYG{n}{TopicExplain}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]}\PYG{o}{.}\PYG{n}{value}\PYG{p}{)}
+        \PYG{n}{df}\PYG{o}{.}\PYG{n}{drop\PYGZus{}duplicates}\PYG{p}{(}\PYG{n}{subset}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}top\PYGZus{}sent\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}symbol\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}name\PYGZsq{}}\PYG{p}{],} \PYG{n}{keep}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}last\PYGZsq{}}\PYG{p}{,} \PYG{n}{inplace}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{df} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}drop\PYGZus{}nans}\PYG{p}{(}\PYG{n}{df}\PYG{p}{)}
+        \PYG{n}{df} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}get\PYGZus{}isin}\PYG{p}{(}\PYG{n}{df}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{df}
+
+    \PYG{k}{def} \PYG{n+nf}{\PYGZus{}drop\PYGZus{}nans}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{df}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{:}
+        \PYG{n}{df}\PYG{o}{.}\PYG{n}{dropna}\PYG{p}{(}\PYG{n}{subset}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ner\PYGZus{}coref\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}top\PYGZus{}sent\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}topic\PYGZsq{}}\PYG{p}{],} \PYG{n}{inplace}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{df}\PYG{o}{.}\PYG{n}{reset\PYGZus{}index}\PYG{p}{(}\PYG{n}{drop}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{inplace}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n}{df}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}sent\PYGZus{}id\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{index}\PYG{o}{.}\PYG{n}{tolist}\PYG{p}{()}
+        \PYG{k}{return} \PYG{n}{df}
+
+    \PYG{k}{def} \PYG{n+nf}{\PYGZus{}load\PYGZus{}comp\PYGZus{}isin\PYGZus{}df}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{:}
+        \PYG{n}{dl} \PYG{o}{=} \PYG{n}{DataLoader}\PYG{p}{()}
+        \PYG{n}{path} \PYG{o}{=} \PYG{n}{Path}\PYG{p}{(}\PYG{n}{ConfigBasic}\PYG{o}{.}\PYG{n}{path\PYGZus{}to\PYGZus{}comp\PYGZus{}symbol\PYGZus{}isin\PYGZus{}data}\PYG{p}{)}
+        \PYG{n}{df\PYGZus{}symb\PYGZus{}isin} \PYG{o}{=} \PYG{n}{dl}\PYG{o}{.}\PYG{n}{load\PYGZus{}df}\PYG{p}{(}\PYG{n}{path}\PYG{o}{=}\PYG{n}{path}\PYG{p}{,} \PYG{n}{dtype}\PYG{o}{=}\PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}CompanyName\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}string\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}ISIN\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}string\PYGZsq{}}\PYG{p}{\PYGZcb{},} \PYG{n}{columns}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ISIN\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}Symbol\PYGZsq{}}\PYG{p}{])}
+        \PYG{n}{df\PYGZus{}symb\PYGZus{}isin} \PYG{o}{=} \PYG{n}{df\PYGZus{}symb\PYGZus{}isin}\PYG{o}{.}\PYG{n}{rename}\PYG{p}{(}\PYG{n}{columns}\PYG{o}{=}\PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}Symbol\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}symbol\PYGZus{}raw\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}ISIN\PYGZsq{}}\PYG{p}{:}\PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}isin\PYGZsq{}}\PYG{p}{\PYGZcb{})}
+        \PYG{k}{return} \PYG{n}{df\PYGZus{}symb\PYGZus{}isin}
+
+    \PYG{k}{def} \PYG{n+nf}{\PYGZus{}get\PYGZus{}isin}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{df}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{:}
+        \PYG{n}{df}\PYG{p}{[[}\PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}symbol\PYGZus{}raw\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}symbol\PYGZus{}country\PYGZsq{}}\PYG{p}{]]} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{comp\PYGZus{}symbol}\PYG{o}{.}\PYG{n}{str}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}.\PYGZsq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{apply}\PYG{p}{(}\PYG{n}{pd}\PYG{o}{.}\PYG{n}{Series}\PYG{p}{)}\PYG{o}{.}\PYG{n}{fillna}\PYG{p}{(}\PYG{n}{pd}\PYG{o}{.}\PYG{n}{NA}\PYG{p}{)}
+        \PYG{n}{df\PYGZus{}symb\PYGZus{}isin} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}load\PYGZus{}comp\PYGZus{}isin\PYGZus{}df}\PYG{p}{()}
+        \PYG{n}{df\PYGZus{}merged} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{merge}\PYG{p}{(}\PYG{n}{df}\PYG{p}{,} \PYG{n}{df\PYGZus{}symb\PYGZus{}isin}\PYG{p}{[[}\PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}symbol\PYGZus{}raw\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}isin\PYGZsq{}}\PYG{p}{]],} \PYG{n}{on}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}symbol\PYGZus{}raw\PYGZsq{}}\PYG{p}{,} \PYG{n}{how}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}left\PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{df\PYGZus{}merged}\PYG{o}{.}\PYG{n}{fillna}\PYG{p}{(}\PYG{n}{value}\PYG{o}{=}\PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}comp\PYGZus{}isin\PYGZsq{}}\PYG{p}{:} \PYG{l+s+s1}{\PYGZsq{}isin\PYGZus{}not\PYGZus{}found\PYGZsq{}}\PYG{p}{\PYGZcb{},} \PYG{n}{inplace}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{df\PYGZus{}merged}
+
+    \PYG{k}{def} \PYG{n+nf}{get\PYGZus{}topics\PYGZus{}from\PYGZus{}gen\PYGZus{}llm}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{df}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{,} \PYG{n}{chunk\PYGZus{}size}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{30}\PYG{p}{,} \PYG{n}{df\PYGZus{}col\PYGZus{}name}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic\PYGZsq{}}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{:}
+        \PYG{k}{if} \PYG{l+s+s1}{\PYGZsq{}top\PYGZus{}sent\PYGZsq{}} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{df}\PYG{o}{.}\PYG{n}{columns}\PYG{p}{:}
+            \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}No \PYGZdq{}top\PYGZus{}sent\PYGZdq{} columns\PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{indexes} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n}{topics} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{k}{for} \PYG{n}{idx\PYGZus{}start} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{df}\PYG{o}{.}\PYG{n}{index}\PYG{p}{),} \PYG{n}{chunk\PYGZus{}size}\PYG{p}{):}
+            \PYG{n}{df\PYGZus{}chunk} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{iloc}\PYG{p}{[}\PYG{n}{idx\PYGZus{}start}\PYG{p}{:}\PYG{n}{idx\PYGZus{}start} \PYG{o}{+} \PYG{n}{chunk\PYGZus{}size}\PYG{p}{]}
+            \PYG{n}{frame} \PYG{o}{=} \PYG{n}{Frame}\PYG{o}{.}\PYG{n}{df\PYGZus{}to\PYGZus{}instance}\PYG{p}{(}\PYG{n}{df\PYGZus{}chunk}\PYG{p}{)}
+            \PYG{k}{try}\PYG{p}{:}
+                \PYG{n}{resp} \PYG{o}{=} \PYG{n}{requests}\PYG{o}{.}\PYG{n}{post}\PYG{p}{(}\PYG{n}{url}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{topic\PYGZus{}gen\PYGZus{}llm\PYGZus{}docker\PYGZus{}container\PYGZus{}url}\PYG{p}{,} \PYG{n}{json}\PYG{o}{=}\PYG{n}{frame}\PYG{o}{.}\PYG{n}{dict}\PYG{p}{(}\PYG{n}{exclude\PYGZus{}none}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{))}
+                \PYG{k}{if} \PYG{n}{resp}\PYG{o}{.}\PYG{n}{ok}\PYG{p}{:}
+                    \PYG{n}{indexes}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{(}\PYG{n}{resp}\PYG{o}{.}\PYG{n}{json}\PYG{p}{()[}\PYG{l+s+s1}{\PYGZsq{}indexes\PYGZsq{}}\PYG{p}{])}
+                    \PYG{n}{topics}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{(}\PYG{n}{resp}\PYG{o}{.}\PYG{n}{json}\PYG{p}{()[}\PYG{l+s+s1}{\PYGZsq{}topics\PYGZsq{}}\PYG{p}{])}
+                \PYG{k}{else}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Error occurred. Will try again... \PYGZsq{}}\PYG{p}{)}
+                    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{)}
+                    \PYG{n}{resp} \PYG{o}{=} \PYG{n}{requests}\PYG{o}{.}\PYG{n}{post}\PYG{p}{(}\PYG{n}{url}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{topic\PYGZus{}gen\PYGZus{}llm\PYGZus{}docker\PYGZus{}container\PYGZus{}url}\PYG{p}{,} \PYG{n}{json}\PYG{o}{=}\PYG{n}{frame}\PYG{o}{.}\PYG{n}{dict}\PYG{p}{(}\PYG{n}{exclude\PYGZus{}none}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{))}
+                    \PYG{k}{if} \PYG{n}{resp}\PYG{o}{.}\PYG{n}{ok}\PYG{p}{:}
+                        \PYG{n}{indexes}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{(}\PYG{n}{resp}\PYG{o}{.}\PYG{n}{json}\PYG{p}{()[}\PYG{l+s+s1}{\PYGZsq{}indexes\PYGZsq{}}\PYG{p}{])}
+                        \PYG{n}{topics}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{(}\PYG{n}{resp}\PYG{o}{.}\PYG{n}{json}\PYG{p}{()[}\PYG{l+s+s1}{\PYGZsq{}topics\PYGZsq{}}\PYG{p}{])}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Error occured the second time, could not be cured: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{resp}\PYG{o}{.}\PYG{n}{text}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+                        \PYG{n}{indexes}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{([}\PYG{n}{i} \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{idx\PYGZus{}start}\PYG{p}{,} \PYG{n}{idx\PYGZus{}start} \PYG{o}{+} \PYG{n}{chunk\PYGZus{}size}\PYG{p}{)])}
+                        \PYG{n}{topics}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}topic17\PYGZsq{}} \PYG{k}{for} \PYG{n}{\PYGZus{}} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{idx\PYGZus{}start}\PYG{p}{,} \PYG{n}{idx\PYGZus{}start} \PYG{o}{+} \PYG{n}{chunk\PYGZus{}size}\PYG{p}{)])}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}DEBUG INFO:\PYGZsq{}}\PYG{p}{,} \PYG{n}{topics}\PYG{p}{)}
+            \PYG{k}{except}\PYG{p}{:}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}Error occured: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{traceback}\PYG{o}{.}\PYG{n}{format\PYGZus{}exc}\PYG{p}{()}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{indexes}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{([}\PYG{n}{i} \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{idx\PYGZus{}start}\PYG{p}{,} \PYG{n}{idx\PYGZus{}start} \PYG{o}{+} \PYG{n}{chunk\PYGZus{}size}\PYG{p}{)])}
+                \PYG{n}{topics}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}topic17\PYGZsq{}} \PYG{k}{for} \PYG{n}{\PYGZus{}} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{idx\PYGZus{}start}\PYG{p}{,} \PYG{n}{idx\PYGZus{}start} \PYG{o}{+} \PYG{n}{chunk\PYGZus{}size}\PYG{p}{)])}
+
+            \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+        \PYG{n}{df}\PYG{p}{[}\PYG{n}{df\PYGZus{}col\PYGZus{}name}\PYG{p}{]} \PYG{o}{=} \PYG{n}{topics}
+        \PYG{k}{return} \PYG{n}{df}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{n}{data} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}indexes\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{],} \PYG{l+s+s1}{\PYGZsq{}top\PYGZus{}sent\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}Insgesamt machte das Unternehmen im Geschaeftsjahr 2022 23 ein operatives Minus von 1,04 Milliarden Pfund und riss damit auch das Ergebnis des Mutterkonzerns Comp@Name@Placeholder tief in die roten Zahlen.\PYGZsq{}}\PYG{p}{,} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{NA}\PYG{p}{]\PYGZcb{}}
+    \PYG{n}{df} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)}
+    \PYG{n}{p} \PYG{o}{=} \PYG{n}{Process}\PYG{p}{()}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{p}\PYG{o}{.}\PYG{n}{get\PYGZus{}topics\PYGZus{}from\PYGZus{}gen\PYGZus{}llm}\PYG{p}{(}\PYG{n}{df}\PYG{p}{))}
+
+
+\end{Verbatim}

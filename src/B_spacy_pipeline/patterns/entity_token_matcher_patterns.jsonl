@@ -1,0 +1,10 @@
+{"ABC arbitrage SA": [[{"TEXT": {"REGEX": "(?:\\bABC\\b)\\W*(?:\\barbitrage\\b)\\W*(?i:\\bSA\\b)?"}}]]}
+{"ABIONYX Pharma SA": [[{"TEXT": {"REGEX": "(?:\\bABIONYX|Abionyx\\b)\\W*(?i:\\bPharma\\b)?\\W*(?i:\\bSA\\b)?"}}]]}
+{"ABIVAX Societe Anonyme": [[{"TEXT": {"REGEX": "(?:\\bABIVAX|Abivax\\b)\\W*(?i:\\bSociete Anonyme\\b)?"}}]]}
+{"ABL Group ASA": [[{"TEXT": {"REGEX": "(?:\\bABL\\b)\\W*(?i:\\bGroup\\b)?\\W*(?i:\\bASA\\b)?"}}]]}
+{"ABN AMRO Bank N.V.": [[{"TEXT": {"REGEX": "(?:\\bABN\\b)\\W*(?i:\\bAMRO\\b)?\\W*(?i:\\bBank\\b)?\\W*(?i:\\bN.V.\\b)?"}}]]}
+{"ABO Wind AG": [[{"TEXT": {"REGEX": "(?:\\bABO\\b)\\W*(?i:\\bWind\\b)?\\W*(?i:\\bAG\\b)?"}}]]}
+{"ABOUT YOU Holding AG": [[{"TEXT": {"REGEX": "(?:\\bABOUT\\b)\\W*(?:\\bYOU\\b)\\W*(?i:\\bHolding\\b)?\\W*(?i:\\bAG\\b)?"}}]]}
+{"ACCENTRO Real Estate AG": [[{"TEXT": {"REGEX": "(?:\\bACCENTRO|Accentro\\b)\\W*(?:\\bReal\\b)?\\W*(?:\\bEstate\\b)?\\W*(?i:\\bAG\\b)?"}}]]}
+{"ACS Actividades de Construccion y Servicios S.A.": [[{"TEXT": {"REGEX": "(?:\\bACS\\b)\\W*(?:\\bActividades\\b)\\W*(?:\\bde\\b)\\W*(?:\\bConstruccion\\b)\\W*(?i:\\by\\b)?\\W*(?i:\\bServicios\\b)?\\W*(?i:\\bS.A.\\b)?"}}]]}
+{"ACTEOS S.A.": [[{"TEXT": {"REGEX": "(?:\\bACTEOS|Acteos\\b)\\W*(?i:\\bS.A.\\b)?"}}]]}

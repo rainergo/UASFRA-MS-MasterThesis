@@ -1,0 +1,41 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{p}{[}
+  \PYG{p}{\PYGZob{}}
+    \PYG{l+s+s2}{\PYGZdq{}entities\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}
+      \PYG{p}{\PYGZob{}}
+        \PYG{l+s+s2}{\PYGZdq{}comp\PYGZus{}name\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Hypoport SE\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}comp\PYGZus{}symbol\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}HYQ.DE\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}df\PYGZus{}index\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{12}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}start\PYGZus{}char\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{504}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}end\PYGZus{}char\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{515}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}ent\PYGZus{}text\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Hypoport\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}set\PYGZus{}in\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}own\PYGZus{}regex\PYGZus{}search\PYGZdq{}}
+      \PYG{p}{\PYGZcb{},}
+      \PYG{p}{\PYGZob{}}
+        \PYG{l+s+s2}{\PYGZdq{}comp\PYGZus{}name\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}JDC Group AG\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}comp\PYGZus{}symbol\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}JDC.DE\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}df\PYGZus{}index\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{12}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}start\PYGZus{}char\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{583}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}end\PYGZus{}char\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{595}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}ent\PYGZus{}text\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}JDC Group AG\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}set\PYGZus{}in\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}own\PYGZus{}regex\PYGZus{}search\PYGZdq{}}
+      \PYG{p}{\PYGZcb{}}
+    \PYG{p}{],}
+    \PYG{l+s+s2}{\PYGZdq{}sentence\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Digitalplattform\PYGZhy{}Experte Marcus Rex, der zuvor bei Hypoport SE die Versicherungsaktivitaeten leitete, verstaerkt den Vorstand der JDC Group AG als neuer CSO CMO.\PYGZdq{}}
+  \PYG{p}{\PYGZcb{},}
+  \PYG{p}{\PYGZob{}}
+    \PYG{l+s+s2}{\PYGZdq{}entities\PYGZdq{}}\PYG{p}{:} \PYG{p}{[}
+      \PYG{p}{\PYGZob{}}
+        \PYG{l+s+s2}{\PYGZdq{}comp\PYGZus{}name\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}JDC Group AG\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}comp\PYGZus{}symbol\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}JDC.DE\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}df\PYGZus{}index\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{12}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}start\PYGZus{}char\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{1627}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}end\PYGZus{}char\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{1650}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}ent\PYGZus{}text\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Technologieunternehmens\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}set\PYGZus{}in\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}llm\PYGZus{}coref\PYGZus{}resolve\PYGZdq{}}
+      \PYG{p}{\PYGZcb{}}
+    \PYG{p}{],}
+    \PYG{l+s+s2}{\PYGZdq{}sentence\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}Der Fokus des Technologieunternehmens liege zunaechst auf dem Ausbau des Vertriebs in Asien.\PYGZdq{}}
+  \PYG{p}{\PYGZcb{}}
+\PYG{p}{]}
+\end{Verbatim}

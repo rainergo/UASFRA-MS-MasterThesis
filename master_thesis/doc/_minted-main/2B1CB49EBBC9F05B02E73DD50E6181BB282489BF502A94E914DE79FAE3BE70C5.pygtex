@@ -1,0 +1,81 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{enum} \PYG{k+kn}{import} \PYG{n}{Enum}\PYG{p}{,} \PYG{n}{auto}
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Optional}
+\PYG{k+kn}{from} \PYG{n+nn}{typing\PYGZus{}extensions} \PYG{k+kn}{import} \PYG{n}{Self}
+
+\PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
+\PYG{k+kn}{from} \PYG{n+nn}{pydantic.v1} \PYG{k+kn}{import} \PYG{n}{BaseModel}\PYG{p}{,} \PYG{n}{Field} \PYG{c+c1}{\PYGZsh{} model\PYGZus{}validator}
+
+
+\PYG{k}{class} \PYG{n+nc}{TopicExplain}\PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{Enum}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} The Topic of the sentence. Topics can only be one of the following: \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{topic1} \PYG{o}{=} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Sätze mit konkreten Zahlenangaben aus Quartals\PYGZhy{} oder Jahresberichten. Die genannten Zahlen beziehen sich auf die Bilanz, den Umsatz\PYGZhy{} oder die Gewinn\PYGZhy{} und Verlustrechnung (GuV). \PYGZdq{}}
+              \PYG{l+s+s2}{\PYGZdq{}Beispiele dafür sind EBIT, EBITDA, Gewinn oder Verlust vor Steuern, Gewinn\PYGZhy{} oder Verlustmargen, der Umsatz, Veränderungen der Größen über einen Zeitraum, etc.\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{topic2} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Sätze mit allgemeinen Aussagen und Einschätzungen zu Unternehmensergebnissen, die Bilanzerung und den Umsatz. Dies sind Wertungen, oft von Verantwortlichen im Unternehmen, die keine konkreten Zahlen beinhalten. \PYGZdq{}}
+    \PYG{n}{topic3} \PYG{o}{=} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Sätze, die sich auf eine bevorstehende oder vergangene Hauptversammlung oder die Veröffentlichung von Unternehmensergebnissen beziehen, ohne dass dabei konkrete Zahlen genannt werden. \PYGZdq{}}
+              \PYG{l+s+s2}{\PYGZdq{}Beispiele dafür sind die Ankündigung einer Veröffentlichung von Quartals\PYGZhy{} oder Jahresberichten oder Informationen zu bzw. über eine Hauptversammlung.\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{topic4} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Zukunftsgerichteter Ausblick, Prognosen, Ziele, Strategie und Pläne der Unternehmensleitung.\PYGZdq{}}
+    \PYG{n}{topic5} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Sätze, die Kennzahlen zu Unternehmensergebnissen beinhalten, ohne dass dabei ganze Sätze gebildet werden oder die Zahlen beschrieben und erläutert werden. Beispiele dafür sind tabellenartige Angaben von Kennzahlenvariablen und deren Werte wie: \PYGZsq{}EBITDA EUR 23 Mio.\PYGZsq{}\PYGZdq{}}
+    \PYG{n}{topic6} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Sätze, in denen die Aktivitäten und das Profil des Unternehmens dargestellt wird. Oft dienen die Sätze der positiven Selbstdarstellung seitens des Managements, dem Brand\PYGZhy{}Marketing oder einer allgemeinen Unternehmensbeschreibung.\PYGZdq{}}
+    \PYG{n}{topic7} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Stimmrechte, Kapitalveränderungen, Dividenden, Finanzierung, Listing an Börsen, Marktkapitalisierung.\PYGZdq{}}
+    \PYG{n}{topic8} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Sätze, in denen das vom Unternehmen angebotene Produkt, eine Produktentwicklung oder ein neue Neuerung im Hinblick auf ein Produkt des Unternehmens beschrieben wird.\PYGZdq{}}
+    \PYG{n}{topic9} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Sätze, in denen die Herstellung des Produkts, der Produkt\PYGZhy{}Forschung, die Exploration vn Bodenschätzen, Produkt\PYGZhy{} oder Medikamenten\PYGZhy{}Zulassungen, dem Finden neuer Resourcen oder anderen dem Herstellungsprozess nahen Themen geht.\PYGZdq{}}
+    \PYG{n}{topic10} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Konzernumbau, wichtige organisatorische Veränderungen, Restrukturierung, Werksstilllegung, strategische Partnerschaften, Übernahmen\PYGZdq{}}
+    \PYG{n}{topic11} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Personalveränderungen im Vorstand, Aufsichtsrat, Betriebsrat oder anderer Organe im Unternehmen, Personal, Gewerkschaftem, Streiks\PYGZdq{}}
+    \PYG{n}{topic12} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Kunden, Marktanteile, Absatzmärkte, Umsätze, Absatzpreise\PYGZdq{}}
+    \PYG{n}{topic13} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Einflüsse von Aussen auf die Erfolgsaussichten von Unternehmen etwa durch Subventionen, Staatliche Eingriffe, Umbrüche im Markt, politische Veränderungen, Umwelteinflüsse, etc.\PYGZdq{}}
+    \PYG{n}{topic14} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Einschätzungen Unternehmensfremder/Analysten zu einem Unternehmen\PYGZdq{}}
+    \PYG{n}{topic15} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Unfälle, Gewalt, Katastrophen\PYGZdq{}}
+    \PYG{n}{topic16} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Unvollständige Sätze mit einzelnen, nicht\PYGZhy{}zusammenhängenen Worten, ohne Kontext, die wahrscheinlich falsch formattiert oder im vorangehenden Text\PYGZhy{}Reinigungsprozess falsch gesplittet wurden. \PYGZdq{}}
+    \PYG{n}{topic17} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}Alle anderen topics, die den oben genannten 16 topics nicht zugeordnet werden können.\PYGZdq{}}
+
+
+\PYG{k}{class} \PYG{n+nc}{Topic}\PYG{p}{(}\PYG{n}{Enum}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} The Topic of the sentence. Topics can only be one of the following: \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{topic1} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic1\PYGZsq{}}
+    \PYG{n}{topic2} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic2\PYGZsq{}}
+    \PYG{n}{topic3} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic3\PYGZsq{}}
+    \PYG{n}{topic4} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic4\PYGZsq{}}
+    \PYG{n}{topic5} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic5\PYGZsq{}}
+    \PYG{n}{topic6} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic6\PYGZsq{}}
+    \PYG{n}{topic7} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic7\PYGZsq{}}
+    \PYG{n}{topic8} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic8\PYGZsq{}}
+    \PYG{n}{topic9} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic9\PYGZsq{}}
+    \PYG{n}{topic10} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic10\PYGZsq{}}
+    \PYG{n}{topic11} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic11\PYGZsq{}}
+    \PYG{n}{topic12} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic12\PYGZsq{}}
+    \PYG{n}{topic13} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic13\PYGZsq{}}
+    \PYG{n}{topic14} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic14\PYGZsq{}}
+    \PYG{n}{topic15} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic15\PYGZsq{}}
+    \PYG{n}{topic16} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic16\PYGZsq{}}
+    \PYG{n}{topic17} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}topic17\PYGZsq{}}
+
+
+\PYG{k}{class} \PYG{n+nc}{Frame}\PYG{p}{(}\PYG{n}{BaseModel}\PYG{p}{):}
+    \PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} DataFrame that contains the index of the DataFrame and the column \PYGZdq{}top\PYGZus{}sent\PYGZdq{} which contains the sentences for which a topic shall be determined. \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{n}{indexes}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}The indexes of the rows in the pandas DataFrame\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{sentences}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}List of sentences each for which the Topic shall be determined.\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{topics}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n}{Topic}\PYG{p}{]} \PYG{o}{=} \PYG{n}{Field}\PYG{p}{(}\PYG{n}{default}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n}{description}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}List of Topic enums for each sentence in \PYGZdq{}sentences\PYGZdq{}. List must be of same length as \PYGZdq{}sentences\PYGZdq{} list.\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} @model\PYGZus{}validator(mode=\PYGZsq{}after\PYGZsq{})}
+    \PYG{c+c1}{\PYGZsh{} def verify\PYGZus{}same\PYGZus{}len(self) \PYGZhy{}\PYGZgt{} Self:}
+    \PYG{c+c1}{\PYGZsh{}     if self.topics is None:}
+    \PYG{c+c1}{\PYGZsh{}         if len(self.indexes) != len(self.sentences):}
+    \PYG{c+c1}{\PYGZsh{}             raise ValueError(f\PYGZsq{}\PYGZdq{}indexes\PYGZdq{} (len: \PYGZob{}len(self.indexes)\PYGZcb{}) and \PYGZdq{}sentences\PYGZdq{} (len: \PYGZob{}len(self.sentences)\PYGZcb{}) must have the same length\PYGZsq{})}
+    \PYG{c+c1}{\PYGZsh{}     else:}
+    \PYG{c+c1}{\PYGZsh{}         if len(self.indexes) != len(self.topics):}
+    \PYG{c+c1}{\PYGZsh{}             raise ValueError(f\PYGZsq{}\PYGZdq{}indexes\PYGZdq{} (len: \PYGZob{}len(self.indexes)\PYGZcb{}) and \PYGZdq{}topics\PYGZdq{} (len: \PYGZob{}len(self.topics)\PYGZcb{}) must have the same length\PYGZsq{})}
+    \PYG{c+c1}{\PYGZsh{}     return Self}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def} \PYG{n+nf}{df\PYGZus{}to\PYGZus{}instance}\PYG{p}{(}\PYG{n}{df}\PYG{p}{:} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{):}
+        \PYG{n}{indexes} \PYG{o}{=} \PYG{n}{df}\PYG{o}{.}\PYG{n}{index}\PYG{o}{.}\PYG{n}{tolist}\PYG{p}{()}
+        \PYG{n}{sentences} \PYG{o}{=} \PYG{p}{[}\PYG{n}{item} \PYG{k}{if} \PYG{n+nb}{isinstance}\PYG{p}{(}\PYG{n}{item}\PYG{p}{,} \PYG{n+nb}{str}\PYG{p}{)} \PYG{k}{else} \PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{item}\PYG{p}{)} \PYG{k}{for} \PYG{n}{item} \PYG{o+ow}{in} \PYG{n}{df}\PYG{o}{.}\PYG{n}{top\PYGZus{}sent}\PYG{o}{.}\PYG{n}{tolist}\PYG{p}{()]}
+        \PYG{k}{return} \PYG{n}{Frame}\PYG{p}{(}\PYG{n}{indexes}\PYG{o}{=}\PYG{n}{indexes}\PYG{p}{,} \PYG{n}{sentences}\PYG{o}{=}\PYG{n}{sentences}\PYG{p}{)}
+
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{n}{frame} \PYG{o}{=} \PYG{n}{Frame}\PYG{p}{(}\PYG{n}{indexes}\PYG{o}{=}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{],} \PYG{n}{sentences}\PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}bal\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}balla\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}bababb\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}nanan\PYGZsq{}}\PYG{p}{])}
+    \PYG{c+c1}{\PYGZsh{} frame = Frame(indexes=[0, 1, 2, 3], topics=[\PYGZsq{}topic1\PYGZsq{}, \PYGZsq{}topic2\PYGZsq{}, \PYGZsq{}topic3\PYGZsq{}, \PYGZsq{}topic4\PYGZsq{}])}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{)}
+\end{Verbatim}

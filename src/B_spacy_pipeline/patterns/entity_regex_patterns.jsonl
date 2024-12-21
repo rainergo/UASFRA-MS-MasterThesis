@@ -1,0 +1,10 @@
+{"comp_name": "ABC arbitrage SA", "REGEX": "(?P<SYMB_ABCA_DOT_PA>(?:(?<=\\s)|(?<=^))(?:(?:\\bABC\\b)\\s*(?:\\barbitrage\\b)\\s*(?i:\\bSA\\b)?)(?=\\s))"}
+{"comp_name": "ABIONYX Pharma SA", "REGEX": "(?P<SYMB_ABNX_DOT_PA>(?:(?<=\\s)|(?<=^))(?:(?:\\bABIONYX|Abionyx\\b)\\s*(?i:\\bPharma\\b)?\\s*(?i:\\bSA\\b)?)(?=\\s))"}
+{"comp_name": "ABIVAX Societe Anonyme", "REGEX": "(?P<SYMB_ABVX_DOT_PA>(?:(?<=\\s)|(?<=^))(?:(?:\\bABIVAX|Abivax\\b)\\s*(?i:\\bSociete Anonyme\\b)?)(?=\\s))"}
+{"comp_name": "ABL Group ASA", "REGEX": "(?P<SYMB_ABL_DOT_OL>(?:(?<=\\s)|(?<=^))(?:(?:\\bABL\\b)\\s*(?i:\\bGroup\\b)\\s*(?i:\\bASA\\b)?)(?=\\s))"}
+{"comp_name": "ABN AMRO Bank N.V.", "REGEX": "(?P<SYMB_ABN_DOT_AS>(?:(?<=\\s)|(?<=^))(?:(?:\\bABN\\b)\\s*(?:\\bAMRO\\b)\\s*(?:\\bBank\\b)\\s*(?i:\\bN.V.\\b)?)(?=\\s))"}
+{"comp_name": "ABO Wind AG", "REGEX": "(?P<SYMB_AB9_DOT_DE>(?:(?<=\\s)|(?<=^))(?:(?:\\bABO\\b)\\s*(?i:\\bWind\\b)\\s*(?i:\\bAG\\b)?)(?=\\s))"}
+{"comp_name": "ABOUT YOU Holding AG", "REGEX": "(?P<SYMB_YOU_DOT_DE>(?:(?<=\\s)|(?<=^))(?:(?:\\bABOUT\\b)\\s*(?:\\bYOU\\b)\\s*(?i:\\bHolding\\b)?\\s*(?i:\\bAG\\b)?)(?=\\s))"}
+{"comp_name": "ACCENTRO Real Estate AG", "REGEX": "(?P<SYMB_A4Y_DOT_DE>(?:(?<=\\s)|(?<=^))(?:(?:\\bACCENTRO|Accentro\\b)\\s*(?:\\bReal\\b)?\\s*(?:\\bEstate\\b)?\\s*(?i:\\bAG\\b)?)(?=\\s))"}
+{"comp_name": "ACS Actividades de Construccion y Servicios S.A.", "REGEX": "(?P<SYMB_ACS_DOT_MC>(?:(?<=\\s)|(?<=^))(?:(?:\\bACS\\b)\\s*(?:\\bActividades\\b)\\s*(?:\\bde\\b)\\s*(?:\\bConstruccion\\b)\\s*(?i:\\by\\b)?\\s*(?i:\\bServicios\\b)?\\s*(?i:\\bS.A.\\b)?)(?=\\s))"}
+{"comp_name": "ACTEOS S.A.", "REGEX": "(?P<SYMB_EOS_DOT_PA>(?:(?<=\\s)|(?<=^))(?:(?:\\bACTEOS|Acteos\\b)\\s*(?i:\\bS.A.\\b)?)(?=\\s))"}
